@@ -1,0 +1,22 @@
+# ==========================================================================
+#  File che NON devono MAI finire su GitHub.
+#  Ogni regola vale in QUALSIASI cartella del progetto (terzo-anno/,
+#  quinto-anno/, sottocartelle future...).
+# ==========================================================================
+
+# --- Capitoli dei libri di testo --------------------------------------------
+# Servono solo per scrivere le dispense: sono coperti da diritto d'autore.
+# La forma [pP][dD][fF] copre anche .PDF, .Pdf ecc.
+*.[pP][dD][fF]
+
+# --- Istruzioni per Claude --------------------------------------------------
+# Restano sul computer, non vengono pubblicate.
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+
+# --- Editor e sistema -------------------------------------------------------
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

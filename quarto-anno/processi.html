@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il modello a processi · TPSsssIT</title>
+<meta name="description" content="Che cos'è un processo, come passa fra i suoi stati, come nasce e termina con fork/exit/wait e che cosa contiene il PCB, con un simulatore del ciclo di vita.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- stili locali: simulatore del ciclo di vita di un processo --- */
+  .lc-legend { display:flex; flex-wrap:wrap; gap:.45rem 1rem; margin-bottom:1.1rem; }
+  .lc-legend span { display:inline-flex; align-items:center; gap:.4rem; font-size:.8rem; color:var(--text-soft); }
+  .lc-legend i { width:12px; height:12px; border-radius:3px; display:block; }
+
+  .lc-row { display:flex; align-items:flex-start; gap:.7rem; flex-wrap:wrap; margin-top:.9rem; }
+  .lc-row .lbl {
+    font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+    min-width:170px; padding-top:.4rem;
+  }
+  .lc-bag { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; flex:1; min-height:2rem; }
+
+  .pchip {
+    padding:.3rem .7rem; border-radius:8px;
+    font-family:var(--font-mono); font-size:.8rem; font-weight:700;
+    color:#08172A; animation:popin .25s var(--ease);
+  }
+  .pchip.ghost { background:transparent; border:1px dashed var(--border); color:var(--muted); font-weight:400; }
+  .pchip .rem { font-weight:400; opacity:.85; margin-left:.4rem; }
+  @keyframes popin { from { transform:scale(.7); opacity:0 } to { transform:none; opacity:1 } }
+
+  .lc-bar { height:8px; width:170px; max-width:45vw; border-radius:5px; background:var(--border-soft); overflow:hidden; }
+  .lc-bar i { display:block; height:100%; background:var(--gold); transition:width .2s linear; }
+
+  /* --- diagramma degli stati --- */
+  .state-svg { width:100%; height:auto; }
+  .state-svg text { font-family:var(--font-sans); }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Il modello a processi</li>
+    </ul>
+    <h1>Il modello a processi</h1>
+    <p class="lead">
+      In questo momento il tuo computer sta eseguendo decine di programmi «insieme»: browser, editor,
+      antivirus, servizi di sistema. Ma il processore è uno solo — o comunque molti meno dei programmi
+      aperti. Il modello a processi è l'idea che rende possibile questa illusione, ed è il punto di
+      partenza di tutta la programmazione concorrente.
+    </p>
+    <div class="stats-row">
+      <span class="stat-pill">Argomento <b>1</b></span>
+      <span class="stat-pill">Lettura <b>16</b> min</span>
+      <span class="stat-pill">Con <b>simulatore</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+      <h2>Dal programma al processo</h2>
+      <p>
+        Un <strong>programma</strong> è un file sul disco: un elenco di istruzioni, un'entità
+        <em>passiva</em> che di per sé non fa nulla. Quando l'utente ne chiede l'esecuzione, il
+        sistema operativo lo carica in memoria e lo affida alla CPU: da quel momento il programma
+        diventa un'entità <em>attiva</em> che evolve istruzione dopo istruzione. Questa entità in
+        evoluzione è il <strong>processo</strong>.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Processo</b>
+          Un processo è un'entità logica (un programma) <em>in evoluzione</em>. Lo stesso programma
+          può dare origine a più processi distinti, che evolvono ciascuno per conto proprio.
+        </p>
+      </div>
+
+      <p>Istante per istante un processo è caratterizzato da:</p>
+      <ul>
+        <li>il <strong>codice</strong> del programma in esecuzione;</li>
+        <li>i <strong>dati</strong>, cioè le variabili globali che usa durante l'evoluzione;</li>
+        <li>il <strong>program counter</strong>, che contiene l'indirizzo della prossima istruzione da eseguire;</li>
+        <li>il contenuto di alcuni <strong>registri</strong> della CPU;</li>
+        <li>lo <strong>stack</strong>.</li>
+      </ul>
+      <p>
+        Oltre a questo, il sistema operativo associa al processo altre risorse: i file che ha
+        aperto, le connessioni di rete (porte, socket), i dispositivi di I/O che sta usando.
+      </p>
+
+      <h3>Parte statica e parte dinamica</h3>
+      <p>
+        In memoria un processo occupa due zone di natura diversa. La <strong>parte statica</strong>
+        ha dimensione nota già alla compilazione: contiene l'<em>area codice</em> (le istruzioni) e
+        l'<em>area dati globali</em>. La <strong>parte dinamica</strong> cresce e si restringe
+        durante l'esecuzione: è formata dallo <strong>stack</strong> (record di attivazione delle
+        funzioni, variabili locali, parametri, indirizzi di ritorno) e dallo <strong>heap</strong>
+        (la memoria chiesta esplicitamente a tempo di esecuzione, per esempio con <code>malloc</code>).
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">C</span></div>
+        <pre><code><span class="tok-com">// area codice: le istruzioni di swap e di main -> parte STATICA</span>
+<span class="tok-key">void</span> <span class="tok-fn">swap</span>(<span class="tok-key">int</span> *n1, <span class="tok-key">int</span> *n2) {
+    <span class="tok-key">int</span> *tmp = (<span class="tok-key">int</span> *) <span class="tok-fn">malloc</span>(<span class="tok-key">sizeof</span>(<span class="tok-key">int</span>));  <span class="tok-com">// blocco allocato sull'HEAP -> parte dinamica</span>
+    *tmp = *n1;
+    *n1  = *n2;
+    *n2  = *tmp;
+}
+
+<span class="tok-key">int</span> <span class="tok-fn">main</span>(<span class="tok-key">void</span>) {
+    <span class="tok-key">int</span> a, b;          <span class="tok-com">// variabili locali -> STACK, parte dinamica</span>
+    a = <span class="tok-num">1</span>; b = <span class="tok-num">2</span>;
+    <span class="tok-fn">printf</span>(<span class="tok-str">"a : %d  b : %d\n"</span>, a, b);
+    <span class="tok-fn">swap</span>(&amp;a, &amp;b);
+    <span class="tok-fn">printf</span>(<span class="tok-str">"a : %d  b : %d\n"</span>, a, b);
+}</code></pre>
+      </div>
+
+      <h2>Multiprogrammazione: un processore, tanti processi</h2>
+      <p>
+        Nel modello a processi <em>tutto</em> il software eseguibile su un calcolatore — sistema
+        operativo compreso — è organizzato in un certo numero di processi sequenziali. Un unico
+        processore viene condiviso tra molti processi grazie a un <strong>algoritmo di scheduling</strong>,
+        che decide quando interrompere l'evoluzione di un processo per servirne un altro. Questa
+        tecnica di gestione della CPU si chiama <strong>multiprogrammazione</strong> e richiede la
+        presenza contemporanea di più programmi in memoria.
+      </p>
+      <p>
+        Perché conviene? Perché l'esecuzione di un processo alterna <strong>fasi di elaborazione</strong>
+        (la CPU lavora) e <strong>fasi di attesa</strong> (operazioni di I/O, caricamento dati,
+        dialogo con le periferiche) durante le quali la CPU resterebbe inattiva. Mentre un processo
+        aspetta il disco, la multiprogrammazione manda in esecuzione un altro processo: i tempi
+        morti si riducono al minimo e la potenza di calcolo viene sfruttata a fondo.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📈</span>
+        <p>
+          <b>Throughput</b>
+          È la <em>produttività</em> di un sistema: il numero di richieste (o di processi) che
+          riesce a portare a termine nell'unità di tempo. Aumentare il parallelismo e ridurre i
+          tempi morti serve proprio ad alzare il throughput.
+        </p>
+      </div>
+
+      <h2>Processi indipendenti, cooperanti, in competizione</h2>
+      <p>
+        Due processi in esecuzione possono ignorarsi del tutto oppure interagire. Se sono
+        <strong>indipendenti</strong>, ciascuno evolve da solo senza scambiare dati con gli altri.
+        Altrimenti interagiscono, e l'interazione può essere voluta (cooperazione) o subìta
+        (competizione).
+      </p>
+
+      <h3>Cooperazione</h3>
+      <p>
+        Due o più processi <strong>cooperano</strong> quando, per poter evolvere, hanno bisogno di
+        scambiarsi informazioni. Per scambiarsi informazioni in modo corretto devono
+        <strong>sincronizzarsi</strong>: è il tema centrale di tutto il resto del corso.
+      </p>
+      <blockquote>
+        Si pensi a un videogioco con due o più giocatori, dove ogni giocatore è un processo: i
+        processi devono coordinarsi per comunicare e scambiarsi le informazioni di gioco.
+      </blockquote>
+      <p>Avere processi che cooperano è utile per ottenere:</p>
+      <ul>
+        <li><strong>parallelizzazione</strong> dell'esecuzione (per esempio su macchine multi-CPU);</li>
+        <li><strong>replicazione</strong> di un servizio (per esempio più connessioni di rete servite in parallelo);</li>
+        <li><strong>modularità</strong>: funzioni diverse di una stessa applicazione affidate a processi diversi — come il correttore ortografico di Word, che lavora mentre noi continuiamo a scrivere;</li>
+        <li><strong>condivisione</strong> delle informazioni.</li>
+      </ul>
+
+      <h3>Competizione</h3>
+      <p>
+        C'è anche una forma di interazione <em>indesiderata</em>: due processi che si ostacolano a
+        vicenda perché <strong>competono per la stessa risorsa</strong>, magari disponibile in
+        quantità limitata. La competizione può portare uno o entrambi i processi a un
+        <strong>blocco individuale o critico</strong>.
+      </p>
+      <p>
+        L'esempio più semplice è lo scheduling stesso: tutti i processi competono per la CPU.
+        Un'altra risorsa sempre condivisa è la stampante, per la quale i processi devono mettersi
+        in coda.
+      </p>
+
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p>
+          <b>Le due definizioni da sapere</b>
+          Un processo è <strong>cooperante</strong> se influenza o può essere influenzato da altri
+          processi, producendo o utilizzando dati in condivisione con essi.
+          Due processi sono <strong>in competizione</strong> se possono evolvere indipendentemente
+          ma entrano in conflitto sulla ripartizione delle risorse.
+        </p>
+      </div>
+
+      <h2>Il ciclo di vita di un processo</h2>
+      <p>
+        Un programma diventa processo quando il processore inizia a eseguirlo, e termina
+        l'esecuzione per una di queste cause:
+      </p>
+      <ul>
+        <li>esegue un'istruzione macchina di terminazione (fine naturale);</li>
+        <li>compie un'operazione illecita (per esempio accede alla memoria privata di un altro processo);</li>
+        <li>si verifica un errore che gli impedisce di proseguire (per esempio un overflow).</li>
+      </ul>
+      <p>
+        Dall'avvio alla terminazione — il suo <strong>ciclo di vita</strong> — il processo attraversa
+        un insieme di situazioni, dette <strong>stati</strong>, che descrivono la sua posizione
+        rispetto alla CPU.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Stato</th><th>Nome inglese</th><th>Significato</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Nuovo</strong></td><td>new / init</td><td>Il processo è appena stato creato: l'utente ha chiesto l'esecuzione di un programma che risiede sul disco.</td></tr>
+            <tr><td><strong>Pronto</strong></td><td>ready-to-run</td><td>Ha tutte le risorse che gli servono tranne la CPU: aspetta che gli venga assegnato il suo <em>time-slice</em>.</td></tr>
+            <tr><td><strong>In esecuzione</strong></td><td>running</td><td>La CPU sta eseguendo le sue istruzioni. Su un monoprocessore un solo processo può trovarsi in questo stato.</td></tr>
+            <tr><td><strong>Attesa</strong> (o sospensione)</td><td>waiting / blocked</td><td>Gli manca una risorsa diversa dalla CPU e aspetta che si verifichi un evento (per esempio che la risorsa si liberi).</td></tr>
+            <tr><td><strong>Finito</strong></td><td>terminated</td><td>Tutto il codice è stato eseguito; il sistema operativo deve rilasciare le risorse che il processo utilizzava.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Stato di un processo</b>
+          È una tra le cinque situazioni possibili. Gli stati <strong>nuovo</strong> e
+          <strong>terminato</strong> si assumono una sola volta; gli stati <strong>running</strong>,
+          <strong>waiting</strong> e <strong>ready-to-run</strong> possono ripetersi molte volte
+          durante la vita del processo.
+        </p>
+      </div>
+
+      <h3>Il diagramma degli stati</h3>
+      <p>
+        I passaggi fra gli stati si rappresentano con un grafo orientato. Al nuovo processo viene
+        assegnato un identificatore, il <strong>PID</strong> (<em>Process IDentifier</em>), e viene
+        inserito nella <strong>Ready List (RL)</strong>, l'elenco dei processi pronti in attesa del
+        loro turno di CPU. I processi sospesi formano invece la <strong>Waiting List (WL)</strong>.
+      </p>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">Diagramma degli stati di un processo</div>
+          <div class="demo-stage">
+            <svg class="state-svg" viewBox="0 0 680 300" role="img"
+                 aria-label="Diagramma degli stati: Nuovo passa a Pronto per ammissione; Pronto va In esecuzione con l'assegnazione della CPU; In esecuzione torna a Pronto per fine time-slice, passa a Sospeso per una richiesta di I/O, oppure a Finito con exit; Sospeso torna a Pronto quando l'evento atteso si verifica.">
+              <defs>
+                <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+                  <path d="M0 0l7 3.2L0 6.4z" fill="var(--gold)"/>
+                </marker>
+              </defs>
+
+              <!-- Nuovo -->
+              <rect x="24" y="120" width="112" height="52" rx="12" fill="var(--surface-2)" stroke="var(--border-soft)"/>
+              <text x="80" y="151" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="600">Nuovo</text>
+
+              <!-- Pronto -->
+              <rect x="212" y="120" width="132" height="52" rx="12" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+              <text x="278" y="145" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="600">Pronto</text>
+              <text x="278" y="161" text-anchor="middle" fill="var(--muted)" font-size="10">Ready List</text>
+
+              <!-- In esecuzione -->
+              <rect x="420" y="120" width="156" height="52" rx="12"
+                    fill="color-mix(in srgb, var(--brand-mag) 22%, transparent)" stroke="var(--border-strong)"/>
+              <text x="498" y="151" text-anchor="middle" fill="var(--gold)" font-size="13" font-weight="700">In esecuzione</text>
+
+              <!-- Finito -->
+              <rect x="588" y="26" width="80" height="48" rx="12" fill="var(--surface-2)" stroke="var(--border-soft)"/>
+              <text x="628" y="55" text-anchor="middle" fill="var(--text)" font-size="12.5" font-weight="600">Finito</text>
+
+              <!-- Sospeso -->
+              <rect x="300" y="230" width="156" height="50" rx="12" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+              <text x="378" y="252" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="600">Sospeso</text>
+              <text x="378" y="268" text-anchor="middle" fill="var(--muted)" font-size="10">Waiting List</text>
+
+              <g stroke="var(--gold)" stroke-width="1.8" fill="none" marker-end="url(#arr)">
+                <!-- Nuovo -> Pronto -->
+                <path d="M136 146 H206"/>
+                <!-- Pronto -> In esecuzione (sopra) -->
+                <path d="M344 141 H414"/>
+                <!-- In esecuzione -> Pronto (sotto) -->
+                <path d="M414 155 H350"/>
+                <!-- In esecuzione -> Finito -->
+                <path d="M540 120 C 560 96, 590 78, 612 76"/>
+                <!-- In esecuzione -> Sospeso -->
+                <path d="M470 172 C 452 198, 430 214, 418 226"/>
+                <!-- Sospeso -> Pronto -->
+                <path d="M312 230 C 276 206, 262 196, 268 176"/>
+              </g>
+
+              <g fill="var(--text-soft)" font-size="10.5" text-anchor="middle">
+                <text x="171" y="136">ammissione</text>
+                <text x="379" y="122">assegna CPU</text>
+                <text x="381" y="187">fine time-slice</text>
+                <text x="601" y="110">exit</text>
+                <text x="489" y="214">richiesta di I/O</text>
+                <text x="226" y="212">evento / risorsa</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <figcaption>
+          Nuovo e Finito si attraversano una sola volta. Il triangolo Pronto – In esecuzione –
+          Sospeso è dove il processo gira per gran parte della sua vita.
+        </figcaption>
+      </figure>
+
+      <p>Dallo stato di esecuzione un processo esce per tre motivi:</p>
+      <ul>
+        <li><strong>termina</strong> (esaurisce il codice): esegue <code>exit</code> e passa a <em>finito</em>;</li>
+        <li><strong>scade il suo quanto di tempo</strong>: torna nella Ready List, nello stato di <em>pronto</em>;</li>
+        <li><strong>gli serve una risorsa non disponibile</strong>: si sospende (<code>suspend</code>) e passa nella Waiting List, nello stato di <em>attesa</em>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p>
+          <b>Errore tipico all'interrogazione</b>
+          Dallo stato di <em>sospeso</em> non si torna direttamente in <em>esecuzione</em>. Quando
+          la risorsa attesa si libera, il processo viene spostato dalla WL alla <strong>RL</strong>:
+          diventa <em>pronto</em>, e solo quando lo scheduler gli assegnerà di nuovo la CPU potrà
+          eseguire. «Sospeso» (o <em>blocked</em>) significa proprio questo: non ottiene la CPU
+          nemmeno se è libera, perché sta aspettando un evento esterno.
+        </p>
+      </div>
+
+      <h3>Padre e figlio</h3>
+      <p>
+        Ogni processo è creato da un altro processo, detto <strong>padre</strong>; il nuovo
+        processo è il <strong>figlio</strong>. L'unica eccezione è il processo <code>init</code>, il
+        primo a essere avviato dal sistema operativo, che non ha padre. Da <code>init</code>
+        discende, per generazioni successive, l'intero albero dei processi del sistema.
+      </p>
+
+      <h2>La sospensione: interrupt software e hardware</h2>
+      <p>
+        Il passaggio da <em>esecuzione</em> a un altro stato è quasi sempre provocato da un
+        <strong>interrupt</strong>, cioè da un segnale che interrompe il flusso normale della CPU.
+        Se ne distinguono due tipi.
+      </p>
+      <p>
+        L'<strong>interrupt software</strong> è quello con cui lo schedulatore blocca un processo
+        che ha esaurito il suo <em>time-slice</em> e manda in esecuzione il successivo. Al suo
+        verificarsi il sistema operativo esegue le operazioni di <strong>context switching</strong>.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🔁</span>
+        <p>
+          <b>Context switching</b>
+          È l'insieme delle azioni di <em>salvataggio</em> e <em>ripristino</em> dei dati di un
+          processo (program counter, registri, mappa di memoria…) eseguite a causa di un interrupt,
+          in modo che il processo possa più tardi ripartire esattamente da dove era stato fermato.
+        </p>
+      </div>
+
+      <p>
+        L'<strong>interrupt hardware</strong> (o esterno) nasce invece da un dispositivo di I/O e
+        <em>prevale</em> sulla sospensione dovuta allo scadere del time-slice. Gli interrupt
+        hardware sono organizzati in classi; a ciascuna è associata una locazione di memoria,
+        spesso vicina alla parte bassa, chiamata <strong>interrupt vector</strong>, che contiene
+        l'indirizzo della procedura di gestione dell'interruzione.
+      </p>
+      <p>
+        Quando arriva un'interruzione mentre è in esecuzione il processo <code>xxx</code>,
+        l'hardware dedicato mette sullo stack corrente il program counter di <code>xxx</code>, la
+        parola di stato del programma (PSW) e la maschera delle interruzioni (a volte anche uno o
+        più registri); poi la CPU salta all'indirizzo indicato nell'interrupt vector, che completa
+        il salvataggio dello stato prima di eseguire la routine di risposta. Terminata la gestione
+        dell'interrupt — interno o esterno — viene richiamato lo <strong>scheduler</strong> per
+        scegliere il prossimo processo da eseguire, e un piccolo programma in assembler carica i
+        registri e la mappa di memoria del nuovo processo corrente.
+      </p>
+
+      <h2>Creare, terminare e attendere i processi</h2>
+      <p>
+        Nei sistemi operativi della famiglia <strong>*NIX-like</strong> (UNIX, XENIX e i sistemi a
+        loro «somiglianti») un processo si crea con la funzione <code>fork()</code>.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">C — *NIX</span></div>
+        <pre><code>pid <span class="tok-fn">fork</span>(<span class="tok-key">void</span>);          <span class="tok-com">// crea un nuovo processo</span>
+pid <span class="tok-fn">wait</span>(<span class="tok-key">int</span> *status);   <span class="tok-com">// il padre attende la fine di un figlio</span>
+    <span class="tok-fn">exit</span>(<span class="tok-key">int</span> stato);      <span class="tok-com">// termina il processo corrente</span></code></pre>
+      </div>
+
+      <p>All'atto della chiamata di <code>fork()</code>:</p>
+      <ul>
+        <li>viene generato un nuovo <strong>PID</strong> per il figlio e un nuovo descrittore di processo (PCB);</li>
+        <li>il segmento dati del padre viene <strong>copiato</strong> nella memoria del figlio: si ottengono due copie identiche, perché il figlio è un <em>clone</em> del padre;</li>
+        <li>il codice è condiviso a partire dall'istruzione di <code>fork()</code>: da lì in poi i due processi evolvono in parallelo eseguendo lo stesso codice.</li>
+      </ul>
+      <p>
+        L'<strong>unica differenza</strong> fra padre e figlio è il valore restituito da
+        <code>fork()</code>: al <strong>padre</strong> viene restituito il PID del figlio appena
+        creato, al <strong>figlio</strong> viene restituito <code>0</code>. È su questo valore che
+        il programma decide «quale dei due sono».
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">C</span></div>
+        <pre><code>pid_t pid = <span class="tok-fn">fork</span>();
+
+<span class="tok-key">if</span> (pid &gt; <span class="tok-num">0</span>) {
+    <span class="tok-com">// sono il PADRE: pid contiene il PID del figlio</span>
+    <span class="tok-key">int</span> status;
+    <span class="tok-fn">wait</span>(&amp;status);                  <span class="tok-com">// mi sospendo finche' il figlio termina</span>
+} <span class="tok-key">else if</span> (pid == <span class="tok-num">0</span>) {
+    <span class="tok-com">// sono il FIGLIO</span>
+    <span class="tok-com">// ... svolgo il mio compito ...</span>
+    <span class="tok-fn">exit</span>(<span class="tok-num">0</span>);                      <span class="tok-com">// stato di uscita = 0</span>
+} <span class="tok-key">else</span> {
+    <span class="tok-com">// fork() ha restituito un valore negativo: creazione fallita</span>
+}</code></pre>
+      </div>
+
+      <p>
+        Alla chiamata di <code>exit()</code> il sistema operativo chiude i file aperti dal processo,
+        ne rilascia la memoria e salva il valore dell'<strong>exit status</strong> nel descrittore,
+        così che il padre possa recuperarlo con <code>wait()</code>. Il PID del figlio
+        <em>non</em> viene rilasciato e il descrittore <em>non</em> viene distrutto subito: al padre
+        viene segnalata la terminazione di un figlio.
+      </p>
+      <p>
+        Con <code>wait(&amp;status)</code> il padre si sospende finché un figlio non termina; quando
+        ciò accade, recupera lo stato di uscita. Il valore restituito occupa <strong>due byte</strong>:
+      </p>
+      <ul>
+        <li>nel <strong>byte meno significativo</strong> è indicata la ragione della terminazione (naturale oppure causata da un segnale);</li>
+        <li>nel <strong>byte più significativo</strong> è scritto il valore passato a <code>exit()</code> dal figlio.</li>
+      </ul>
+      <p>Solo dopo la <code>wait()</code> il sistema operativo rilascia il PID del figlio e rimuove il suo descrittore.</p>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">🧟</span>
+        <p>
+          <b>Processi zombie</b>
+          Se un figlio termina <em>prima</em> che il padre chiami <code>wait()</code>, diventa un
+          processo <strong>«defunct»</strong> o <strong>«zombie»</strong>: è terminato, ma il suo
+          descrittore non può ancora essere rilasciato, perché conserva l'exit status che il padre
+          non ha ancora letto.
+        </p>
+      </div>
+
+      <h2>Il descrittore di processo (PCB)</h2>
+      <p>
+        Il sistema operativo rappresenta ogni processo con un <strong>PCB</strong>
+        (<em>Process Control Block</em>), una struttura dati che raccoglie tutte le informazioni
+        necessarie a sospendere e far ripartire il processo come se non fosse mai stato fermato.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Gruppo di informazioni</th><th>Contenuto</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Identificazione</td><td>PID (identificatore unico del processo).</td></tr>
+            <tr><td>Stato</td><td>Stato corrente (running, ready, waiting…).</td></tr>
+            <tr><td>Contesto della CPU</td><td>Program counter e contenuto dei registri (SP, IR, accumulatori).</td></tr>
+            <tr><td>Scheduling</td><td>Priorità, puntatori alle code.</td></tr>
+            <tr><td>Gestione della memoria</td><td>Puntatori alla memoria del processo, registri base e limite.</td></tr>
+            <tr><td>I/O</td><td>Puntatori alle risorse allocate, elenco dei file aperti.</td></tr>
+            <tr><td>Accounting</td><td>Tempo di CPU utilizzato e altre statistiche d'uso.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Contesto del processo</b>
+          Program counter e registri formano il <strong>contesto</strong> del processo, detto anche
+          <strong>area di salvataggio dello stato della CPU</strong>. È esattamente ciò che il
+          context switching salva e ripristina.
+        </p>
+      </div>
+
+      <p>
+        Il descrittore viene <strong>allocato dinamicamente</strong> e inizializzato alla creazione
+        del processo, e viene rimosso dopo la terminazione. Per gestire tutti i processi il sistema
+        operativo mantiene una <strong>Process Table</strong>: una tabella che contiene i PCB di
+        tutti i processi e viene aggiornata a ogni cambio di stato.
+      </p>
+
+      <h2>Simulatore: il ciclo di vita in azione</h2>
+      <p>
+        Quattro processi, un solo processore. Lo scheduler prende il primo della coda dei pronti e
+        gli dà la CPU per un breve <em>quanto</em> di tempo. Mentre è in esecuzione, un processo può
+        finire, esaurire il quanto (e tornare in coda) oppure chiedere un'operazione di I/O (e
+        passare nella lista di attesa). Osserva come i gettoni si spostano fra <strong>RL</strong>,
+        <strong>CPU</strong> e <strong>WL</strong> finché non sono tutti terminati.
+      </p>
+
+      <div class="demo" id="lcSim">
+        <div class="demo-head">Il ciclo di vita dei processi su un solo processore</div>
+        <div class="demo-stage">
+          <div class="lc-legend" id="lcLegend"></div>
+
+          <div class="lc-row">
+            <span class="lbl">Coda dei pronti · RL</span>
+            <span class="lc-bag" id="lcReady"></span>
+          </div>
+          <div class="lc-row">
+            <span class="lbl">In esecuzione · CPU</span>
+            <span class="lc-bag" id="lcRun"></span>
+          </div>
+          <div class="lc-row">
+            <span class="lbl">Lista di attesa · WL</span>
+            <span class="lc-bag" id="lcWait"></span>
+          </div>
+          <div class="lc-row">
+            <span class="lbl">Terminati</span>
+            <span class="lc-bag" id="lcDone"></span>
+          </div>
+          <p class="demo-note" id="lcState" style="margin:.9rem 0 0">pronto</p>
+        </div>
+        <div class="demo-controls">
+          <button class="btn btn-ghost btn-sm" id="lcPlay" type="button">▶ Avvia</button>
+          <button class="btn btn-ghost btn-sm" id="lcReset" type="button">↺ Azzera</button>
+          <span class="spacer"></span>
+          <label for="lcSpeed" class="demo-note">velocità</label>
+          <input id="lcSpeed" type="range" min="1" max="8" step="1" value="4">
+          <span class="demo-note" id="lcClock">t = 0</span>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🧪</span>
+        <p>
+          <b>Mettiti alla prova</b>
+          Apri l'elenco dei processi attivi sul tuo computer (su Windows: <em>Gestione attività</em>,
+          <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Canc</kbd>) e individua come il sistema operativo
+          attribuisce le <strong>priorità</strong> ai processi.
+        </p>
+      </div>
+
+      <h2>Da ricordare</h2>
+      <ul>
+        <li>Un <strong>programma</strong> è passivo (un file); un <strong>processo</strong> è un programma <em>in evoluzione</em>, con codice, dati, program counter, registri e stack.</li>
+        <li>In memoria: <strong>parte statica</strong> (codice + dati globali) e <strong>parte dinamica</strong> (stack + heap).</li>
+        <li>La <strong>multiprogrammazione</strong> tiene più programmi in memoria e alterna i processi sulla CPU sfruttando le loro fasi di attesa; obiettivo: alzare il <strong>throughput</strong>.</li>
+        <li>I processi possono essere <strong>indipendenti</strong>, <strong>cooperanti</strong> (devono sincronizzarsi) o <strong>in competizione</strong> per le risorse.</li>
+        <li>I cinque stati: <strong>nuovo, pronto, in esecuzione, attesa, finito</strong>. Nuovo e finito una sola volta; gli altri tre si ripetono.</li>
+        <li>Da <em>sospeso</em> si passa sempre per <em>pronto</em> (la RL), mai direttamente in esecuzione.</li>
+        <li>L'<strong>interrupt software</strong> gestisce il fine time-slice; l'<strong>interrupt hardware</strong> (I/O) prevale e usa l'<em>interrupt vector</em>. Entrambi comportano un <strong>context switch</strong>.</li>
+        <li><code>fork()</code> clona il padre: restituisce il PID del figlio al padre e <code>0</code> al figlio. <code>exit()</code> salva l'exit status; <code>wait()</code> lo recupera. Figlio terminato ma non «raccolto» = <strong>zombie</strong>.</li>
+        <li>Il <strong>PCB</strong> conserva PID, stato, contesto della CPU, info di scheduling, memoria, I/O e accounting; tutti i PCB stanno nella <strong>Process Table</strong>.</li>
+      </ul>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="ripasso-terzo-anno.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Ripasso: codici, sistemi operativi e memoria</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Tutti gli argomenti del quarto anno</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+<script>
+/* ==========================================================================
+   Simulatore — ciclo di vita dei processi su un monoprocessore
+   RL (pronti) -> CPU (running) -> WL (attesa I/O) | RL | Terminati
+   ========================================================================== */
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  if (!$('#lcSim')) return;
+
+  /* palette dei processi: pastelli con testo scuro, leggibili in entrambi i temi
+     (stessi colori del simulatore di scheduling del terzo anno, per coerenza) */
+  var PALETTE = [
+    { id: 'P1', col: '#D1FF61' },
+    { id: 'P2', col: '#4DA3FF' },
+    { id: 'P3', col: '#FFB86B' },
+    { id: 'P4', col: '#C9A7FF' }
+  ];
+  var QUANTUM = 3;           // tick di CPU per turno
+  var P_IO = 0.22;           // probabilita' che un tick di CPU generi una richiesta di I/O
+
+  var procs = [], running = null, t = 0, timer = null, seed = 0;
+
+  /* generatore pseudo-casuale deterministico: "Azzera" riproduce sempre la stessa storia */
+  function rnd() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  }
+
+  function reset() {
+    stop();
+    seed = 20240917;
+    t = 0;
+    running = null;
+    procs = PALETTE.map(function (p) {
+      var b = 6 + Math.floor(rnd() * 6);      // 6..11 tick di CPU da consumare
+      return { id: p.id, col: p.col, stato: 'ready', burst: b, burst0: b, quanto: 0, attesa: 0 };
+    });
+    $('#lcState').textContent = 'pronto — premi Avvia';
+    render();
+  }
+
+  function coda(stato) {
+    return procs.filter(function (p) { return p.stato === stato; });
+  }
+
+  function inCoda(p) {                          // sposta p in fondo all'array (fine coda RL)
+    procs.splice(procs.indexOf(p), 1);
+    procs.push(p);
+  }
+
+  function tick() {
+    t++;
+
+    /* 1. CPU libera: prende il primo pronto */
+    if (!running) {
+      var pronti = coda('ready');
+      if (pronti.length) {
+        running = pronti[0];
+        running.stato = 'running';
+        running.quanto = QUANTUM;
+      }
+    }
+
+    /* 2. avanza il processo in esecuzione */
+    if (running) {
+      running.burst--;
+      running.quanto--;
+
+      if (running.burst <= 0) {
+        running.stato = 'done';
+        running = null;
+      } else if (rnd() < P_IO) {
+        running.stato = 'waiting';
+        running.attesa = 2 + Math.floor(rnd() * 3);   // 2..4 tick fuori dalla CPU
+        running = null;
+      } else if (running.quanto <= 0) {
+        running.stato = 'ready';
+        inCoda(running);
+        running = null;
+      }
+    }
+
+    /* 3. i sospesi scontano il loro tempo di attesa */
+    coda('waiting').forEach(function (p) {
+      p.attesa--;
+      if (p.attesa <= 0) { p.stato = 'ready'; inCoda(p); }
+    });
+
+    render();
+
+    if (coda('done').length === procs.length) {
+      stop();
+      $('#lcState').textContent = 'tutti i processi sono terminati (t = ' + t + ') — premi Azzera';
+    }
+  }
+
+  /* ---------- disegno ---------------------------------------------------- */
+  function chip(p, badge) {
+    var b = badge ? '<span class="rem">' + badge + '</span>' : '';
+    return '<span class="pchip" style="background:' + p.col + '">' + p.id + b + '</span>';
+  }
+
+  function bag(sel, list, mk, vuoto) {
+    $(sel).innerHTML = list.length
+      ? list.map(mk).join('')
+      : '<span class="pchip ghost">' + vuoto + '</span>';
+  }
+
+  function render() {
+    $('#lcClock').textContent = 't = ' + t;
+
+    bag('#lcReady', coda('ready'), function (p) { return chip(p, p.burst); }, 'vuota');
+    bag('#lcWait', coda('waiting'), function (p) { return chip(p, '⏳' + p.attesa); }, 'vuota');
+    bag('#lcDone', coda('done'), function (p) { return chip(p, '✓'); }, 'nessuno');
+
+    if (running) {
+      var pct = Math.round((running.burst0 - running.burst) / running.burst0 * 100);
+      $('#lcRun').innerHTML = chip(running, null) +
+        '<span class="lc-bar"><i style="width:' + pct + '%"></i></span>';
+    } else {
+      $('#lcRun').innerHTML = '<span class="pchip ghost">CPU libera</span>';
+    }
+  }
+
+  /* ---------- riproduzione -------------------------------------------------- */
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    var b = $('#lcPlay');
+    if (b) b.textContent = '▶ Avvia';
+  }
+
+  function play() {
+    if (timer) { stop(); return; }
+    if (coda('done').length === procs.length) reset();
+    var v = parseInt($('#lcSpeed').value, 10);
+    var ms = 1000 - (v - 1) * 110;          // da 1000 ms a ~230 ms per tick
+    $('#lcPlay').textContent = '⏸ Pausa';
+    $('#lcState').textContent = 'in esecuzione…';
+    timer = setInterval(tick, ms);
+  }
+
+  /* ---------- eventi ------------------------------------------------------ */
+  $('#lcLegend').innerHTML = PALETTE.map(function (p) {
+    return '<span><i style="background:' + p.col + '"></i>' + p.id + '</span>';
+  }).join('') +
+  '<span>numero sul gettone = tick di CPU ancora da eseguire · ⏳ = tick di attesa I/O rimasti</span>';
+
+  $('#lcPlay').addEventListener('click', play);
+  $('#lcReset').addEventListener('click', reset);
+  $('#lcSpeed').addEventListener('input', function () { if (timer) { stop(); play(); } });
+
+  reset();
+})();
+</script>
+</body>
+</html>

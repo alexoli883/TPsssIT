@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ripasso: processi, thread e concorrenza · TPSsssIT</title>
+<meta name="description" content="Ripasso dell'anno precedente: processi e loro stati, scheduling della CPU, risorse e condivisione, thread, elaborazione sequenziale e concorrente, sincronizzazione con i semafori e i problemi classici della programmazione concorrente.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- stili locali: simulatore di race condition su variabile condivisa --- */
+  .rc-shared {
+    display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1.1rem;
+    padding:1rem 1.15rem; margin-bottom:1.1rem;
+    border-radius:var(--r); border:1px solid var(--border-strong);
+    background:color-mix(in srgb, var(--gold) 10%, transparent);
+  }
+  .rc-shared-lbl { font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .rc-saldo { font-family:var(--font-mono); font-size:1.15rem; font-weight:700; color:var(--gold); }
+  .rc-lock { font-size:.8rem; color:var(--text-soft); font-family:var(--font-mono); }
+
+  .rc-cols { display:grid; gap:.8rem; grid-template-columns:1fr 1fr; }
+  @media (max-width:560px) { .rc-cols { grid-template-columns:1fr; } }
+
+  .rc-proc {
+    padding:.9rem 1rem; border-radius:var(--r);
+    border:1px solid var(--border-soft);
+    background:color-mix(in srgb, var(--surface-2) 45%, transparent);
+    transition:border-color .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+  }
+  .rc-proc.is-run { border-color:var(--border-strong); box-shadow:0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent); }
+  .rc-proc.is-wait { opacity:.5; }
+  .rc-proc-head { font-weight:700; font-family:var(--font-mono); display:flex; align-items:center; gap:.5rem; }
+  .rc-badge {
+    font-size:.66rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    padding:.12rem .45rem; border-radius:5px;
+    background:color-mix(in srgb, var(--muted) 22%, transparent);
+    color:var(--muted); border:1px solid var(--border-soft);
+  }
+  .rc-line { font-size:.85rem; color:var(--text-soft); margin-top:.4rem; }
+  .rc-line b { color:var(--text); font-family:var(--font-mono); }
+  .rc-line.rc-muted { color:var(--muted); }
+
+  .rc-bar { height:7px; border-radius:5px; background:var(--border-soft); overflow:hidden; margin-top:.55rem; }
+  .rc-bar i { display:block; height:100%; width:0; background:var(--gold); transition:width .15s linear; }
+  .rc-b .rc-bar i { background:var(--accent); }
+
+  .rc-check { font-size:.82rem; color:var(--text-soft); display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; }
+
+  /* --- schema: i filosofi a cena --- */
+  .phil-svg { width:100%; max-width:420px; height:auto; margin-inline:auto; }
+  .phil-svg text { font-family:var(--font-mono); }
+
+  /* --- riquadri "esercizio guidato" (scheduling della CPU) --- */
+  .esercizio {
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface-2) 35%, transparent);
+    padding: 1.1rem 1.2rem;
+  }
+  .esercizio > h4:first-child {
+    margin: 0 0 .6rem;
+    font-size: .95rem;
+    color: var(--gold);
+  }
+  .esercizio ol, .esercizio ul { margin-top: .5rem; }
+  .esercizio .sol {
+    margin-top: .85rem;
+    padding-top: .7rem;
+    border-top: 1px dashed var(--border-soft);
+    font-weight: 650;
+    color: var(--text);
+  }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="../quarto-anno/index.html">Quarto anno</a></li>
+      <li><a href="index.html" class="is-active">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quinto anno</a></li>
+      <li aria-current="page">Ripasso: processi, thread e concorrenza</li>
+    </ul>
+    <h1>Ripasso dell'anno precedente: processi, thread e concorrenza</h1>
+    <p class="lead">
+      Tutto quello che studieremo quest'anno — sistemi distribuiti, servizi di rete, sicurezza —
+      poggia su un'idea sola: più attività che procedono «insieme» condividendo qualcosa. Prima di
+      allargare lo sguardo alla rete, rimettiamo a fuoco che cosa succede dentro una singola
+      macchina quando due processi si contendono la stessa risorsa, e come si fa a metterli
+      d'accordo senza che si pestino i piedi.
+    </p>
+    <div class="stats-row">
+      <span class="stat-pill">Materiale <b>0</b></span>
+      <span class="stat-pill">Lettura <b>35</b> min</span>
+      <span class="stat-pill">Tipo <b>Ripasso</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+      <p>
+        Questo materiale è un ponte: raccoglie in poche pagine i concetti di programmazione
+        concorrente visti l'anno scorso e che d'ora in poi daremo per acquisiti. Se qualcosa qui
+        dentro non ti è chiaro, è il momento di chiederlo: da qui in avanti lo useremo come una
+        cassetta degli attrezzi già montata.
+      </p>
+
+      <h2>I processi</h2>
+      <p>
+        Un <strong>programma</strong> è un file sul disco: un elenco di istruzioni, un'entità
+        <em>passiva</em>. Quando il sistema operativo lo carica in memoria e la CPU comincia a
+        eseguirlo, quel programma diventa un'entità <em>attiva</em> che evolve istruzione dopo
+        istruzione: è il <strong>processo</strong>. Lo stesso programma può dare origine a molti
+        processi distinti — apri due finestre dello stesso editor e hai due processi che eseguono
+        lo stesso codice ma con dati e stato propri.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Processo</b>
+          Programma in esecuzione, descritto istante per istante da: <em>codice</em>, <em>dati</em>
+          (variabili globali), <em>program counter</em> (indirizzo della prossima istruzione),
+          contenuto dei <em>registri</em> della CPU e <em>stack</em>. A questo il sistema operativo
+          aggiunge le risorse assegnate: file aperti, socket, dispositivi di I/O.
+        </p>
+      </div>
+
+      <p>
+        In memoria un processo occupa una <strong>parte statica</strong>, di dimensione nota già
+        alla compilazione (area codice + area dati globali), e una <strong>parte dinamica</strong>,
+        che cresce e si restringe durante l'esecuzione: lo <strong>stack</strong> (record di
+        attivazione delle funzioni, variabili locali, parametri, indirizzi di ritorno) e lo
+        <strong>heap</strong> (memoria chiesta esplicitamente a runtime).
+      </p>
+
+      <h3>Gli stati di un processo</h3>
+      <p>
+        Un solo processore serve molti processi grazie alla <strong>multiprogrammazione</strong>:
+        un <em>algoritmo di scheduling</em> decide quando togliere la CPU a un processo per darla a
+        un altro. Conviene perché ogni processo alterna <strong>fasi di elaborazione</strong> (la
+        CPU lavora) e <strong>fasi di attesa</strong> (I/O, dialogo con le periferiche): mentre uno
+        aspetta il disco, un altro usa la CPU. Nel suo ciclo di vita un processo attraversa cinque
+        stati.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stato</th><th>Inglese</th><th>Significato</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Nuovo</strong></td><td>new</td><td>Appena creato: è stata richiesta l'esecuzione di un programma sul disco.</td></tr>
+            <tr><td><strong>Pronto</strong></td><td>ready</td><td>Ha tutto tranne la CPU: aspetta il suo turno nella <em>Ready List</em>.</td></tr>
+            <tr><td><strong>In esecuzione</strong></td><td>running</td><td>La CPU sta eseguendo le sue istruzioni. Su un monoprocessore, uno solo alla volta.</td></tr>
+            <tr><td><strong>Attesa</strong></td><td>waiting / blocked</td><td>Gli manca una risorsa diversa dalla CPU e aspetta un evento; sta nella <em>Waiting List</em>.</td></tr>
+            <tr><td><strong>Finito</strong></td><td>terminated</td><td>Codice esaurito (o errore): il sistema operativo rilascia le risorse.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Dallo stato di <em>esecuzione</em> si esce per tre motivi: il processo <strong>termina</strong>
+        (<code>exit</code>), <strong>scade il suo quanto di tempo</strong> (torna <em>pronto</em>),
+        oppure <strong>chiede una risorsa non disponibile</strong> (si <em>sospende</em>).
+      </p>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p>
+          <b>Errore tipico</b>
+          Da <em>sospeso</em> non si torna mai direttamente in <em>esecuzione</em>. Quando l'evento
+          atteso si verifica, il processo passa dalla Waiting List alla Ready List: diventa
+          <em>pronto</em>, e solo quando lo scheduler gli riassegna la CPU riparte.
+        </p>
+      </div>
+
+      <h3>Il descrittore di processo e il context switch</h3>
+      <p>
+        Il sistema operativo rappresenta ogni processo con un <strong>PCB</strong> (<em>Process
+        Control Block</em>): una struttura dati che raccoglie identificatore (<strong>PID</strong>),
+        stato corrente, <strong>contesto della CPU</strong> (program counter + registri), informazioni
+        di scheduling (priorità, puntatori alle code), gestione della memoria, elenco dei file
+        aperti e statistiche d'uso. Tutti i PCB stanno nella <strong>Process Table</strong>.
+      </p>
+      <p>
+        Quando un interrupt interrompe un processo, il sistema operativo esegue un
+        <strong>context switch</strong>: <em>salva</em> il contesto del processo uscente nel suo PCB
+        e <em>ripristina</em> quello del processo entrante, così che più tardi il primo possa
+        ripartire esattamente da dove era stato fermato. È un'operazione a puro costo di gestione —
+        durante il context switch la CPU non fa lavoro utile — ed è il prezzo della multiprogrammazione.
+      </p>
+
+      <h2>Lo scheduling della CPU</h2>
+      <p>
+        Abbiamo appena detto che è un <em>algoritmo di scheduling</em> a decidere, istante per
+        istante, quale processo pronto mandare in esecuzione. Ma con quale criterio sceglie? Qui
+        non c'è una risposta unica: dipende da che cosa si vuole ottimizzare, e i vari algoritmi
+        fanno scelte diverse proprio su questo compromesso.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cosa si misura</th><th>Definizione</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Throughput</strong></td><td>numero di processi completati per unità di tempo</td></tr>
+            <tr><td><strong>Turnaround time</strong></td><td>tempo totale dalla sottomissione del job alla disponibilità del risultato</td></tr>
+            <tr><td><strong>Response time</strong></td><td>tempo dalla richiesta alla prima risposta del processo — la sua reattività percepita</td></tr>
+            <tr><td><strong>Tempo di attesa</strong> (T<sub>w</sub>)</td><td>tempo totale passato in coda, in attesa della CPU</td></tr>
+            <tr><td><strong>CPU burst</strong></td><td>durata di un periodo di uso continuo della CPU da parte di un processo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Formule</span></div>
+        <pre><code>T_w(P) = istante di completamento &minus; durata &minus; istante di arrivo
+AWT (Average Waiting Time) = &Sigma; T_w(P_i) / numero di processi</code></pre>
+      </div>
+
+      <p>
+        Per confrontare gli algoritmi si usa il <strong>diagramma di Gantt</strong>: una riga che
+        mostra, sull'asse del tempo, quale processo occupa la CPU in ogni istante. Lo useremo in
+        forma testuale negli esempi che seguono.
+      </p>
+
+      <h3>FCFS — First Come, First Served</h3>
+      <p>
+        L'algoritmo più semplice: serve i processi <strong>nell'ordine in cui arrivano</strong>
+        nella Ready List, in stile FIFO, e ognuno resta in esecuzione finché non termina o si
+        blocca da solo — è quindi <strong>non pre-emptive</strong>, non toglie mai la CPU a un
+        processo già in corsa. Ignora completamente durata e priorità, e per questo soffre
+        l'<strong>effetto convoglio</strong>: se un processo lungo parte per primo, tutti i
+        processi corti arrivati dopo restano bloccati dietro di lui molto più a lungo di quanto la
+        loro durata giustificherebbe.
+      </p>
+      <div class="esercizio">
+        <h4>Esercizio guidato 1 — FCFS</h4>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Processo</th><th>Durata</th><th>Arrivo</th></tr></thead>
+          <tbody>
+            <tr><td>P1</td><td>6</td><td>0</td></tr>
+            <tr><td>P2</td><td>4</td><td>2</td></tr>
+            <tr><td>P3</td><td>3</td><td>5</td></tr>
+          </tbody>
+        </table></div>
+        <p>P1 è già in esecuzione quando arrivano gli altri due; essendo non pre-emptive, li fa
+        aspettare e completa il suo turno.</p>
+        <div class="code-block">
+          <div class="code-head"><span class="lang">Gantt</span></div>
+          <pre><code>| P1          | P2      | P3      |
+0             6         10        13</code></pre>
+        </div>
+        <ul>
+          <li>T<sub>w</sub>(P1) = 0 &minus; 0 = <strong>0</strong></li>
+          <li>T<sub>w</sub>(P2) = 6 &minus; 2 = <strong>4</strong></li>
+          <li>T<sub>w</sub>(P3) = 10 &minus; 5 = <strong>5</strong></li>
+        </ul>
+        <p class="sol">AWT = (0 + 4 + 5) / 3 = <strong>3 unità di tempo</strong>.</p>
+      </div>
+
+      <h3>SJF e SRTF — il più corto per primo</h3>
+      <p>
+        <strong>SJF</strong> (<em>Shortest Job First</em>) sceglie sempre, tra i processi pronti,
+        quello con il CPU burst più breve: è la scelta che minimizza matematicamente l'attesa
+        media, ma ha un difetto pratico — bisogna <em>conoscere in anticipo</em> (o stimare)
+        quanto durerà ogni processo — e uno teorico: un processo molto lungo rischia di restare
+        sempre "scavalcato" dai nuovi arrivi corti. La versione <strong>pre-emptive</strong>,
+        chiamata <strong>SRTF</strong> (<em>Shortest Remaining Time First</em>), va oltre: se
+        arriva un processo con un tempo <em>residuo</em> più corto di quello attualmente in
+        esecuzione, quest'ultimo viene sospeso e rimesso in coda.
+      </p>
+      <div class="esercizio">
+        <h4>Esercizio guidato 2 — SJF non pre-emptive contro SRTF</h4>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Processo</th><th>Durata</th><th>Arrivo</th></tr></thead>
+          <tbody>
+            <tr><td>P1</td><td>9</td><td>0</td></tr>
+            <tr><td>P2</td><td>4</td><td>1</td></tr>
+            <tr><td>P3</td><td>10</td><td>2</td></tr>
+            <tr><td>P4</td><td>5</td><td>3</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>SJF non pre-emptive:</strong> a t=0 c'è solo P1, che parte e — non essendo
+        pre-emptive — arriva fino in fondo, a t=9. Da lì in poi si sceglie ogni volta il più corto
+        tra quelli già arrivati: P2(4), poi P4(5), infine P3(10).</p>
+        <div class="code-block">
+          <div class="code-head"><span class="lang">Gantt — SJF</span></div>
+          <pre><code>| P1        | P2    | P4     | P3          |
+0           9       13       18            28</code></pre>
+        </div>
+        <p>T<sub>w</sub>: P1 = 0; P2 = 9 &minus; 1 = 8; P4 = 13 &minus; 3 = 10; P3 = 18 &minus; 2 = 16 &rarr; AWT = 34 / 4 = <strong>8,5</strong>.</p>
+        <p><strong>SRTF:</strong> a t=1 arriva P2 con burst 4: il residuo di P1 è 8, quindi P1
+        viene sospeso e parte P2. A t=5 P2 finisce; tra i rimanenti il più corto è ora P4(5), poi
+        si torna a P1 (residuo 8), infine P3.</p>
+        <div class="code-block">
+          <div class="code-head"><span class="lang">Gantt — SRTF</span></div>
+          <pre><code>|P1| P2    | P4     | P1        | P3          |
+0  1       5        10          18            28</code></pre>
+        </div>
+        <p>T<sub>w</sub>: P1 = (18 &minus; 0) &minus; 9 = 9; P2 = (5 &minus; 1) &minus; 4 = 0; P4 = (10 &minus; 3) &minus; 5 = 2; P3 = (28 &minus; 2) &minus; 10 = 16.</p>
+        <p class="sol">AWT SJF = 8,5 &nbsp;|&nbsp; AWT SRTF = 27 / 4 = <strong>6,75</strong>. La
+        versione pre-emptive riduce ulteriormente l'attesa media servendo subito i processi corti
+        non appena arrivano, ma paga il prezzo di più context switch.</p>
+      </div>
+
+      <h3>Scheduling a priorità</h3>
+      <p>
+        A ogni processo viene assegnato un <strong>numero di priorità</strong>, e lo scheduler
+        prende sempre il processo pronto con priorità più alta (a parità, si torna al criterio
+        FCFS). Può essere implementato sia in modo pre-emptive sia non pre-emptive. Attenzione
+        alla convenzione, che cambia da sistema a sistema: in Unix il valore <code>0</code> indica
+        la priorità <em>massima</em>, mentre in Windows e nei Linux moderni è il numero più alto a
+        vincere.
+      </p>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">🕳️</span>
+        <p>
+          <b>Starvation e aging</b>
+          Se continuano ad arrivare processi ad alta priorità, un processo a bassa priorità può
+          restare in coda per un tempo indefinito: è la <strong>starvation</strong>. Il rimedio
+          standard è l'<strong>aging</strong>: la priorità di un processo cresce gradualmente con
+          il tempo che passa in attesa, finché prima o poi vince comunque il turno.
+        </p>
+      </div>
+
+      <h3>Round Robin</h3>
+      <p>
+        È l'algoritmo alla base del <strong>time-sharing</strong>: la Ready List è una coda
+        circolare FIFO, e a ogni processo viene assegnato un <strong>quanto</strong> di tempo
+        fisso (tipicamente 10–100 ms). Se il processo non termina entro il quanto, viene
+        interrotto e rimesso in fondo alla coda. È per costruzione <strong>pre-emptive</strong> —
+        l'interruzione arriva da un timer, il Real-Time Clock — e garantisce
+        <strong>equità</strong>: nessun processo può restare in coda per sempre, quindi niente
+        starvation.
+      </p>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">⏱️</span>
+        <p>
+          <b>Dimensionare il quanto</b>
+          Quanto <strong>troppo piccolo</strong>: la risposta è rapidissima, ma il sistema spreca
+          tempo in continui context switch. Quanto <strong>troppo grande</strong>: pochi cambi di
+          contesto, ma l'algoritmo finisce per comportarsi come una FCFS.
+        </p>
+      </div>
+      <div class="esercizio">
+        <h4>Esercizio guidato 3 — Round Robin con quanto = 4</h4>
+        <p>Tre processi arrivano tutti a t=0: P1 dura 20, P2 dura 3, P3 dura 7.</p>
+        <div class="code-block">
+          <div class="code-head"><span class="lang">Gantt — RR q=4</span></div>
+          <pre><code>| P1 | P2| P3 | P1 |P3| P1 | P1 | P1 |
+0    4   7    11   15 18   22   26   30</code></pre>
+        </div>
+        <ul>
+          <li>P2 finisce a t=7 &rarr; T<sub>w</sub> = 7 &minus; 3 = <strong>4</strong></li>
+          <li>P3 finisce a t=18 &rarr; T<sub>w</sub> = 18 &minus; 7 = <strong>11</strong></li>
+          <li>P1 finisce a t=30 &rarr; T<sub>w</sub> = 30 &minus; 20 = <strong>10</strong></li>
+        </ul>
+        <p class="sol">AWT = (10 + 4 + 11) / 3 &asymp; <strong>8,33</strong>.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Algoritmo</th><th>Pre-emptive?</th><th>Pro</th><th>Contro</th></tr></thead>
+          <tbody>
+            <tr><td>FCFS</td><td>No</td><td>semplice, equo sull'ordine di arrivo</td><td>effetto convoglio</td></tr>
+            <tr><td>SJF / SRTF</td><td>No / Sì</td><td>attesa media minima</td><td>durate da stimare, rischio di starvation per i processi lunghi</td></tr>
+            <tr><td>Priorità</td><td>entrambe le versioni esistono</td><td>rispetta l'importanza relativa dei processi</td><td>starvation dei processi a bassa priorità &rarr; serve l'aging</td></tr>
+            <tr><td>Round Robin</td><td>Sì</td><td>equo, niente starvation, buona reattività</td><td>overhead da context switch, prestazioni legate alla scelta del quanto</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Risorse e condivisione</h2>
+      <p>
+        Una <strong>risorsa</strong> è tutto ciò di cui un processo ha bisogno per procedere e che
+        il sistema operativo gli assegna: CPU, memoria, un file, una stampante, una connessione di
+        rete. I processi possono essere <strong>indipendenti</strong> (si ignorano),
+        <strong>cooperanti</strong> (si scambiano dati di proposito) o <strong>in competizione</strong>
+        (si ostacolano perché vogliono la stessa risorsa limitata). Le risorse si classificano lungo
+        due assi.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Classificazione</th><th>Descrizione</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Assegnabile</strong> (dedicata)</td><td>Un processo alla volta.</td><td>Stampante, masterizzatore.</td></tr>
+            <tr><td><strong>Condivisibile</strong></td><td>Più processi contemporaneamente.</td><td>File aperto in sola lettura, CPU a divisione di tempo.</td></tr>
+            <tr><td><strong>Prerilasciabile</strong> (<em>preemptable</em>)</td><td>Si può togliere al processo senza danni e restituirla dopo.</td><td>CPU, memoria centrale (con swap su disco).</td></tr>
+            <tr><td><strong>Non prerilasciabile</strong></td><td>Va lasciata rilasciare spontaneamente al processo che la detiene.</td><td>Stampante a metà stampa.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>La sezione critica e la race condition</h3>
+      <p>
+        Il problema nasce quando due processi <strong>condividono dati modificabili</strong>. La
+        parte di codice in cui un processo accede a una risorsa condivisa e la modifica si chiama
+        <strong>sezione critica</strong>. Se due processi eseguono la propria sezione critica sullo
+        stesso dato «intrecciando» le istruzioni, il risultato finale dipende dall'ordine preciso in
+        cui lo scheduler li ha fatti avanzare — e quasi sempre è sbagliato.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Race condition (corsa critica)</b>
+          Situazione in cui la correttezza del risultato dipende dall'ordine di esecuzione di
+          operazioni concorrenti su un dato condiviso. Il classico esempio è
+          <code>saldo = saldo + 1</code>: in macchina sono tre passi — <em>leggi</em> <code>saldo</code>
+          in un registro, <em>somma</em> 1, <em>riscrivi</em> <code>saldo</code>. Se un secondo
+          processo legge <code>saldo</code> prima che il primo abbia riscritto, entrambi lavorano
+          sul vecchio valore e un incremento va perso.
+        </p>
+      </div>
+
+      <p>
+        Per evitarlo serve la <strong>mutua esclusione</strong>: mentre un processo è nella sua
+        sezione critica su una certa risorsa, nessun altro può entrare nella propria sezione critica
+        sulla stessa risorsa. Attorno alla sezione critica si mettono un <em>protocollo di
+        ingresso</em> e uno <em>di uscita</em>.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice</span></div>
+        <pre><code><span class="tok-key">repeat</span> forever
+    &lt; sezione non critica &gt;
+    <span class="tok-fn">protocollo_di_ingresso</span>()      <span class="tok-com">// entro solo se posso</span>
+    &lt; SEZIONE CRITICA &gt;               <span class="tok-com">// uso la risorsa condivisa</span>
+    <span class="tok-fn">protocollo_di_uscita</span>()        <span class="tok-com">// libero il passaggio</span>
+    &lt; sezione non critica &gt;
+<span class="tok-key">until</span> false</code></pre>
+      </div>
+
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p>
+          <b>Le quattro proprietà di una buona soluzione</b>
+          <strong>1. Mutua esclusione</strong>: mai due processi insieme nella sezione critica sulla
+          stessa risorsa. <strong>2. Progresso</strong>: se la sezione critica è libera e qualcuno
+          vuole entrare, la scelta di chi entra non può essere rimandata all'infinito.
+          <strong>3. Attesa limitata</strong> (no starvation): esiste un limite al numero di volte
+          che altri entrano prima di un processo in attesa. <strong>4. Nessuna ipotesi</strong> sul
+          numero di CPU né sulle loro velocità relative.
+        </p>
+      </div>
+
+      <h2>I thread</h2>
+      <p>
+        Creare un processo è costoso: nuovo spazio di indirizzamento, copia dei dati, nuovo PCB. Ma
+        spesso quello che serve è più semplice — più flussi di esecuzione <em>dentro lo stesso
+        programma</em>, che lavorano sugli stessi dati. È il <strong>thread</strong>: un filo di
+        esecuzione che condivide codice, dati globali e risorse con gli altri thread dello stesso
+        processo, e possiede in proprio soltanto ciò che rende «un flusso»: program counter,
+        registri e stack.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Thread</b>
+          Unità di esecuzione interna a un processo. Un processo con un solo thread è il caso
+          classico; un processo <em>multithread</em> ha più flussi che avanzano concorrentemente
+          condividendo la memoria. Il thread è detto anche <em>processo leggero</em> (<em>lightweight
+          process</em>) proprio perché crearlo e cambiargli contesto costa molto meno.
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aspetto</th><th>Processo</th><th>Thread (nello stesso processo)</th></tr></thead>
+          <tbody>
+            <tr><td>Spazio di indirizzamento</td><td>Proprio e isolato</td><td>Condiviso con gli altri thread</td></tr>
+            <tr><td>Cosa possiede in proprio</td><td>Tutto (codice, dati, heap, stack…)</td><td>Solo program counter, registri, stack</td></tr>
+            <tr><td>Creazione e context switch</td><td>Costosi</td><td>Leggeri e veloci</td></tr>
+            <tr><td>Comunicazione</td><td>Meccanismi di IPC (pipe, socket, memoria condivisa esplicita)</td><td>Diretta, tramite le variabili condivise</td></tr>
+            <tr><td>Effetto di un crash</td><td>Non tocca gli altri processi</td><td>Può abbattere l'intero processo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p>
+          <b>Il rovescio della medaglia</b>
+          Condividere la memoria «gratis» significa anche che <strong>ogni race condition è dietro
+          l'angolo</strong>: due thread che toccano la stessa variabile senza sincronizzazione
+          danno gli stessi bug dei processi cooperanti, ma sono più facili da scrivere per sbaglio.
+          Tutto ciò che diremo su sezione critica e semafori vale identico per i thread.
+        </p>
+      </div>
+
+      <h2>Elaborazione sequenziale e concorrente</h2>
+      <p>
+        Tre parole che è facile confondere:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modello</th><th>Che cosa significa</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Sequenziale</strong></td><td>Un'attività dopo l'altra, un solo flusso di controllo. L'ordine è quello e basta.</td></tr>
+            <tr><td><strong>Concorrente</strong></td><td>Più attività logicamente attive nello stesso intervallo di tempo, <em>interfogliate</em> (interleaving) su una o più CPU. Non è detto che due istruzioni girino nello stesso istante: basta che i loro tempi di vita si sovrappongano.</td></tr>
+            <tr><td><strong>Parallela</strong></td><td>Più attività eseguite <em>nello stesso istante</em> fisico. Richiede più CPU o più core. Il parallelismo è un modo di realizzare la concorrenza.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Su un monoprocessore la concorrenza è un'<em>illusione</em> creata dallo scheduler che
+        alterna i processi molto in fretta; su una macchina multi-core è in parte reale. Dal punto
+        di vista della correttezza, però, non cambia nulla: dobbiamo comunque ragionare come se le
+        istruzioni dei vari processi potessero incastrarsi in <strong>qualunque</strong> ordine.
+      </p>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🎲</span>
+        <p>
+          <b>Non determinismo</b>
+          Uno stesso programma concorrente, con gli stessi input, può produrre esiti diversi da
+          un'esecuzione all'altra perché lo scheduling cambia. Un programma concorrente
+          <strong>corretto</strong> è un programma che dà il risultato giusto <em>per ogni</em>
+          possibile interfogliamento, non solo per quello «fortunato» che si osserva di solito.
+        </p>
+      </div>
+
+      <h3>Quando due operazioni possono davvero procedere in parallelo</h3>
+      <p>
+        Due porzioni di codice si possono eseguire concorrentemente senza rischi se
+        <strong>non interferiscono</strong>: nessuna delle due scrive un dato che l'altra legge o
+        scrive. In forma compatta (condizioni di Bernstein), dette <code>L(i)</code> le celle lette
+        e <code>S(i)</code> quelle scritte dall'operazione <code>i</code>, servono tutte e tre:
+        <code>S(1) &cap; L(2) = &empty;</code>, <code>L(1) &cap; S(2) = &empty;</code>,
+        <code>S(1) &cap; S(2) = &empty;</code>. Se anche una sola non vale, le due operazioni vanno
+        <strong>sincronizzate</strong>.
+      </p>
+
+      <h3>Prova a vedere la race condition</h3>
+      <p>
+        Due processi, <code>P1</code> e <code>P2</code>, fanno 25 incrementi ciascuno sulla stessa
+        variabile <code>saldo</code> (che parte da 0): a fine corsa dovrebbe valere
+        <strong>50</strong>. Ogni incremento è spezzato nei suoi tre micro-passi
+        <em>LEGGE&nbsp;→&nbsp;CALCOLA&nbsp;→&nbsp;SCRIVE</em>, e lo «scheduler» del simulatore
+        alterna i due processi in modo imprevedibile. Avvia senza semaforo e guarda quanti
+        aggiornamenti si perdono; poi attiva <em>usa il semaforo</em> e rilancia.
+      </p>
+
+      <div class="demo" id="rcSim">
+        <div class="demo-head">Due processi, un saldo condiviso</div>
+        <div class="demo-stage">
+          <div class="rc-shared">
+            <span class="rc-shared-lbl">variabile condivisa</span>
+            <span class="rc-saldo" id="rcSaldo">saldo = 0</span>
+            <span class="rc-lock" id="rcLock">semaforo: non attivo</span>
+          </div>
+
+          <div class="rc-cols">
+            <div class="rc-proc rc-a" id="rcP1">
+              <div class="rc-proc-head">P1 <span class="rc-badge" id="rcB1">pronto</span></div>
+              <div class="rc-line">registro locale: <b id="rcR1">0</b></div>
+              <div class="rc-line" id="rcS1">in attesa di avvio</div>
+              <div class="rc-bar"><i id="rcBar1"></i></div>
+              <div class="rc-line rc-muted"><span id="rcD1">0</span> / 25 incrementi</div>
+            </div>
+            <div class="rc-proc rc-b" id="rcP2">
+              <div class="rc-proc-head">P2 <span class="rc-badge" id="rcB2">pronto</span></div>
+              <div class="rc-line">registro locale: <b id="rcR2">0</b></div>
+              <div class="rc-line" id="rcS2">in attesa di avvio</div>
+              <div class="rc-bar"><i id="rcBar2"></i></div>
+              <div class="rc-line rc-muted"><span id="rcD2">0</span> / 25 incrementi</div>
+            </div>
+          </div>
+
+          <p class="demo-note" id="rcState" style="margin:.9rem 0 0">premi Avvia</p>
+        </div>
+        <div class="demo-controls">
+          <button class="btn btn-ghost btn-sm" id="rcPlay" type="button">▶ Avvia</button>
+          <button class="btn btn-ghost btn-sm" id="rcReset" type="button">↺ Azzera</button>
+          <label class="rc-check"><input type="checkbox" id="rcSem"> usa il semaforo</label>
+          <span class="spacer"></span>
+          <label for="rcSpeed" class="demo-note">velocità</label>
+          <input id="rcSpeed" type="range" min="1" max="8" step="1" value="4">
+        </div>
+      </div>
+
+      <h2>La sincronizzazione tra processi e i semafori</h2>
+      <p>
+        La prima idea per la mutua esclusione è l'<strong>attesa attiva</strong> (<em>busy
+        waiting</em>): un ciclo <code>while</code> che gira a vuoto finché la sezione critica non si
+        libera. Funziona, ma <strong>spreca CPU</strong> — il processo in attesa consuma il suo
+        quanto di tempo senza fare nulla di utile — e con le priorità sbagliate può bloccare tutto.
+        Serve un meccanismo in cui chi non può entrare <em>si mette a dormire</em> e viene
+        risvegliato al momento giusto. Questo meccanismo è il <strong>semaforo</strong>, introdotto
+        da Dijkstra.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice</span></div>
+        <pre><code><span class="tok-key">struct</span> semaforo {
+    <span class="tok-key">int</span>  valore                <span class="tok-com">// se &gt;= 0: risorse disponibili; se &lt; 0: |valore| processi in coda</span>
+    coda processiInAttesa
+}
+
+<span class="tok-com">// P — dall'olandese "proberen", provare</span>
+<span class="tok-fn">wait</span>(s):
+    s.valore = s.valore - <span class="tok-num">1</span>
+    <span class="tok-key">if</span> s.valore &lt; <span class="tok-num">0</span>:
+        blocca il processo corrente e mettilo in s.processiInAttesa
+
+<span class="tok-com">// V — "verhogen", incrementare</span>
+<span class="tok-fn">signal</span>(s):
+    s.valore = s.valore + <span class="tok-num">1</span>
+    <span class="tok-key">if</span> s.valore &lt;= <span class="tok-num">0</span>:
+        togli un processo da s.processiInAttesa e rendilo PRONTO</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p>
+          <b>Il semaforo non è una variabile come le altre</b>
+          <code>wait</code> e <code>signal</code> sono operazioni <strong>atomiche</strong>: il
+          sistema operativo garantisce che nessuno possa interromperle a metà. Se provi a
+          «implementare un semaforo» con una normale variabile intera e un <code>if</code>, hai solo
+          spostato la race condition. Un semaforo con valore massimo 1 (0 oppure 1) si chiama
+          <strong>semaforo binario</strong> o <strong>mutex</strong>; con valore iniziale
+          <code>N &gt; 1</code> è un <strong>semaforo contatore</strong>, che concede la risorsa a
+          <code>N</code> processi per volta.
+        </p>
+      </div>
+
+      <h3>Mutua esclusione con un semaforo</h3>
+      <p>
+        Un semaforo <code>mutex</code> inizializzato a <code>1</code> realizza la sezione critica in
+        modo pulito: il primo processo che chiama <code>wait(mutex)</code> lo porta a <code>0</code>
+        ed entra; ogni altro lo porta in negativo e si blocca; alla <code>signal(mutex)</code> uno
+        dei bloccati viene risvegliato.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice</span></div>
+        <pre><code>semaforo mutex = <span class="tok-num">1</span>
+
+Processo i:
+  <span class="tok-key">repeat</span> forever
+     &lt; sezione non critica &gt;
+     <span class="tok-fn">wait</span>(mutex)          <span class="tok-com">// ingresso</span>
+        &lt; SEZIONE CRITICA &gt;
+     <span class="tok-fn">signal</span>(mutex)        <span class="tok-com">// uscita</span>
+     &lt; sezione non critica &gt;
+  <span class="tok-key">until</span> false</code></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🔗</span>
+        <p>
+          <b>Semafori per sincronizzare eventi, non solo per la mutua esclusione</b>
+          Se vuoi che l'istruzione <code>B</code> del processo 2 avvenga <em>dopo</em> l'istruzione
+          <code>A</code> del processo 1, usa un semaforo <code>sync = 0</code>: il processo 1 fa
+          <code>A</code> e poi <code>signal(sync)</code>; il processo 2 fa <code>wait(sync)</code> e
+          poi <code>B</code>. Se il processo 2 arriva prima, si blocca e aspetta.
+        </p>
+      </div>
+
+      <h2>Problemi classici della programmazione concorrente</h2>
+      <p>
+        Tre problemi «di scuola» che riassumono quasi tutte le difficoltà reali: uno di
+        <strong>cooperazione</strong> con buffer condiviso (produttori/consumatori) e due di
+        <strong>competizione</strong> per risorse multiple, con il rischio di stallo (filosofi a
+        cena e algoritmo del banchiere).
+      </p>
+
+      <h3>Produttori e consumatori</h3>
+      <p>
+        Un processo <strong>produttore</strong> genera dati e li deposita in un <strong>buffer</strong>
+        di <code>N</code> celle; un processo <strong>consumatore</strong> li preleva. Vincoli: il
+        produttore non deve scrivere in un buffer pieno, il consumatore non deve leggere da un
+        buffer vuoto, e i due non devono toccare il buffer nello stesso momento. Servono
+        <strong>tre semafori</strong>: uno per la mutua esclusione e due contatori che «contano» le
+        celle.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice</span></div>
+        <pre><code>semaforo mutex = <span class="tok-num">1</span>       <span class="tok-com">// accesso esclusivo al buffer</span>
+semaforo vuote = N       <span class="tok-com">// celle libere (all'inizio tutte)</span>
+semaforo piene = <span class="tok-num">0</span>       <span class="tok-com">// celle occupate</span>
+
+Produttore:
+  <span class="tok-key">repeat</span> forever
+     dato = <span class="tok-fn">produci</span>()
+     <span class="tok-fn">wait</span>(vuote)          <span class="tok-com">// c'e' posto? altrimenti mi blocco</span>
+     <span class="tok-fn">wait</span>(mutex)
+        <span class="tok-fn">inserisci</span>(dato)   <span class="tok-com">// sezione critica</span>
+     <span class="tok-fn">signal</span>(mutex)
+     <span class="tok-fn">signal</span>(piene)        <span class="tok-com">// un elemento in piu' da consumare</span>
+  <span class="tok-key">until</span> false
+
+Consumatore:
+  <span class="tok-key">repeat</span> forever
+     <span class="tok-fn">wait</span>(piene)          <span class="tok-com">// c'e' qualcosa? altrimenti mi blocco</span>
+     <span class="tok-fn">wait</span>(mutex)
+        dato = <span class="tok-fn">preleva</span>()    <span class="tok-com">// sezione critica</span>
+     <span class="tok-fn">signal</span>(mutex)
+     <span class="tok-fn">signal</span>(vuote)        <span class="tok-com">// una cella si e' liberata</span>
+     <span class="tok-fn">consuma</span>(dato)
+  <span class="tok-key">until</span> false</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p>
+          <b>L'ordine dei wait conta</b>
+          Prima il semaforo contatore (<code>vuote</code> / <code>piene</code>), poi
+          <code>mutex</code>. Se invertissi — <code>wait(mutex)</code> e poi
+          <code>wait(vuote)</code> — un produttore potrebbe entrare nella sezione critica, trovare
+          il buffer pieno e bloccarsi <em>tenendo</em> <code>mutex</code>: il consumatore non
+          potrebbe più entrare per svuotarlo. Stallo.
+        </p>
+      </div>
+
+      <h3>I filosofi a cena</h3>
+      <p>
+        Cinque filosofi attorno a un tavolo rotondo; fra ogni coppia c'è <strong>una</strong>
+        forchetta, cinque in tutto. Un filosofo pensa; quando ha fame prende la forchetta alla sua
+        sinistra e poi quella alla sua destra, mangia, e le riposa. Ogni forchetta è un semaforo
+        binario. La versione ingenua ha un difetto fatale.
+      </p>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">Cinque filosofi, cinque forchette</div>
+          <div class="demo-stage">
+            <svg class="phil-svg" viewBox="0 0 380 340" role="img"
+                 aria-label="Tavolo rotondo con cinque filosofi P0..P4 disposti a raggiera e cinque forchette F0..F4, una fra ogni coppia di filosofi adiacenti.">
+              <circle cx="190" cy="175" r="95" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="1.5"/>
+              <text x="190" y="180" text-anchor="middle" fill="var(--muted)" font-size="11">tavolo</text>
+
+              <g stroke="var(--gold)" stroke-width="3" stroke-linecap="round">
+                <line x1="238" y1="86" x2="254" y2="110"/>
+                <line x1="272" y1="196" x2="289" y2="213"/>
+                <line x1="182" y1="262" x2="198" y2="278"/>
+                <line x1="91"  y1="196" x2="108" y2="213"/>
+                <line x1="126" y1="86"  x2="142" y2="110"/>
+              </g>
+              <g fill="var(--muted)" font-size="10" text-anchor="middle">
+                <text x="258" y="92">F0</text>
+                <text x="299" y="205">F1</text>
+                <text x="205" y="285">F2</text>
+                <text x="81" y="205">F3</text>
+                <text x="122" y="92">F4</text>
+              </g>
+
+              <g>
+                <circle cx="190" cy="40"  r="26" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                <text x="190" y="45" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">P0</text>
+                <circle cx="318" cy="133" r="26" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                <text x="318" y="138" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">P1</text>
+                <circle cx="269" cy="284" r="26" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                <text x="269" y="289" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">P2</text>
+                <circle cx="111" cy="284" r="26" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                <text x="111" y="289" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">P3</text>
+                <circle cx="62"  cy="133" r="26" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                <text x="62" y="138" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">P4</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <figcaption>
+          La forchetta <code>F<em>i</em></code> è condivisa fra il filosofo <code>P<em>i</em></code>
+          e <code>P<em>(i+1) mod 5</em></code>: nessuno può mangiare senza togliere una forchetta a
+          un vicino.
+        </figcaption>
+      </figure>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice — versione ingenua</span></div>
+        <pre><code>semaforo forchetta[<span class="tok-num">5</span>] = { <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span> }
+
+Filosofo i:
+  <span class="tok-key">repeat</span> forever
+     <span class="tok-fn">pensa</span>()
+     <span class="tok-fn">wait</span>(forchetta[i])              <span class="tok-com">// forchetta sinistra</span>
+     <span class="tok-fn">wait</span>(forchetta[(i+<span class="tok-num">1</span>) mod <span class="tok-num">5</span>])      <span class="tok-com">// forchetta destra</span>
+     <span class="tok-fn">mangia</span>()
+     <span class="tok-fn">signal</span>(forchetta[i])
+     <span class="tok-fn">signal</span>(forchetta[(i+<span class="tok-num">1</span>) mod <span class="tok-num">5</span>])
+  <span class="tok-key">until</span> false</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">💀</span>
+        <p>
+          <b>Deadlock (stallo)</b>
+          Se tutti e cinque i filosofi prendono <em>insieme</em> la forchetta sinistra, ognuno
+          resta con una forchetta in mano ad aspettare per sempre la destra, che il vicino non
+          mollerà mai. Nessuno avanza: è uno <strong>stallo</strong>. Serve rompere la simmetria.
+        </p>
+      </div>
+
+      <p>Due rimedi classici, entrambi eliminano l'attesa circolare:</p>
+      <ul>
+        <li>
+          <strong>Asimmetria</strong>: i filosofi con indice pari prendono prima la destra e poi la
+          sinistra, quelli con indice dispari il contrario. La catena chiusa non si può più formare.
+        </li>
+        <li>
+          <strong>Limitare i commensali</strong>: un semaforo contatore <code>posti = 4</code>
+          permette ad al massimo quattro filosofi per volta di provare a prendere le forchette. Con
+          quattro contendenti e cinque forchette, almeno uno riesce sempre a mangiare.
+        </li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice — con "al più 4 a tavola"</span></div>
+        <pre><code>semaforo forchetta[<span class="tok-num">5</span>] = { <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">1</span> }
+semaforo posti = <span class="tok-num">4</span>       <span class="tok-com">// al massimo 4 filosofi contendono le forchette</span>
+
+Filosofo i:
+  <span class="tok-key">repeat</span> forever
+     <span class="tok-fn">pensa</span>()
+     <span class="tok-fn">wait</span>(posti)
+     <span class="tok-fn">wait</span>(forchetta[i])
+     <span class="tok-fn">wait</span>(forchetta[(i+<span class="tok-num">1</span>) mod <span class="tok-num">5</span>])
+     <span class="tok-fn">mangia</span>()
+     <span class="tok-fn">signal</span>(forchetta[i])
+     <span class="tok-fn">signal</span>(forchetta[(i+<span class="tok-num">1</span>) mod <span class="tok-num">5</span>])
+     <span class="tok-fn">signal</span>(posti)
+  <span class="tok-key">until</span> false</code></pre>
+      </div>
+
+      <h3>Le quattro condizioni del deadlock (Coffman)</h3>
+      <p>
+        Uno stallo può verificarsi solo se valgono <strong>tutte e quattro</strong> insieme;
+        negarne anche una sola lo previene.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Condizione</th><th>Significato</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Mutua esclusione</strong></td><td>La risorsa non è condivisibile: la usa un processo alla volta.</td></tr>
+            <tr><td><strong>Hold and wait</strong></td><td>Un processo tiene risorse già ottenute mentre ne aspetta altre.</td></tr>
+            <tr><td><strong>No preemption</strong></td><td>Una risorsa non può essere sottratta a forza: la rilascia solo chi la detiene.</td></tr>
+            <tr><td><strong>Attesa circolare</strong></td><td>Esiste una catena chiusa P1→P2→…→Pn→P1 in cui ognuno aspetta una risorsa tenuta dal successivo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>L'algoritmo del banchiere</h3>
+      <p>
+        È una strategia di <strong>prevenzione dinamica</strong> dello stallo (deadlock
+        <em>avoidance</em>), dovuta a Dijkstra. L'idea: un banchiere concede prestiti ai clienti
+        solo se, anche nel caso peggiore, gli resta abbastanza cassa per soddisfare <em>almeno un</em>
+        cliente per intero, farsi restituire tutto, e così via fino ad accontentarli tutti. Tradotto
+        in sistema operativo: ogni processo <strong>dichiara in anticipo</strong> il massimo di
+        risorse che potrà richiedere; a ogni richiesta il sistema simula la concessione e la accetta
+        solo se lo <strong>stato</strong> che ne risulterebbe è <strong>sicuro</strong>.
+      </p>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Pseudocodice</span></div>
+        <pre><code><span class="tok-com">// n processi, m tipi di risorsa</span>
+Disponibili[m]                      <span class="tok-com">// risorse libere adesso</span>
+Massimo[n][m]                       <span class="tok-com">// richiesta massima dichiarata da ciascun processo</span>
+Allocate[n][m]                      <span class="tok-com">// risorse gia' assegnate a ciascun processo</span>
+Necessita[n][m] = Massimo - Allocate
+
+<span class="tok-com">// Uno stato e' SICURO se esiste un ordine in cui TUTTI i processi terminano.</span>
+<span class="tok-fn">statoSicuro</span>():
+    Lavoro = Disponibili
+    Finito[i] = false   per ogni i
+    <span class="tok-key">repeat</span>:
+        cerca un i con  Finito[i] == false  e  Necessita[i] &lt;= Lavoro
+        <span class="tok-key">if</span> non esiste tale i: <span class="tok-key">break</span>
+        Lavoro = Lavoro + Allocate[i]       <span class="tok-com">// i finisce e restituisce tutto</span>
+        Finito[i] = true
+    <span class="tok-key">return</span>  (Finito[i] == true per ogni i)
+
+<span class="tok-com">// Gestione di una richiesta Richiesta[k] del processo k</span>
+<span class="tok-fn">richiesta</span>(k, Richiesta):
+    <span class="tok-key">if</span> Richiesta &gt; Necessita[k]:  errore   <span class="tok-com">// chiede piu' del dichiarato</span>
+    <span class="tok-key">if</span> Richiesta &gt; Disponibili: metti k in attesa
+    <span class="tok-com">// prova ad assegnare...</span>
+    Disponibili  = Disponibili  - Richiesta
+    Allocate[k]  = Allocate[k]  + Richiesta
+    Necessita[k] = Necessita[k] - Richiesta
+    <span class="tok-key">if</span> <span class="tok-fn">statoSicuro</span>(): concedi davvero
+    <span class="tok-key">else</span>:                annulla la prova e metti k in attesa</code></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p>
+          <b>Stato sicuro ≠ stato senza stalli</b>
+          Uno stato non sicuro <em>non</em> è già uno stallo: è uno stato dal quale il sistema
+          <strong>non può più garantire</strong> di evitarlo. L'algoritmo del banchiere è
+          prudente per definizione e a volte fa aspettare un processo che «in pratica» sarebbe
+          passato senza danni. In cambio, lo stallo non si verifica mai.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">🕳️</span>
+        <p>
+          <b>Deadlock e starvation non sono la stessa cosa</b>
+          Nel <strong>deadlock</strong> un gruppo di processi è bloccato per sempre, e nessuno di
+          loro avanza. Nella <strong>starvation</strong> (attesa indefinita) il sistema nel suo
+          insieme procede, ma un particolare processo — magari a bassa priorità — viene
+          continuamente scavalcato e non ottiene mai la risorsa. Una politica di code
+          <em>FIFO</em> sul semaforo evita la starvation.
+        </p>
+      </div>
+
+      <h2>Da ricordare</h2>
+      <ul>
+        <li>
+          <strong>Programma</strong> = file passivo; <strong>processo</strong> = programma in
+          evoluzione (codice, dati, PC, registri, stack). Cinque stati: <em>nuovo, pronto, in
+          esecuzione, attesa, finito</em>; da <em>sospeso</em> si passa sempre per <em>pronto</em>.
+        </li>
+        <li>
+          Il <strong>PCB</strong> conserva tutto ciò che serve a fermare e far ripartire il
+          processo; il <strong>context switch</strong> salva un contesto e ne ripristina un altro,
+          a puro costo di gestione.
+        </li>
+        <li>
+          Lo <strong>scheduling</strong> sceglie il prossimo processo da mandare in esecuzione:
+          <strong>FCFS</strong> (semplice, effetto convoglio), <strong>SJF/SRTF</strong> (attesa
+          minima, ma durate da stimare), <strong>a priorità</strong> (rischio starvation, rimedio
+          aging), <strong>Round Robin</strong> (quanto fisso, equo, base del time-sharing).
+        </li>
+        <li>
+          Il <strong>thread</strong> è un flusso interno al processo: condivide codice, dati e
+          heap, possiede solo PC, registri e stack. Leggero da creare, ma espone alle stesse race
+          condition dei processi cooperanti.
+        </li>
+        <li>
+          <strong>Sequenziale</strong> / <strong>concorrente</strong> (tempi di vita sovrapposti,
+          interleaving) / <strong>parallela</strong> (stesso istante, più core). Un programma
+          concorrente è corretto se dà il risultato giusto per <em>ogni</em> interfogliamento.
+        </li>
+        <li>
+          <strong>Sezione critica</strong>: codice che accede a un dato condiviso. Serve
+          <strong>mutua esclusione</strong> + progresso + attesa limitata, senza ipotesi sulle
+          velocità. La <strong>race condition</strong> tipica: <code>leggi–modifica–riscrivi</code>
+          non atomico.
+        </li>
+        <li>
+          <strong>Semaforo</strong>: intero + coda, con <code>wait</code> (P) e <code>signal</code>
+          (V) <em>atomiche</em>. <code>mutex = 1</code> per la sezione critica; contatore
+          <code>N</code> per concedere una risorsa a <code>N</code> processi; <code>sync = 0</code>
+          per ordinare due eventi. Meglio del <em>busy waiting</em>, che spreca CPU.
+        </li>
+        <li>
+          <strong>Produttori/consumatori</strong>: tre semafori (<code>mutex</code>,
+          <code>vuote = N</code>, <code>piene = 0</code>); il <code>wait</code> sul contatore va
+          <em>prima</em> del <code>wait(mutex)</code>, altrimenti stallo.
+        </li>
+        <li>
+          <strong>Filosofi a cena</strong>: la presa «tutti la sinistra» è un deadlock; si rompe la
+          simmetria (ordine di presa alternato) o si limita a 4 i commensali. Il <strong>deadlock</strong>
+          richiede le 4 condizioni di Coffman insieme; l'<strong>algoritmo del banchiere</strong> lo
+          evita concedendo risorse solo se lo stato resta <em>sicuro</em>.
+        </li>
+      </ul>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🎓</span>
+        <p>
+          <b>All'Esame di Stato</b>
+          Le tracce di sistemi chiedono spesso di <em>scrivere</em> lo pseudocodice di
+          produttori/consumatori o dei filosofi con i semafori, di spiegare <em>perché</em> una
+          certa soluzione va in stallo, o di distinguere concorrenza da parallelismo e deadlock da
+          starvation. Impara a giustificare l'ordine delle <code>wait</code>.
+        </p>
+      </div>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="index.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Tutti gli argomenti del quinto anno</span>
+        </a>
+        <a class="next" href="sistemi-distribuiti.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Sistemi distribuiti e modelli architetturali</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+<!-- ============ JAVASCRIPT DELLA DEMO: race condition su variabile condivisa ======== -->
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  if (!$('#rcSim')) return;
+
+  var INCS = 25;                 // incrementi per processo
+  var TARGET = INCS * 2;         // valore atteso a fine corsa
+
+  var saldo, lockOwner, lastRun, seed, timer;
+  var procs = [];
+
+  /* PRNG deterministico: "Azzera" riproduce sempre la stessa storia */
+  function rnd() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  }
+
+  function useSem() { return $('#rcSem').checked; }
+
+  function reset() {
+    stop();
+    seed = 20250909;
+    saldo = 0;
+    lockOwner = null;
+    lastRun = null;
+    procs = [
+      { id: 'P1', reg: 0, step: 0, done: 0, bar: '#rcBar1', regEl: '#rcR1', stepEl: '#rcS1', doneEl: '#rcD1', badgeEl: '#rcB1', boxEl: '#rcP1' },
+      { id: 'P2', reg: 0, step: 0, done: 0, bar: '#rcBar2', regEl: '#rcR2', stepEl: '#rcS2', doneEl: '#rcD2', badgeEl: '#rcB2', boxEl: '#rcP2' }
+    ];
+    procs.forEach(function (p) { $(p.stepEl).textContent = 'in attesa di avvio'; });
+    $('#rcState').textContent = 'premi Avvia — modalità: ' + (useSem() ? 'con semaforo' : 'senza semaforo');
+    render();
+  }
+
+  function finished(p) { return p.done >= INCS; }
+  function allDone() { return procs.every(finished); }
+
+  function pickNext() {
+    var un = procs.filter(function (p) { return !finished(p); });
+    if (!un.length) return null;
+    if (un.length === 1) return un[0];
+
+    if (useSem() && lockOwner) {
+      var owner = procs.filter(function (p) { return p.id === lockOwner; })[0];
+      return finished(owner) ? un[0] : owner;
+    }
+
+    var pick;
+    var r = rnd();
+    if (r < 0.55) {
+      pick = un[0].id === lastRun ? un[1] : un[0];
+    } else {
+      pick = un[rnd() < 0.5 ? 0 : 1];
+    }
+    lastRun = pick.id;
+    return pick;
+  }
+
+  function advance(p) {
+    if (p.step === 0) {
+      if (useSem()) {
+        if (lockOwner === null) lockOwner = p.id;
+        else if (lockOwner !== p.id) return;
+      }
+      p.reg = saldo;
+      p.step = 1;
+      $('#rcState').textContent = p.id + ' entra e legge  →  registro = ' + p.reg;
+    } else if (p.step === 1) {
+      p.reg = p.reg + 1;
+      p.step = 2;
+      $('#rcState').textContent = p.id + ' calcola  →  registro = ' + p.reg;
+    } else {
+      saldo = p.reg;                      // riscrive: se ha lavorato su un valore vecchio, un incremento va perso
+      p.done++;
+      p.step = 0;
+      if (useSem()) lockOwner = null;
+      $('#rcState').textContent = p.id + ' scrive  →  saldo = ' + saldo;
+    }
+  }
+
+  function tick() {
+    if (allDone()) { endRun(); return; }
+    var p = pickNext();
+    if (!p) return;
+    advance(p);
+    render();
+    if (allDone()) endRun();
+  }
+
+  function stepName(p) {
+    if (p.step === 0) return finished(p) ? 'terminato' : 'pronto (deve LEGGERE)';
+    if (p.step === 1) return 'ha LETTO, deve CALCOLARE';
+    return 'ha CALCOLATO, deve SCRIVERE';
+  }
+
+  function render() {
+    $('#rcSaldo').textContent = 'saldo = ' + saldo;
+    $('#rcLock').textContent = !useSem()
+      ? 'semaforo: non attivo'
+      : (lockOwner ? 'semaforo: preso da ' + lockOwner : 'semaforo: libero');
+
+    procs.forEach(function (p) {
+      $(p.regEl).textContent = p.reg;
+      $(p.stepEl).textContent = stepName(p);
+      $(p.doneEl).textContent = p.done;
+      $(p.bar).style.width = Math.round(p.done / INCS * 100) + '%';
+
+      var box = $(p.boxEl);
+      var waiting = useSem() && lockOwner && lockOwner !== p.id && !finished(p);
+      box.classList.toggle('is-run', lockOwner === p.id && useSem());
+      box.classList.toggle('is-wait', !!waiting);
+
+      var badge = $(p.badgeEl);
+      if (finished(p)) badge.textContent = 'fatto';
+      else if (waiting) badge.textContent = 'in attesa';
+      else if (useSem() && lockOwner === p.id) badge.textContent = 'sez. critica';
+      else badge.textContent = 'in corso';
+    });
+  }
+
+  function endRun() {
+    stop();
+    var deficit = TARGET - saldo;
+    var msg = 'Fine. saldo = ' + saldo + ' su ' + TARGET + ' attesi. ';
+    if (deficit === 0) msg += 'Nessun aggiornamento perso. ✓';
+    else msg += 'persi ' + deficit + ' incrementi: ' + TARGET + ' − ' + deficit + ' = ' + saldo + '.';
+    $('#rcState').textContent = msg;
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    var b = $('#rcPlay');
+    if (b) b.textContent = '▶ Avvia';
+  }
+
+  function play() {
+    if (timer) { stop(); return; }
+    if (allDone()) reset();
+    var v = parseInt($('#rcSpeed').value, 10);
+    var ms = 700 - (v - 1) * 80;          // da 700 ms a ~140 ms per micro-passo
+    $('#rcPlay').textContent = '⏸ Pausa';
+    timer = setInterval(tick, ms);
+  }
+
+  $('#rcPlay').addEventListener('click', play);
+  $('#rcReset').addEventListener('click', reset);
+  $('#rcSem').addEventListener('change', reset);
+  $('#rcSpeed').addEventListener('input', function () { if (timer) { stop(); play(); } });
+
+  reset();
+})();
+</script>
+</body>
+</html>

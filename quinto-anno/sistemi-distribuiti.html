@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistemi distribuiti e modelli architetturali · TPSsssIT</title>
+<meta name="description" content="Che cos'è un sistema distribuito, vantaggi e svantaggi, forme di trasparenza, classificazione di Flynn, multiprocessori e multicomputer, cluster, grid e sistemi pervasivi, architetture software distribuite e middleware.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- schemi SVG della dispensa --- */
+  .sd-svg { width:100%; height:auto; }
+  .sd-svg text { font-family:var(--font-sans); fill:var(--text); font-size:13px; text-anchor:middle; dominant-baseline:middle; }
+  .sd-svg .t-title { font-family:var(--font-display); font-weight:700; font-size:15px; }
+  .sd-svg .t-small { font-size:11.5px; fill:var(--text-soft); }
+  .sd-svg .t-muted { font-size:11.5px; fill:var(--muted); }
+  .sd-svg .node { fill:var(--surface-2); stroke:var(--border); stroke-width:1.2; }
+  .sd-svg .node-key { fill:color-mix(in srgb, var(--gold) 14%, var(--surface)); stroke:var(--gold); stroke-width:1.6; }
+  .sd-svg .node-alt { fill:color-mix(in srgb, var(--accent) 14%, var(--surface)); stroke:var(--accent); stroke-width:1.4; }
+  .sd-svg .node-ghost { fill:none; stroke:var(--muted); stroke-width:1.2; stroke-dasharray:5 4; }
+  .sd-svg .link { fill:none; stroke:var(--muted); stroke-width:1.5; }
+  .sd-svg .link-key { fill:none; stroke:var(--gold); stroke-width:2.2; }
+  .sd-svg .sep { stroke:var(--border); stroke-width:1; stroke-dasharray:4 5; }
+
+  /* --- simulatore: un calcolo diviso su un cluster --- */
+  .cl-legend { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; margin-bottom:1rem; font-size:.85rem; color:var(--text-soft); }
+  .cl-legend span { display:inline-flex; align-items:center; gap:.45rem; }
+  .cl-legend i { width:22px; height:10px; border-radius:3px; display:block; }
+  .cl-rows { display:grid; gap:.4rem; }
+  .cl-row { display:grid; grid-template-columns:3.4rem 1fr; align-items:center; gap:.6rem; }
+  .cl-lbl { font-family:var(--font-mono); font-size:.78rem; color:var(--muted); }
+  .cl-track { position:relative; height:18px; border-radius:5px; background:var(--border-soft); overflow:hidden; }
+  .cl-wait, .cl-work { position:absolute; top:0; bottom:0; width:0; }
+  .cl-wait { left:0; background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, transparent) 0 4px, transparent 4px 8px); }
+  .cl-work { background:var(--gold); border-radius:0 4px 4px 0; }
+  .cl-swatch-wait { background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, transparent) 0 4px, transparent 4px 8px); border:1px solid var(--accent); }
+  .cl-swatch-work { background:var(--gold); }
+  .cl-read { display:flex; flex-wrap:wrap; gap:.5rem 1.6rem; margin-top:1.1rem; font-size:.92rem; color:var(--text-soft); }
+  .cl-read b { font-family:var(--font-mono); color:var(--text); }
+
+  /* --- autoverifica --- */
+  .quiz { display:grid; gap:.6rem; }
+  .quiz details { border:1px solid var(--border); border-radius:var(--r); padding:.75rem 1rem; background:var(--surface); }
+  .quiz summary { cursor:pointer; font-weight:700; color:var(--text); }
+  .quiz details[open] summary { margin-bottom:.5rem; }
+  .quiz details p { margin:0; }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="../quarto-anno/index.html">Quarto anno</a></li>
+      <li><a href="index.html" class="is-active">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quinto anno</a></li>
+      <li aria-current="page">Sistemi distribuiti e modelli architetturali</li>
+    </ul>
+    <h1>Sistemi distribuiti e modelli architetturali</h1>
+    <p class="lead">
+      Quando apri una chat, guardi un video o paghi con il telefono, non stai usando «un computer»:
+      stai usando decine di macchine sparse per il mondo che collaborano come se fossero una sola.
+      Questa dispensa spiega come si costruisce questa illusione, che cosa si guadagna a distribuire
+      il lavoro, che cosa si rischia, e quali architetture — hardware e software — rendono tutto possibile.
+    </p>
+    <div class="stats-row">
+      <span class="stat-pill">Argomento <b>1</b></span>
+      <span class="stat-pill">Lettura <b>35</b> min</span>
+      <span class="stat-pill">Con <b>simulatore</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+      <p>
+        La dispensa ha due parti. Nella prima capiamo <strong>che cos'è</strong> un sistema distribuito
+        e perché conviene (o non conviene) costruirne uno. Nella seconda guardiamo <strong>come è fatto</strong>:
+        prima dal lato dell'hardware, con le macchine a più processori, poi dal lato del software,
+        con le architetture che organizzano i programmi in rete fino al middleware.
+      </p>
+
+      <!-- ================================================================ -->
+      <h2>Dal sistema centralizzato a quello distribuito</h2>
+
+      <p>
+        Dalla metà degli anni Ottanta due novità hanno cambiato il modo di fare informatica:
+        i <strong>microprocessori</strong>, che hanno reso la potenza di calcolo economica e diffusa,
+        e le <strong>reti</strong>, che hanno permesso di collegare fra loro i singoli computer. Da lì
+        le architetture dei sistemi informativi si sono spostate, un po' alla volta, da un modello
+        accentrato a uno distribuito, più adatto a organizzazioni che lavorano in sedi diverse e
+        devono cooperare.
+      </p>
+
+      <h3>Il sistema centralizzato</h3>
+      <p>
+        In un sistema centralizzato c'è un solo elaboratore — un unico host — che esegue tutte le
+        applicazioni e conserva tutti i dati. Gli utenti lo condividono attraverso dei terminali, e
+        ogni risorsa è sempre raggiungibile perché sta tutta in un posto.
+      </p>
+      <div class="callout">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p><b>Sistema centralizzato</b>Un sistema informatico è centralizzato quando dati e applicazioni risiedono in un unico nodo di elaborazione.</p>
+      </div>
+
+      <h3>Il sistema distribuito</h3>
+      <p>
+        In un sistema distribuito, invece, un'applicazione è formata da più processi che cooperano e
+        girano in parallelo su unità di elaborazione autonome, ciascuna con la propria CPU, la propria
+        memoria e le proprie periferiche. Perché un sistema si possa dire distribuito basta che
+        sia vera <strong>almeno una</strong> di queste due condizioni:
+      </p>
+      <ul>
+        <li><strong>elaborazione distribuita</strong>: le applicazioni sono sparse su più host che collaborano;</li>
+        <li><strong>base di dati distribuita</strong>: i dati dell'organizzazione sono conservati su più host.</li>
+      </ul>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">Due modi di organizzare lo stesso sistema</div>
+          <div class="demo-stage">
+            <svg class="sd-svg" viewBox="0 0 680 262" role="img"
+                 aria-label="A sinistra un sistema centralizzato: un nodo centrale con applicazioni e dati, collegato a quattro terminali. A destra un sistema distribuito: tre nodi, ciascuno con applicazioni e dati locali, collegati da una rete a cui accedono le stazioni degli utenti.">
+              <text class="t-title" x="160" y="22">Centralizzato</text>
+              <text class="t-title" x="515" y="22">Distribuito</text>
+              <line class="sep" x1="340" y1="40" x2="340" y2="250"/>
+
+              <!-- centralizzato -->
+              <path class="link" d="M50 190 L160 140 M125 190 L160 140 M195 190 L160 140 M270 190 L160 140"/>
+              <rect class="node-key" x="90" y="68" width="140" height="72" rx="10"/>
+              <text x="160" y="94">Nodo centrale</text>
+              <text class="t-small" x="160" y="116">applicazioni + dati</text>
+              <rect class="node" x="22" y="190" width="56" height="30" rx="6"/>
+              <rect class="node" x="97" y="190" width="56" height="30" rx="6"/>
+              <rect class="node" x="167" y="190" width="56" height="30" rx="6"/>
+              <rect class="node" x="242" y="190" width="56" height="30" rx="6"/>
+              <text class="t-muted" x="160" y="244">terminali degli utenti</text>
+
+              <!-- distribuito -->
+              <path class="link" d="M405 122 V160 M515 122 V160 M625 122 V160 M405 160 V194 M515 160 V194 M625 160 V194"/>
+              <line class="link-key" x1="375" y1="160" x2="655" y2="160"/>
+              <text class="t-muted" x="460" y="174">rete</text>
+              <rect class="node-key" x="357" y="60" width="96" height="62" rx="10"/>
+              <rect class="node-key" x="467" y="60" width="96" height="62" rx="10"/>
+              <rect class="node-key" x="577" y="60" width="96" height="62" rx="10"/>
+              <text x="405" y="84">Nodo A</text><text class="t-small" x="405" y="104">app + dati</text>
+              <text x="515" y="84">Nodo B</text><text class="t-small" x="515" y="104">app + dati</text>
+              <text x="625" y="84">Nodo C</text><text class="t-small" x="625" y="104">app + dati</text>
+              <rect class="node" x="377" y="194" width="56" height="30" rx="6"/>
+              <rect class="node" x="487" y="194" width="56" height="30" rx="6"/>
+              <rect class="node" x="597" y="194" width="56" height="30" rx="6"/>
+              <text class="t-muted" x="515" y="244">stazioni degli utenti</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>Nel modello centralizzato tutto passa da un solo nodo; in quello distribuito ogni nodo elabora e conserva una parte del lavoro.</figcaption>
+      </figure>
+
+      <!-- ================================================================ -->
+      <h2>Che cos'è un sistema distribuito</h2>
+
+      <p>
+        Dagli anni Settanta a oggi ne sono state proposte molte definizioni, e nessuna mette
+        d'accordo tutti: ognuna riflette la tecnologia e il punto di vista (più hardware o più software)
+        del periodo in cui è nata. Tre sono diventate classiche, e vale la pena conoscerle perché
+        guardano lo stesso oggetto da tre lati diversi.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Autore</th><th>L'idea in breve</th><th>Che cosa mette in evidenza</th></tr></thead>
+          <tbody>
+            <tr><td>Tanenbaum</td><td>Tanti calcolatori indipendenti che all'utente appaiono come un calcolatore solo.</td><td>La trasparenza verso l'utente</td></tr>
+            <tr><td>Coulouris e Dollimore</td><td>Componenti su calcolatori in rete che comunicano e si coordinano <em>soltanto</em> scambiandosi messaggi.</td><td>Il modo in cui le parti comunicano</td></tr>
+            <tr><td>Lamport</td><td>Un sistema in cui il guasto di un computer di cui ignori perfino l'esistenza può bloccare il tuo.</td><td>La dipendenza reciproca (in modo ironico)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Noi useremo una definizione più astratta, che non dipende da una tecnologia particolare:</p>
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>Sistema distribuito</b>Un insieme di applicazioni logicamente indipendenti che collaborano per raggiungere obiettivi comuni, servendosi di un'infrastruttura di comunicazione fatta di hardware e software.</p>
+      </div>
+
+      <h3>I ruoli: client, server e attore</h3>
+      <p>
+        Su ogni componente del sistema gira un programma, e i programmi possono differire sia per il
+        compito che svolgono sia per il ruolo che assumono nella rete. Proprio in base al ruolo si
+        distinguono tre figure:
+      </p>
+      <ul>
+        <li><strong>client</strong> (cliente): usa servizi messi a disposizione da altre applicazioni;</li>
+        <li><strong>server</strong> (servente): fornisce servizi che altre applicazioni usano;</li>
+        <li><strong>attore</strong> (<em>actor</em>): a seconda della situazione fa da client oppure da server.</li>
+      </ul>
+      <p>
+        Il modello che prende il nome da questi ruoli, il <strong>client-server</strong>, sarà
+        l'oggetto di una delle prossime dispense.
+      </p>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🌐</span>
+        <p><b>Esempi</b>Internet e il Web sono i sistemi distribuiti più grandi che esistano. Ma non tutti i sistemi distribuiti sono aperti al pubblico: la intranet di un'azienda, un sistema di calcolo scientifico o una server farm sono distribuiti anche se nessuno di noi può collegarsi.</p>
+      </div>
+
+      <h3>Distribuito non vuol dire parallelo</h3>
+      <p>La differenza è sottile ma importante:</p>
+      <ul>
+        <li>un <strong>sistema distribuito</strong> è un insieme di computer <em>indipendenti</em> che comunicano e possono cooperare per risolvere problemi;</li>
+        <li>un <strong>sistema parallelo</strong> è un insieme di unità di elaborazione che comunicano e cooperano per risolvere <em>velocemente</em> problemi di grandi dimensioni.</li>
+      </ul>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Attenzione</b>Nel sistema distribuito conta l'indipendenza dei nodi e la collaborazione; nel sistema parallelo conta la velocità su un singolo grande problema. Un sistema distribuito non è automaticamente un sistema parallelo.</p>
+      </div>
+
+      <h3>Tre famiglie di sistemi distribuiti</h3>
+      <ol>
+        <li>
+          <strong>Sistemi di calcolo distribuito</strong>, pensati per il calcolo ad alte prestazioni.
+          Li vedremo in due forme: il <em>cluster computing</em>, con computer omogenei collegati in
+          rete per parallelizzare un'elaborazione, e il <em>grid computing</em>, che fa cooperare
+          anche macchine eterogenee.
+        </li>
+        <li>
+          <strong>Sistemi informativi distribuiti</strong>: il Web è il più grande. Le tecnologie
+          mobili hanno dato una forte spinta alla loro evoluzione, perché hanno costretto le
+          organizzazioni a collegare i vecchi <em>sistemi legacy</em> con i nuovi canali di
+          comunicazione. Ne fanno parte i <strong>sistemi transazionali</strong>, dove ogni
+          transazione è un gruppo di operazioni elementari racchiuse tra un comando di inizio e uno di fine.
+        </li>
+        <li>
+          <strong>Sistemi distribuiti pervasivi</strong>: la generazione più recente. I nodi sono
+          piccoli, spesso mobili, collegati senza fili e inseriti in sistemi più grandi: la domotica,
+          le reti personali (PAN), i dispositivi indossabili, le reti di sensori.
+        </li>
+      </ol>
+      <div class="callout">
+        <span class="ico" aria-hidden="true">🏛️</span>
+        <p><b>Sistemi legacy</b>Sono i sistemi «ereditati» dalle prime fasi di informatizzazione di un'azienda: di solito un mainframe a cui si collegano terminali con interfaccia a caratteri. Sono vecchi e grandi, spesso svolgono compiti critici e hanno subito anni di manutenzione, ma non vengono sostituiti per un motivo molto semplice: funzionano.</p>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>Perché distribuire: i vantaggi</h2>
+
+      <p>
+        Oggi tutti i grandi sistemi informatici sono distribuiti. Vediamo i vantaggi uno per uno,
+        senza distinguere se derivano dall'hardware o dal software.
+      </p>
+
+      <h3>Affidabilità</h3>
+      <p>
+        È il vantaggio principale. Un sistema distribuito è <strong>ridondante per natura</strong>:
+        se si guasta un componente, gli altri possono continuare a lavorare. Perché questo accada
+        davvero però bisogna progettarlo: servono meccanismi che si accorgano del guasto e algoritmi
+        che permettano ai nodi sani di prendere il posto di quello danneggiato. Più i nodi sono
+        autonomi, più questo coordinamento diventa difficile.
+      </p>
+      <p>
+        Dal punto di vista organizzativo si distinguono due situazioni: sistemi in cui tutte le
+        risorse fanno capo, in ultima istanza, a un'<strong>unica autorità</strong> (anche se gestite
+        da più uffici), e sistemi formati da <strong>organizzazioni autonome</strong> che decidono di
+        cooperare per offrire insieme servizi a valore aggiunto, per motivi istituzionali o di business.
+        Nella letteratura si parla rispettivamente di sistemi ad accoppiamento <em>forte</em> e ad
+        accoppiamento <em>debole</em>.
+      </p>
+
+      <h3>Integrazione</h3>
+      <p>
+        Un sistema distribuito riesce a far lavorare insieme componenti molto diversi: dal PC al
+        mainframe, dallo smartphone al tablet, con sistemi operativi differenti. Il trucco è che ogni
+        componente si presenta alla rete attraverso la stessa <strong>interfaccia di comunicazione</strong>,
+        che nasconde le differenze degli strati sottostanti. Così si possono collegare perfino i
+        dispositivi di nuova generazione ai sistemi legacy, che altrimenti sarebbero incompatibili:
+        Ethernet e il Web fanno da terreno comune.
+      </p>
+      <p>
+        Per scambiarsi dati complessi in un formato che tutti capiscono sono nati linguaggi e notazioni
+        standard come <strong>XML</strong> (<em>eXtensible Markup Language</em>) e
+        <strong>JSON</strong> (<em>JavaScript Object Notation</em>), che studieremo più avanti.
+      </p>
+
+      <h3>Trasparenza</h3>
+      <p>
+        Trasparenza significa che l'utente vede il sistema distribuito come <strong>un unico
+        elaboratore</strong>: non si accorge che dietro ci sono tante macchine, né dei cambiamenti
+        che avvengono nel tempo. Il modello di riferimento per l'elaborazione distribuita aperta
+        (RM-ODP, standard ISO 10746) ne individua otto forme.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Trasparenza</th><th>Che cosa nasconde</th></tr></thead>
+          <tbody>
+            <tr><td><strong>di accesso</strong></td><td>Le differenze nel modo di rappresentare i dati e di accedere alle risorse: una risorsa remota si usa con le stesse operazioni di una locale.</td></tr>
+            <tr><td><strong>di locazione</strong></td><td>Dove si trova fisicamente una risorsa. Un URL, per esempio, nasconde l'indirizzo IP del server.</td></tr>
+            <tr><td>di concorrenza</td><td>Il fatto che più processi usino la stessa risorsa insieme, lasciandola sempre in uno stato consistente (per esempio con meccanismi di <em>locking</em>).</td></tr>
+            <tr><td>di replicazione</td><td>L'esistenza di più copie della stessa risorsa, create per aumentare affidabilità e prestazioni: il nome resta uno solo.</td></tr>
+            <tr><td>ai guasti</td><td>Il guasto di una risorsa e il suo recupero.</td></tr>
+            <tr><td>alla migrazione</td><td>Lo spostamento, logico o fisico, di una risorsa, senza cambiare il modo in cui gli utenti vi accedono.</td></tr>
+            <tr><td>alle prestazioni</td><td>Le riconfigurazioni che il sistema fa da solo al variare del carico per restare veloce.</td></tr>
+            <tr><td>di scalabilità</td><td>L'espansione del sistema, che avviene senza interromperne il funzionamento.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>Da sapere per la verifica</b>Le due forme più importanti sono la trasparenza <strong>di accesso</strong> e quella <strong>di locazione</strong>. Occhio alle forme inventate nei test: «trasparenza di prezzo» o «di sicurezza» non esistono.</p>
+      </div>
+
+      <h3>Economicità</h3>
+      <p>
+        A parità di potenza, una rete di PC costa ordini di grandezza meno di un mainframe, e con le
+        tecnologie attuali la capacità di calcolo è paragonabile. In più, collegare i sistemi legacy
+        costa poco: non si butta via un investimento già fatto, lo si fa convivere con le tecnologie nuove.
+      </p>
+
+      <h3>Apertura</h3>
+      <p>Usare protocolli standard apre il sistema a hardware e software di fornitori diversi, e questo porta tre benefici:</p>
+      <ul>
+        <li><strong>interoperabilità</strong>: implementazioni diverse, su macchine diverse, coesistono in un unico sistema;</li>
+        <li><strong>portabilità</strong>: un'applicazione scritta per un sistema operativo funziona anche su un altro, con la stessa interfaccia per l'utente;</li>
+        <li><strong>ampliabilità</strong>: è relativamente facile far crescere il sistema aggiungendo hardware o software.</li>
+      </ul>
+
+      <h3>Connettività e collaborazione</h3>
+      <p>
+        Condividere risorse fa risparmiare: una stampante speciale, un plotter o un sistema di
+        backup costosi possono servire tutta l'organizzazione. E condividere informazioni arricchisce
+        chi le usa: nascono gruppi di lavoro (<em>groupware</em>) che collaborano attorno a interessi comuni.
+      </p>
+
+      <h3>Prestazioni e scalabilità</h3>
+      <p>
+        Un sistema distribuito può essere piccolissimo — due workstation e un file server — oppure
+        enorme, con molti server e migliaia di postazioni. Aggiungere risorse migliora le prestazioni
+        di tutti e permette di reggere un carico di richieste crescente.
+      </p>
+      <div class="callout">
+        <span class="ico" aria-hidden="true">📈</span>
+        <p><b>Scalabilità orizzontale</b>È la capacità di crescere aggiungendo nuove macchine, invece di sostituire quella che c'è con una più potente. In un sistema centralizzato certe risorse sono limitate per costruzione; in uno distribuito, in linea di principio, basta che il sistema abbia spazio per espandersi.</p>
+      </div>
+
+      <h3>Tolleranza ai guasti</h3>
+      <p>
+        Poter replicare le risorse dà una certa garanzia: un componente guasto non deve fermare il
+        sistema, al massimo lo deve rallentare. In questo caso si parla di <strong>guasto parziale</strong>,
+        un guasto che non compromette il funzionamento complessivo.
+      </p>
+      <p>
+        Duplicare tutto è la soluzione più semplice ma anche la più costosa. Di solito si preferisce
+        un software di recupero capace di riportare il sistema a uno stato consistente precedente e di
+        trovare un'alternativa al componente guasto.
+      </p>
+
+      <!-- ================================================================ -->
+      <h2>Il rovescio della medaglia: gli svantaggi</h2>
+
+      <p>
+        Distribuire ha anche un prezzo. Le nuove tecnologie cercano di ridurlo, ma conviene conoscere
+        bene i problemi principali.
+      </p>
+
+      <h3>Produzione del software</h3>
+      <p>
+        Scrivere applicazioni distribuite ha costretto i programmatori a cambiare stile e a imparare
+        linguaggi e strumenti nuovi. Il passaggio è avvenuto in tre tappe:
+      </p>
+      <ol>
+        <li>lo standard <strong>TCP/IP</strong>, con la comunicazione tramite <em>socket</em>, è diventato la base di tutte le applicazioni di rete;</li>
+        <li>le <strong>architetture web</strong> e i loro linguaggi — lato client HTML, CSS e JavaScript, lato server CGI, servlet, JSP, PHP, ASP — hanno fatto fare un salto di qualità alla produzione del software;</li>
+        <li><strong>Java</strong>, grazie alla macchina virtuale, ha permesso di eseguire lo stesso programma su macchine completamente diverse.</li>
+      </ol>
+      <p>
+        Oggi anche <strong>Python</strong> è molto usato, soprattutto per scrivere microservizi e il
+        back-end di sistemi web su larga scala.
+      </p>
+
+      <h3>Complessità</h3>
+      <p>
+        Servono strumenti per collegare gli host e tecniche per instradare correttamente messaggi e
+        dati. Anche misurare le prestazioni è più difficile: valutare un sistema distribuito è molto
+        più complicato che valutare un singolo elaboratore.
+      </p>
+
+      <h3>Sicurezza</h3>
+      <p>
+        Nei vecchi sistemi centralizzati bastava, in pratica, impedire l'accesso fisico alla stanza
+        delle macchine. Collegando più host si apre invece la porta a chi non ha diritto di accedere ai
+        dati, e le trasmissioni — via cavo o via radio — possono essere intercettate (<em>sniffing</em>).
+        Servono quindi accorgimenti specifici per proteggere riservatezza e integrità sia dei dati
+        memorizzati sia di quelli in transito, dalle transazioni commerciali alle email.
+      </p>
+
+      <h3>Comunicazione</h3>
+      <p>
+        Trasferire informazioni a distanza richiede reti di telecomunicazione sempre più capaci,
+        cablate e wireless, perché gli utenti crescono e chiedono servizi sempre più pesanti: alta
+        velocità, alta definizione, video in streaming. La difficoltà vera è
+        l'<strong>imprevedibilità</strong>: le richieste arrivano in modo casuale, e il carico — quindi
+        il tempo di risposta — può cambiare molto anche a distanza di pochi minuti.
+      </p>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Un errore di metodo</b>Spesso si progettano sistemi distribuiti con tecniche di analisi pensate per le vecchie applicazioni a processo singolo. Il risultato è una complessità «accidentale», che nasce dal metodo sbagliato e non dal problema.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vantaggi</th><th>Svantaggi</th></tr></thead>
+          <tbody>
+            <tr><td>Affidabilità e tolleranza ai guasti</td><td>Nuovo stile di programmazione da imparare</td></tr>
+            <tr><td>Integrazione di componenti eterogenei</td><td>Maggiore complessità di progetto e di valutazione</td></tr>
+            <tr><td>Trasparenza (otto forme)</td><td>Sicurezza più difficile da garantire</td></tr>
+            <tr><td>Economicità</td><td>Richieste di comunicazione imprevedibili</td></tr>
+            <tr><td>Apertura, connettività, scalabilità</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>Perché servono macchine parallele</h2>
+
+      <p>
+        Per decenni la potenza dei processori è cresciuta seguendo la <strong>legge di Moore</strong>,
+        raddoppiando più o meno ogni due anni. Questa corsa sta rallentando, e i motivi sono fisici.
+      </p>
+      <p>
+        Il primo è la <strong>miniaturizzazione</strong>. I processi produttivi più recenti hanno nomi
+        commerciali come «3 nm» o «2 nm»; un nanometro è un miliardesimo di metro, e a queste
+        scale i componenti si avvicinano alla dimensione di poche decine di atomi. Più i circuiti sono
+        piccoli e densi, più diventano instabili e più è difficile smaltire il calore che producono.
+      </p>
+      <p>
+        Il secondo è la <strong>velocità della luce</strong>. Un segnale elettrico nel rame viaggia a
+        circa 200 000 km/s: nulla può andare più veloce, e questo pone un limite alla distanza che un
+        segnale può coprire in un ciclo di clock.
+      </p>
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Calcolo</span></div>
+        <pre><code>v = 200 000 km/s = 2 · 10<sup>8</sup> m/s        <span class="tok-com">// velocità del segnale nel rame</span>
+t = 1 ns = 10<sup>-9</sup> s                     <span class="tok-com">// un ciclo di clock a 1 GHz</span>
+
+d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-num">20 cm</span></code></pre>
+      </div>
+      <p>
+        In un nanosecondo il segnale percorre appena 20 cm di conduttore. Se si lavora a frequenze
+        dell'ordine dei gigahertz, i collegamenti non possono essere più lunghi di così senza
+        introdurre ritardi.
+      </p>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">💡</span>
+        <p><b>La conseguenza</b>Se non si può rendere molto più veloce una singola CPU, bisogna usarne tante insieme. Questo vale sia per l'hardware (macchine con più processori) sia per il software (programmi organizzati per lavorare in parallelo e in rete).</p>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>La classificazione di Flynn</h2>
+
+      <p>
+        Le macchine con più CPU si chiamano <strong>macchine parallele</strong>. Per classificarle si
+        usa ancora quella proposta da Michael Flynn nel 1972, che guarda a due flussi presenti in ogni
+        calcolatore: il <strong>flusso delle istruzioni</strong> e il <strong>flusso dei dati</strong>.
+        Ciascuno può essere singolo o multiplo, e le combinazioni sono quattro.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Dati singoli</th><th>Dati multipli</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Istruzioni singole</strong></td><td><strong>SISD</strong> · Single Instruction, Single Data</td><td><strong>SIMD</strong> · Single Instruction, Multiple Data</td></tr>
+            <tr><td><strong>Istruzioni multiple</strong></td><td><strong>MISD</strong> · Multiple Instruction, Single Data</td><td><strong>MIMD</strong> · Multiple Instruction, Multiple Data</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>SISD</h3>
+      <p>
+        Un solo flusso di istruzioni su un solo flusso di dati: è la macchina di von Neumann. Ne fanno
+        parte tutti i sistemi con una sola CPU — personal computer, workstation, mainframe di vecchia
+        generazione. Si esegue un programma alla volta, un'istruzione dopo l'altra, in modo
+        <strong>sequenziale</strong>.
+      </p>
+
+      <h3>SIMD</h3>
+      <p>
+        Una sola unità di controllo invia la <strong>stessa istruzione</strong> a molti processori,
+        ognuno dei quali la applica al proprio flusso di dati. Si sfrutta il parallelismo
+        <em>sui dati</em>: sono le macchine a <em>vector processor</em> e ad <em>array processor</em>.
+      </p>
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>A cosa serve</b>Il modello SIMD è perfetto per il calcolo su vettori e matrici, tipico della grafica: la stessa operazione ripetuta su migliaia di pixel o di coordinate.</p>
+      </div>
+
+      <h3>MISD</h3>
+      <p>
+        Più processori, ciascuno con i propri registri e il proprio flusso di istruzioni, lavorano
+        tutti sullo <strong>stesso flusso di dati</strong>. Il funzionamento ricorda l'esecuzione in
+        <em>pipeline</em>, e potrebbe essere utile in crittografia, dove si applicano elaborazioni simili
+        agli stessi dati. Però non sono mai state costruite macchine MISD commerciali.
+      </p>
+
+      <h3>MIMD</h3>
+      <p>
+        Più CPU indipendenti, ognuna con il proprio flusso di istruzioni e il proprio flusso di dati:
+        ogni processore legge le sue istruzioni e lavora sui suoi dati, quindi ci sono davvero più
+        processi in esecuzione nello stesso istante. È il parallelismo più flessibile, perché ogni
+        CPU evolve in modo autonomo. Le macchine MIMD si dividono in base a come è organizzata la memoria:
+      </p>
+      <ul>
+        <li>a <strong>memoria condivisa</strong>: sono i <strong>multiprocessori</strong>;</li>
+        <li>a <strong>memoria privata</strong>: sono i <strong>multicomputer</strong>.</li>
+      </ul>
+      <p>
+        Entrambe le famiglie si suddividono ancora in base a come sono collegate le unità di
+        elaborazione: attraverso un <strong>mezzo condiviso</strong> (per esempio un bus o un anello)
+        oppure con un <strong>canale diretto</strong> tra coppie di unità.
+      </p>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">La classificazione di Flynn, estesa</div>
+          <div class="demo-stage">
+            <svg class="sd-svg" viewBox="0 0 680 232" role="img"
+                 aria-label="Albero della classificazione di Flynn. SISD corrisponde alla macchina di von Neumann; SIMD si divide in vector processor e array processor; per MISD non esistono macchine commerciali; MIMD si divide in multiprocessori a memoria condivisa e multicomputer a memoria privata.">
+              <path class="link" d="M340 54 V78 H85 V100 M340 78 H237 V100 M340 78 H400 V100 M340 78 H570 V100"/>
+              <path class="link" d="M85 134 V178 M237 134 V156 H189 V178 M237 156 H290 V178 M400 134 V178 M570 134 V156 H515 V178 M570 156 H625 V178"/>
+              <rect class="node-key" x="245" y="18" width="190" height="36" rx="8"/>
+              <text x="340" y="36">Flynn (1972)</text>
+
+              <rect class="node" x="30" y="100" width="110" height="34" rx="8"/><text x="85" y="117">SISD</text>
+              <rect class="node" x="182" y="100" width="110" height="34" rx="8"/><text x="237" y="117">SIMD</text>
+              <rect class="node" x="345" y="100" width="110" height="34" rx="8"/><text x="400" y="117">MISD</text>
+              <rect class="node-key" x="515" y="100" width="110" height="34" rx="8"/><text x="570" y="117">MIMD</text>
+
+              <rect class="node" x="35" y="178" width="100" height="40" rx="8"/><text class="t-small" x="85" y="198">von Neumann</text>
+              <rect class="node" x="142" y="178" width="94" height="40" rx="8"/><text class="t-small" x="189" y="198">vector proc.</text>
+              <rect class="node" x="243" y="178" width="94" height="40" rx="8"/><text class="t-small" x="290" y="198">array proc.</text>
+              <rect class="node-ghost" x="350" y="178" width="100" height="40" rx="8"/><text class="t-muted" x="400" y="198">non esistono</text>
+              <rect class="node-alt" x="463" y="178" width="104" height="40" rx="8"/><text class="t-small" x="515" y="192">multiprocessori</text><text class="t-muted" x="515" y="207">mem. condivisa</text>
+              <rect class="node-alt" x="573" y="178" width="104" height="40" rx="8"/><text class="t-small" x="625" y="192">multicomputer</text><text class="t-muted" x="625" y="207">mem. privata</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>Le quattro classi di Flynn con le rispettive sottoclassi. I sistemi distribuiti appartengono al ramo MIMD.</figcaption>
+      </figure>
+
+      <h3>Multiprocessori e multicomputer</h3>
+      <p>
+        Nei <strong>multiprocessori</strong> (<em>shared memory</em>) la memoria è comune: esiste un
+        unico spazio di indirizzi condiviso da tutti i processori, e i processi comunicano scrivendo e
+        leggendo variabili condivise. La memoria non deve per forza essere un unico blocco centrale:
+        ogni processore può avere la sua e condividerne una parte con gli altri, realizzando una
+        <strong>memoria condivisa distribuita</strong>.
+      </p>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">🔒</span>
+        <p><b>Il prezzo della memoria condivisa</b>Se più processi usano le stesse variabili, servono meccanismi di sincronizzazione che regolino gli accessi: è esattamente il problema della sezione critica visto nel ripasso di inizio anno.</p>
+      </div>
+      <p>
+        Nei <strong>multicomputer</strong> non c'è memoria condivisa: ogni computer ha la sua memoria
+        privata, che i processori remoti non possono indirizzare. L'unico modo di comunicare è lo
+        <strong>scambio esplicito di messaggi</strong> (<em>message passing</em>) con primitive come
+        <code>send</code> e <code>receive</code>. Una LAN di personal computer è a tutti gli effetti un
+        sistema MIMD a memoria privata con mezzo condiviso.
+      </p>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">Memoria condivisa contro scambio di messaggi</div>
+          <div class="demo-stage">
+            <svg class="sd-svg" viewBox="0 0 680 250" role="img"
+                 aria-label="A sinistra un multiprocessore: più processori collegati da una rete di interconnessione a un'unica memoria condivisa. A destra un multicomputer: ogni processore ha la sua memoria privata e i nodi comunicano tramite una rete di connessione scambiandosi messaggi.">
+              <text class="t-title" x="165" y="20">Multiprocessore</text>
+              <text class="t-title" x="515" y="20">Multicomputer</text>
+              <line class="sep" x1="340" y1="36" x2="340" y2="240"/>
+
+              <!-- multiprocessore -->
+              <path class="link" d="M60 86 V120 M140 86 V120 M270 86 V120 M165 148 V180"/>
+              <rect class="node" x="30" y="50" width="60" height="36" rx="7"/><text x="60" y="68">P1</text>
+              <rect class="node" x="110" y="50" width="60" height="36" rx="7"/><text x="140" y="68">P2</text>
+              <text class="t-muted" x="205" y="68">…</text>
+              <rect class="node" x="240" y="50" width="60" height="36" rx="7"/><text x="270" y="68">Pn</text>
+              <rect class="node-alt" x="30" y="120" width="270" height="28" rx="7"/><text class="t-small" x="165" y="134">rete di interconnessione</text>
+              <rect class="node-key" x="55" y="180" width="220" height="42" rx="8"/><text x="165" y="201">memoria condivisa</text>
+              <text class="t-muted" x="165" y="238">un solo spazio di indirizzi</text>
+
+              <!-- multicomputer -->
+              <path class="link" d="M395 110 V150 M475 110 V150 M605 110 V150"/>
+              <rect class="node" x="365" y="50" width="60" height="30" rx="7"/><text x="395" y="65">P1</text>
+              <rect class="node-key" x="365" y="82" width="60" height="28" rx="7"/><text class="t-small" x="395" y="96">M1</text>
+              <rect class="node" x="445" y="50" width="60" height="30" rx="7"/><text x="475" y="65">P2</text>
+              <rect class="node-key" x="445" y="82" width="60" height="28" rx="7"/><text class="t-small" x="475" y="96">M2</text>
+              <text class="t-muted" x="540" y="80">…</text>
+              <rect class="node" x="575" y="50" width="60" height="30" rx="7"/><text x="605" y="65">Pn</text>
+              <rect class="node-key" x="575" y="82" width="60" height="28" rx="7"/><text class="t-small" x="605" y="96">Mn</text>
+              <rect class="node-alt" x="365" y="150" width="270" height="30" rx="7"/><text class="t-small" x="500" y="165">rete di connessione</text>
+              <text class="t-muted" x="500" y="205">send / receive</text>
+              <text class="t-muted" x="500" y="238">ogni nodo ha la sua memoria privata</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>Nei multiprocessori si comunica attraverso la memoria; nei multicomputer attraverso la rete.</figcaption>
+      </figure>
+
+      <!-- ================================================================ -->
+      <h2>Cluster, grid e sistemi pervasivi</h2>
+
+      <h3>Il cluster computing</h3>
+      <p>
+        Un <strong>cluster</strong> è un sistema distribuito formato da nodi ad alte prestazioni,
+        collegati da una rete locale molto veloce. I nodi devono essere <strong>omogenei</strong>:
+        stesso sistema operativo, hardware molto simile, stessa rete. In teoria la potenza di un
+        cluster è la somma di quella dei singoli computer. Rispetto a una normale rete di PC si distingue per:
+      </p>
+      <ul>
+        <li>la potenza di calcolo ad alte prestazioni (<abbr title="High Performance Computing">HPC</abbr>);</li>
+        <li>la velocità di trasferimento dei dati, oltre 1 Gbit/s;</li>
+        <li>la vicinanza fisica delle macchine, montate tutte nello stesso rack;</li>
+        <li>un'applicazione di gestione, su un solo nodo, che lancia processi sugli altri e ne controlla il comportamento.</li>
+      </ul>
+      <p>Le organizzazioni tipiche sono due:</p>
+      <ol>
+        <li><strong>gerarchica, con un nodo principale</strong>: è il caso dei cluster <em>Beowulf</em>, che usano spesso librerie di scambio di messaggi come <strong>MPI</strong> per il calcolo parallelo;</li>
+        <li><strong>a immagine di sistema unico</strong> (<em>Single System Image</em>): è il caso di <em>MOSIX</em>, che bilancia il carico da solo, spostando i processi da un nodo all'altro quando serve.</li>
+      </ol>
+      <div class="callout">
+        <span class="ico" aria-hidden="true">🧩</span>
+        <p><b>Dove si colloca</b>Se consideriamo come entità le singole CPU, un cluster di PC è una macchina MIMD a memoria privata, cioè un multicomputer. Il suo grande vantaggio è rendere possibili calcoli che su un solo computer sarebbero lunghissimi o impossibili.</p>
+      </div>
+      <p>
+        Qualche numero concreto: su un cluster di 4 PC, la ricerca dei numeri primi tra 5 e 500 000 è
+        passata da 35 a 14 secondi, e il prodotto di due matrici 700 × 700 da 3 secondi a 1.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Calcolo</th><th>1 PC</th><th>Cluster di 4 PC</th><th>Speedup</th><th>Efficienza</th></tr></thead>
+          <tbody>
+            <tr><td>Numeri primi da 5 a 500 000</td><td>35 s</td><td>14 s</td><td>2,5×</td><td>62,5%</td></tr>
+            <tr><td>Prodotto di matrici 700 × 700</td><td>3 s</td><td>1 s</td><td>3×</td><td>75%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Lo <strong>speedup</strong> è il rapporto tra il tempo sequenziale e il tempo parallelo;
+        l'<strong>efficienza</strong> è lo speedup diviso per il numero di nodi. Con 4 PC non si va
+        4 volte più veloci: una parte del tempo se ne va per distribuire il lavoro e raccogliere i
+        risultati. La simulazione qui sotto mostra perché.
+      </p>
+
+      <h3>Prova a dividere il lavoro</h3>
+      <p>
+        Un nodo coordinatore deve spedire a ogni PC la sua parte di dati, <strong>uno alla volta</strong>;
+        solo quando ha ricevuto i dati un PC può mettersi a calcolare. Aumenta il numero di PC e guarda
+        che cosa succede al tempo totale.
+      </p>
+
+      <div class="demo" id="clSim">
+        <div class="demo-head">Un calcolo diviso su un cluster</div>
+        <div class="demo-stage">
+          <div class="cl-legend">
+            <span><i class="cl-swatch-wait"></i> in attesa dei dati</span>
+            <span><i class="cl-swatch-work"></i> calcolo</span>
+          </div>
+          <div class="cl-rows" id="clRows"></div>
+          <div class="cl-read" aria-live="polite">
+            <span>con 1 PC <b id="clT1">–</b></span>
+            <span>con <b id="clN">4</b> PC <b id="clTN">–</b></span>
+            <span>speedup <b id="clSp">–</b></span>
+            <span>efficienza <b id="clEf">–</b></span>
+          </div>
+        </div>
+        <div class="demo-controls">
+          <button class="btn btn-ghost btn-sm" id="clPlay" type="button">▶ Avvia</button>
+          <button class="btn btn-ghost btn-sm" id="clReset" type="button">↺ Azzera</button>
+          <span class="spacer"></span>
+          <label for="clNodes" class="demo-note">numero di PC</label>
+          <input type="range" id="clNodes" min="1" max="8" value="4">
+          <span class="demo-note" id="clClock">t = 0</span>
+        </div>
+      </div>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🔎</span>
+        <p><b>Che cosa osservare</b>Il calcolo si accorcia man mano che aumentano i PC, ma l'attesa iniziale si allunga, perché il coordinatore serve un PC alla volta. Oltre un certo numero di nodi il guadagno quasi si annulla: aggiungere macchine non basta, bisogna anche ridurre il costo della comunicazione. Il modello è volutamente semplificato (calcolo da 36 unità di tempo, 0,8 unità per ogni invio).</p>
+      </div>
+
+      <h3>Il grid computing</h3>
+      <p>
+        Un <strong>grid</strong> (griglia) è un sistema di calcolo molto decentralizzato, fatto di un
+        gran numero di nodi <strong>eterogenei</strong> per hardware, software, rete e politiche di
+        sicurezza. Il termine nasce a metà degli anni Novanta, e il problema che affronta è la
+        condivisione coordinata di risorse dentro un'<strong>organizzazione virtuale</strong>
+        (<em>Virtual Organization</em>, VO): un gruppo dinamico di più enti che mettono insieme ciò che hanno.
+      </p>
+      <p>
+        Non si condividono soltanto file: si dà accesso diretto a computer, software e a tutto
+        l'hardware necessario per risolvere un problema scientifico, ingegneristico o industriale.
+        L'architettura, nata su quattro livelli, si è evoluta in senso orientato ai servizi con la
+        <strong>OGSA</strong> (<em>Open Grid Services Architecture</em>), in cui ogni risorsa — calcolo,
+        memoria, rete, programmi, database — è un servizio (<em>grid service</em>).
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Cluster</th><th>Grid</th></tr></thead>
+          <tbody>
+            <tr><td>Nodi</td><td>Omogenei</td><td>Eterogenei</td></tr>
+            <tr><td>Posizione</td><td>Vicini, stesso rack</td><td>Sparsi, spesso in enti diversi</td></tr>
+            <tr><td>Rete</td><td>LAN dedicata ad alta velocità</td><td>Reti diverse, anche geografiche</td></tr>
+            <tr><td>Gestione</td><td>Un'unica applicazione di management</td><td>Organizzazione virtuale di più enti</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>I sistemi distribuiti pervasivi</h3>
+      <p>
+        Sono l'ultima generazione: nodi piccoli, mobili, collegati in wireless e spesso parte di un
+        sistema più grande. Pensa ai sistemi domestici, ai dispositivi per l'assistenza sanitaria, alle
+        reti di sensori. Hanno requisiti particolari:
+      </p>
+      <ul>
+        <li><strong>cambi di contesto</strong>: l'ambiente in cui il sistema vive può cambiare in qualsiasi momento;</li>
+        <li><strong>composizione ad hoc</strong>: lo stesso nodo può essere usato in modi molto diversi da utenti diversi;</li>
+        <li><strong>facilità di configurazione</strong>: chi li usa spesso non è un tecnico;</li>
+        <li><strong>condivisione come comportamento predefinito</strong>: i nodi entrano ed escono dalla rete e mettono in comune informazioni e servizi.</li>
+      </ul>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Un'eccezione alla regola</b>Nei sistemi pervasivi la trasparenza è difficile da ottenere, perché i nodi vanno e vengono continuamente. Qui conviene <strong>mostrare</strong> la distribuzione all'utente, invece di provare a nasconderla.</p>
+      </div>
+
+      <h4>Reti domestiche e domotica</h4>
+      <p>
+        Una rete domestica non ha un amministratore di sistema: deve configurarsi e gestirsi da sola,
+        perché chi la usa di solito non ha competenze di rete. La soluzione più semplice è una
+        <em>home box</em> centrale a cui si collegano in wireless tutti i dispositivi, compresi quelli
+        degli ospiti.
+      </p>
+      <p>
+        La <strong>domotica</strong> — da <em>domus</em>, casa, e «automatica» — riguarda le tecnologie che
+        migliorano la qualità della vita in casa, e rientra nel quadro dell'Industria 4.0. Le persone si
+        aspettano dagli impianti di casa la stessa semplicità dello smartphone: accendere le luci, alzare
+        le tapparelle, regolare la temperatura o gestire l'allarme dal telefono o con un assistente vocale.
+        Oltre al comfort, la domotica serve a ridurre i consumi e integrare sicurezza e comunicazione.
+      </p>
+      <div class="callout">
+        <span class="ico" aria-hidden="true">🏠</span>
+        <p><b>Ambient Intelligence</b>Il modello che descrive meglio la domotica di oggi è quello di D. J. Cook: un ambiente digitale che aiuta le persone nella vita di tutti i giorni in modo <em>proattivo</em> (senza aspettare un comando) ma anche <em>sensato</em> (senza essere invadente).</p>
+      </div>
+
+      <h4>Wearable computing e reti di sensori</h4>
+      <p>
+        I dispositivi indossabili oggi servono soprattutto in ambito sanitario: sensori sul corpo
+        (una <em>body-area network</em>) misurano parametri come il battito o il movimento e salvano i
+        dati su un dispositivo portatile oppure li trasmettono a un archivio remoto. I problemi da
+        risolvere sono evitare la perdita di dati critici, proteggerli e decidere come generare e
+        propagare gli allarmi.
+      </p>
+      <p>
+        Le <strong>reti di sensori</strong> sono formate da molti sensori semplici, da qualche decina a
+        qualche migliaio, e ogni sensore è un nodo della rete. Di solito i dati raccolti finiscono in un
+        database centrale; in alcuni casi però restano memorizzati ed elaborati nei sensori stessi, che
+        rispondono solo alle interrogazioni dell'operatore: in pratica diventano una base di dati distribuita.
+      </p>
+
+      <!-- ================================================================ -->
+      <h2>Le architetture software distribuite</h2>
+
+      <p>
+        Anche il software si è evoluto verso la distribuzione, spesso in anticipo sull'hardware e sui
+        sistemi operativi. Ecco le tappe principali, dalla più antica alla più recente.
+      </p>
+
+      <h3>Terminali remoti</h3>
+      <p>
+        Tutto il lavoro lo fa un'unica entità centrale, di solito un mainframe. I terminali non hanno
+        capacità di elaborazione: mostrano i dati, inviano i comandi e ricevono le risposte. Siccome i
+        terminali sono tutti uguali, il software centrale ha un compito relativamente semplice: riserva a
+        ciascuno un'area di memoria e fa avanzare separatamente i processi avviati da ogni terminale.
+      </p>
+
+      <h3>Client-server</h3>
+      <p>
+        I client non sono più «macchine stupide»: hanno una loro capacità di elaborazione e chiedono un
+        servizio al server competente, che lo esegue e restituisce la risposta. Possono esserci più server
+        che offrono servizi diversi, e più client che chiedono lo stesso servizio o servizi diversi.
+        Un server può essere a sua volta client di un altro server. Client e server possono avere
+        hardware e sistemi operativi diversi: per questo è l'architettura che meglio fa cooperare entità
+        non omogenee.
+      </p>
+
+      <h3>Web-centric</h3>
+      <p>
+        Con la diffusione dei dispositivi mobili le applicazioni sono tornate sul server. Molti programmi
+        gestionali sono stati «portati sul Web»: il web server diventa il centro del sistema, esegue tutta
+        l'elaborazione e manda ai client solo il risultato. Paradossalmente, i client tornano a somigliare
+        ai terminali del secolo scorso, usati quasi solo per l'interfaccia grafica.
+      </p>
+      <p>
+        Il Web resta comunque un sistema client-server: i server gestiscono insiemi di documenti collegati
+        fra loro, i client offrono un'interfaccia comoda per consultarli. Le architetture web si dividono
+        in <strong>tradizionali</strong> e <strong>multilivello</strong>.
+      </p>
+
+      <h3>Cooperativa</h3>
+      <p>
+        È l'evoluzione del client-server: entità autonome che <strong>esportano e richiedono servizi</strong>
+        seguendo il modello a componenti della programmazione a oggetti. L'idea chiave è
+        l'<strong>incapsulamento</strong>: come un oggetto nasconde i suoi dettagli interni, così un
+        componente nasconde le differenze di hardware, software, linguaggio e rete. Perché funzioni serve
+        però uno standard su come i servizi vengono offerti e richiesti: ODP (<em>Open Distributed Processing</em>)
+        e CORBA (<em>Common Object Request Broker Architecture</em>) ne sono due esempi.
+      </p>
+
+      <h3>Completamente distribuita</h3>
+      <p>
+        È l'opposto della web-centric: gruppi di entità <strong>alla pari</strong> che si offrono servizi a
+        vicenda, come nei sistemi di groupware. Spesso i servizi, e anche i dati, sono duplicati apposta
+        per resistere ai guasti. Le tecnologie più note sono:
+      </p>
+      <ul>
+        <li><strong>OMG</strong> (<em>Object Management Group</em>): consorzio nato nel 1989 per definire standard sui sistemi a oggetti distribuiti (è l'ente che ha definito CORBA);</li>
+        <li><strong>RMI</strong> (<em>Remote Method Invocation</em>): permette a programmi Java su macchine diverse di comunicare chiamando metodi a distanza; è specifica del mondo Java;</li>
+        <li><strong>DCOM</strong> (<em>Distributed Component Object Model</em>): tecnologia Microsoft del 1996 che estende alla rete il precedente modello COM.</li>
+      </ul>
+
+      <h3>Microservizi</h3>
+      <p>
+        L'applicazione viene spezzata in tanti componenti autonomi, i <strong>microservizi</strong>: ognuno
+        svolge una sola funzione e parla con gli altri attraverso interfacce come le API. Invece di un unico
+        grande database, <strong>ogni microservizio ha il suo</strong>, organizzato come gli serve.
+      </p>
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>Quando conviene</b>I microservizi sono adatti ad applicazioni complesse che devono crescere, dove contano la modularità, l'indipendenza dei servizi e la possibilità di gestire in modo flessibile i picchi di carico.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Architettura</th><th>Dove avviene l'elaborazione</th><th>Parola chiave</th></tr></thead>
+          <tbody>
+            <tr><td>Terminali remoti</td><td>Tutta sul sistema centrale</td><td>terminali «stupidi»</td></tr>
+            <tr><td>Client-server</td><td>Divisa tra client e server</td><td>richiesta / risposta</td></tr>
+            <tr><td>Web-centric</td><td>Quasi tutta sul web server</td><td>il browser come interfaccia</td></tr>
+            <tr><td>Cooperativa</td><td>Componenti che offrono e chiedono servizi</td><td>incapsulamento (CORBA, ODP)</td></tr>
+            <tr><td>Completamente distribuita</td><td>Nodi alla pari, servizi duplicati</td><td>ridondanza (RMI, DCOM)</td></tr>
+            <tr><td>Microservizi</td><td>Tanti servizi piccoli, ognuno con i suoi dati</td><td>API, un database per servizio</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>Architettura a livelli e middleware</h2>
+
+      <p>
+        Per alleggerire il lavoro dei server, le applicazioni sono state divise in più
+        <strong>livelli</strong>, ciascuno con una parte delle funzioni. Con questa idea nasce il
+        <strong>middleware</strong>: uno strato di software «in mezzo», sopra il sistema operativo e sotto
+        le applicazioni. È l'erede dei sistemi operativi distribuiti.
+      </p>
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>Middleware</b>Una famiglia di tecnologie software che aiuta gli sviluppatori a gestire la complessità e l'eterogeneità dei sistemi distribuiti, realizzando la comunicazione e l'interazione tra i loro componenti (definizione di D. E. Bakken). In altre parole, secondo Bernstein, un servizio di uso generale che sta tra le piattaforme e le applicazioni.</p>
+      </div>
+
+      <figure>
+        <div class="demo">
+          <div class="demo-head">Dove si colloca il middleware</div>
+          <div class="demo-stage">
+            <svg class="sd-svg" viewBox="0 0 680 300" role="img"
+                 aria-label="Schema a strati su due host. In alto l'applicazione distribuita, che si estende su entrambi gli host. Sotto, su ogni host, le API. Poi il middleware, che si estende su entrambi. Sotto ancora, separata per ogni host, la piattaforma formata da sistema operativo e hardware. In fondo la rete che collega i due host.">
+              <rect class="node" x="40" y="16" width="600" height="42" rx="9"/>
+              <text x="340" y="37">Applicazione distribuita</text>
+
+              <rect class="node" x="40" y="68" width="285" height="30" rx="7"/><text class="t-small" x="182" y="83">API</text>
+              <rect class="node" x="355" y="68" width="285" height="30" rx="7"/><text class="t-small" x="497" y="83">API</text>
+
+              <rect class="node-key" x="40" y="108" width="600" height="52" rx="9"/>
+              <text x="340" y="126">Middleware</text>
+              <text class="t-small" x="340" y="145">servizi di sistema distribuito</text>
+
+              <rect class="node" x="40" y="170" width="285" height="56" rx="9"/>
+              <text x="182" y="190">Piattaforma</text><text class="t-small" x="182" y="209">sistema operativo + hardware</text>
+              <rect class="node" x="355" y="170" width="285" height="56" rx="9"/>
+              <text x="497" y="190">Piattaforma</text><text class="t-small" x="497" y="209">sistema operativo + hardware</text>
+
+              <rect class="node-alt" x="40" y="238" width="600" height="30" rx="7"/>
+              <text class="t-small" x="340" y="253">rete</text>
+
+              <text class="t-muted" x="182" y="288">host A</text>
+              <text class="t-muted" x="497" y="288">host B</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>Il middleware copre le differenze tra le piattaforme dei singoli host e offre alle applicazioni un'unica interfaccia.</figcaption>
+      </figure>
+
+      <p>
+        Il middleware si installa su ogni elaboratore, tra le applicazioni e il sistema operativo locale,
+        e crea così un'architettura a tre livelli. Può anche essere diverso da host a host. Il suo scopo
+        principale è garantire l'<strong>interoperabilità</strong> delle applicazioni su sistemi operativi
+        diversi, offrendo meccanismi di programmazione e API relativamente semplici. Rende i sistemi
+        distribuiti facili da programmare perché propone un modo preciso di interagire, per esempio:
+      </p>
+      <ul>
+        <li>la <strong>chiamata di procedura remota</strong> (<abbr title="Remote Procedure Call">RPC</abbr>): si invoca una funzione che gira su un'altra macchina come se fosse locale;</li>
+        <li>lo <strong>scambio di messaggi</strong>: i componenti si mandano messaggi e reagiscono a quelli che ricevono.</li>
+      </ul>
+      <p>
+        Tra i servizi che offre ci sono: servizi di astrazione e cooperazione, servizi per le applicazioni,
+        servizi di amministrazione del sistema, il servizio di comunicazione e un ambiente di sviluppo.
+      </p>
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Il middleware non risolve tutto</b>Non rimedia a un progetto fatto in fretta o con poca competenza: molti sviluppatori non conoscono nemmeno la differenza tra una chiamata di procedura remota e una locale (la prima può fallire per colpa della rete, la seconda no). E a volte il middleware si occupa solo della comunicazione, senza gestire errori dell'applicazione, cadute della rete o guasti dei server.</p>
+      </div>
+
+      <h3>Confronto finale tra le architetture</h3>
+      <p>La tabella mette a confronto le soluzioni viste finora: le due famiglie MIMD, i sistemi operativi di rete e il middleware.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Caratteristica</th><th>Multiprocessori</th><th>Multicomputer</th><th>SO di rete</th><th>Middleware</th></tr></thead>
+          <tbody>
+            <tr><td>Grado di trasparenza</td><td>Molto alto</td><td>Alto</td><td>Basso</td><td>Alto</td></tr>
+            <tr><td>Stesso SO su tutti i nodi</td><td>Sì</td><td>Sì</td><td>No</td><td>No</td></tr>
+            <tr><td>Copie del SO</td><td>1</td><td>N</td><td>N</td><td>N</td></tr>
+            <tr><td>Comunicazione</td><td>Memoria condivisa</td><td>Messaggi / memoria condivisa</td><td>File</td><td>Modelli specifici</td></tr>
+            <tr><td>Gestione delle risorse</td><td>Globale, centralizzata</td><td>Globale, distribuita</td><td>Per nodo</td><td>Per nodo</td></tr>
+            <tr><td>Scalabilità</td><td>No</td><td>Modesta</td><td>Sì</td><td>Variabile</td></tr>
+            <tr><td>Apertura a SO diversi</td><td>Chiuso</td><td>Chiuso</td><td>Aperto</td><td>Aperto</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>Mettiti alla prova</h2>
+      <p>Prova a rispondere da solo, poi apri la risposta.</p>
+      <div class="quiz">
+        <details>
+          <summary>Una catena di negozi ha un unico server centrale con tutti i dati, ma ogni cassa elabora in locale gli scontrini e poi li invia al server. È un sistema distribuito?</summary>
+          <p>Sì. Basta una delle due condizioni: qui l'elaborazione è distribuita, anche se la base di dati è centralizzata.</p>
+        </details>
+        <details>
+          <summary>Scrivi l'indirizzo di un sito senza sapere su quale macchina, né in quale Paese, si trovi. Quale forma di trasparenza stai sperimentando?</summary>
+          <p>La trasparenza di locazione: il nome della risorsa non dice dove si trova fisicamente.</p>
+        </details>
+        <details>
+          <summary>Una scheda applica la stessa operazione a migliaia di pixel nello stesso istante. In quale classe di Flynn rientra?</summary>
+          <p>SIMD: una sola istruzione applicata contemporaneamente a molti flussi di dati.</p>
+        </details>
+        <details>
+          <summary>Perché un cluster di 4 PC non è quattro volte più veloce di un PC solo?</summary>
+          <p>Perché parte del tempo serve a distribuire i dati e raccogliere i risultati, e non tutto il lavoro si può dividere. Nell'esempio dei numeri primi lo speedup è 2,5, con un'efficienza del 62,5%.</p>
+        </details>
+        <details>
+          <summary>Che differenza c'è tra un cluster e un grid?</summary>
+          <p>Il cluster ha nodi omogenei, vicini e collegati da una LAN veloce, con una gestione unica; il grid ha nodi eterogenei, sparsi e spesso di enti diversi, riuniti in un'organizzazione virtuale.</p>
+        </details>
+        <details>
+          <summary>Il middleware sostituisce il sistema operativo?</summary>
+          <p>No. Si colloca sopra il sistema operativo di ogni host e sotto le applicazioni, e ne nasconde le differenze offrendo un'interfaccia comune (per esempio RPC o scambio di messaggi).</p>
+        </details>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2>Da ricordare</h2>
+      <ul>
+        <li>Un sistema è <strong>distribuito</strong> se è distribuita l'elaborazione, i dati, o entrambi; è <strong>centralizzato</strong> se dati e applicazioni stanno in un solo nodo.</li>
+        <li>Le applicazioni di un sistema distribuito possono avere il ruolo di <strong>client</strong>, <strong>server</strong> o <strong>attore</strong>.</li>
+        <li>Vantaggi: affidabilità, integrazione, trasparenza, economicità, apertura, connettività, scalabilità, tolleranza ai guasti. Svantaggi: nuovo modo di programmare, complessità, sicurezza, comunicazione imprevedibile.</li>
+        <li>Le forme di trasparenza sono otto; le più importanti sono quella <strong>di accesso</strong> e quella <strong>di locazione</strong>.</li>
+        <li>Flynn classifica le macchine in <strong>SISD, SIMD, MISD, MIMD</strong> in base ai flussi di istruzioni e di dati; le MIMD sono multiprocessori (memoria condivisa) o multicomputer (memoria privata, scambio di messaggi).</li>
+        <li>Il <strong>cluster</strong> usa nodi omogenei e vicini, il <strong>grid</strong> nodi eterogenei e sparsi; nei sistemi <strong>pervasivi</strong> conviene mostrare la distribuzione invece di nasconderla.</li>
+        <li>Architetture software: terminali remoti → client-server → web-centric, cooperativa, completamente distribuita → microservizi.</li>
+        <li>Il <strong>middleware</strong> sta tra sistema operativo e applicazioni, garantisce l'interoperabilità e offre modelli come RPC o scambio di messaggi, ma non rimedia a un cattivo progetto.</li>
+      </ul>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="ripasso-concorrenza.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Ripasso: processi, thread e concorrenza</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Tutti gli argomenti del quinto anno</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+<!-- ============ SIMULATORE: un calcolo diviso su un cluster ============ -->
+<script>
+(function () {
+  'use strict';
+
+  // Modello semplificato: il coordinatore invia i dati a un PC alla volta
+  // (INVIO unità di tempo ciascuno), poi ogni PC calcola LAVORO / n unità.
+  // Tempo totale con n PC: T(n) = INVIO * n + LAVORO / n
+  var LAVORO = 36;
+  var INVIO = 0.8;
+  var VELOCITA = 7; // unità di tempo simulate al secondo
+
+  var rows   = document.getElementById('clRows');
+  var play   = document.getElementById('clPlay');
+  var reset  = document.getElementById('clReset');
+  var slider = document.getElementById('clNodes');
+  var clock  = document.getElementById('clClock');
+  if (!rows || !play || !reset || !slider) return;
+
+  var out = {
+    t1: document.getElementById('clT1'),
+    n:  document.getElementById('clN'),
+    tn: document.getElementById('clTN'),
+    sp: document.getElementById('clSp'),
+    ef: document.getElementById('clEf')
+  };
+
+  var riduci = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tempo(n) { return INVIO * n + LAVORO / n; }
+  var SCALA = tempo(1); // la barra piena corrisponde al tempo con un solo PC
+
+  var n = Number(slider.value);
+  var t = 0;
+  var inCorso = false;
+  var raf = null;
+  var ultimo = 0;
+  var barre = [];
+
+  function fmt(x) { return x.toFixed(1).replace('.', ','); }
+
+  function costruisci() {
+    rows.innerHTML = '';
+    barre = [];
+    for (var i = 0; i < n; i++) {
+      var riga = document.createElement('div');
+      riga.className = 'cl-row';
+      riga.innerHTML =
+        '<span class="cl-lbl">PC ' + (i + 1) + '</span>' +
+        '<span class="cl-track"><i class="cl-wait"></i><i class="cl-work"></i></span>';
+      rows.appendChild(riga);
+      barre.push({
+        wait: riga.querySelector('.cl-wait'),
+        work: riga.querySelector('.cl-work'),
+        inizio: INVIO * (i + 1)
+      });
+    }
+    var tn = tempo(n);
+    var sp = SCALA / tn;
+    out.t1.textContent = fmt(SCALA);
+    out.n.textContent = n;
+    out.tn.textContent = fmt(tn);
+    out.sp.textContent = fmt(sp) + '×';
+    out.ef.textContent = Math.round(sp / n * 100) + '%';
+  }
+
+  function disegna() {
+    var durata = LAVORO / n;
+    barre.forEach(function (b) {
+      var attesa = Math.min(t, b.inizio);
+      var calcolo = Math.max(0, Math.min(t - b.inizio, durata));
+      b.wait.style.width = (attesa / SCALA * 100) + '%';
+      b.work.style.left = (b.inizio / SCALA * 100) + '%';
+      b.work.style.width = (calcolo / SCALA * 100) + '%';
+    });
+    clock.textContent = 't = ' + fmt(t);
+  }
+
+  function ferma() {
+    inCorso = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = null;
+    play.textContent = t >= tempo(n) ? '▶ Riavvia' : '▶ Avvia';
+  }
+
+  function passo(ora) {
+    var dt = (ora - ultimo) / 1000;
+    ultimo = ora;
+    t = Math.min(tempo(n), t + dt * VELOCITA);
+    disegna();
+    if (t >= tempo(n)) { ferma(); return; }
+    raf = requestAnimationFrame(passo);
+  }
+
+  function avvia() {
+    if (t >= tempo(n)) t = 0;
+    if (riduci) { t = tempo(n); disegna(); ferma(); return; }
+    inCorso = true;
+    play.textContent = '⏸ Pausa';
+    ultimo = performance.now();
+    raf = requestAnimationFrame(passo);
+  }
+
+  play.addEventListener('click', function () {
+    if (inCorso) ferma(); else avvia();
+  });
+
+  reset.addEventListener('click', function () {
+    ferma();
+    t = 0;
+    play.textContent = '▶ Avvia';
+    disegna();
+  });
+
+  slider.addEventListener('input', function () {
+    ferma();
+    n = Number(slider.value);
+    t = 0;
+    play.textContent = '▶ Avvia';
+    costruisci();
+    disegna();
+  });
+
+  costruisci();
+  disegna();
+})();
+</script>
+</body>
+</html>

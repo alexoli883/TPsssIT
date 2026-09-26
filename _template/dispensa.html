@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!-- ==========================================================================
+     TEMPLATE PER UNA NUOVA DISPENSA
+     --------------------------------------------------------------------------
+     COME SI USA, in 4 passi:
+
+     1. Copia questo file dentro la cartella dell'anno giusto
+        (terzo-anno/, quarto-anno/ oppure quinto-anno/) e rinominalo,
+        per esempio:  terzo-anno/gerarchia-memorie.html
+        Usa nomi tutti minuscoli, senza spazi e senza accenti.
+
+     2. In questo file cerca le scritte SOSTITUISCI e cambiale.
+        Se la dispensa NON è del terzo anno, correggi la voce di menu
+        con class="is-active" e i due link del percorso (breadcrumb).
+
+     3. Scrivi il contenuto dentro <article class="prose"> … </article>.
+        L'indice a lato si costruisce DA SOLO leggendo i tuoi <h2> e <h3>:
+        non devi scrivere nulla a mano.
+
+     4. Apri assets/js/dispense.js e aggiungi la voce nell'anno giusto,
+        indicando il numero che vuoi in elenco e il nome del file nel campo f:
+            { num: '3', t: 'Titolo', f: 'gerarchia-memorie.html' }
+        Per un sotto-argomento (es. un'esercitazione) usa un numero col
+        punto, tipo '3.1': comparirà leggermente rientrato sotto il '3'.
+
+     Sotto, dopo il testo di esempio, trovi il CATALOGO DEI COMPONENTI
+     già pronti (riquadri, codice, tabelle, immagini, animazioni).
+     ========================================================================== -->
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOSTITUISCI il titolo · TPSsssIT</title>
+<meta name="description" content="SOSTITUISCI con una descrizione di una riga: compare su Google e nelle anteprime.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<!-- ============ HEADER: da copiare identico in ogni dispensa ============ -->
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <!-- Metti class="is-active" sull'anno di questa dispensa -->
+      <li><a href="index.html" class="is-active">Terzo anno</a></li>
+      <li><a href="../quarto-anno/index.html">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- ======================= TESTATA DELLA DISPENSA ===================== -->
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Terzo anno</a></li><!-- SOSTITUISCI l'anno -->
+      <li aria-current="page">SOSTITUISCI il titolo</li>
+    </ul>
+    <h1>SOSTITUISCI il titolo</h1>
+    <p class="lead">
+      SOSTITUISCI: due o tre righe che dicono allo studente perché questo argomento
+      è interessante e a che cosa serve. Non un riassunto: un aggancio.
+    </p>
+    <div class="stats-row">
+      <span class="stat-pill">Argomento <b>1</b></span>
+      <span class="stat-pill">Lettura <b>12</b> min</span>
+      <span class="stat-pill">Tipo <b>Teoria</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <!-- L'indice si riempie da solo: non toccare -->
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <!-- ========================= IL TUO CONTENUTO ======================= -->
+    <article class="prose">
+
+      <h2>Primo paragrafo principale</h2>
+      <p>
+        Testo normale. Puoi usare <strong>grassetto</strong> per i termini chiave,
+        <em>corsivo</em> per i termini stranieri e <code>codice inline</code> per nomi di
+        variabili, comandi e parole del linguaggio.
+      </p>
+
+      <h3>Un sottoparagrafo</h3>
+      <p>Ogni h2 e ogni h3 finiscono automaticamente nell'indice qui a lato.</p>
+
+      <ul>
+        <li>Elenco puntato.</li>
+        <li>Va bene anche <code>&lt;ol&gt;</code> per un elenco numerato.</li>
+      </ul>
+
+      <!-- ================================================================ -->
+      <!-- ================== CATALOGO DEI COMPONENTI ===================== -->
+      <!-- Cancella tutto quello che non ti serve.                          -->
+      <!-- ================================================================ -->
+
+      <h2>Catalogo dei componenti disponibili</h2>
+
+      <h3>Riquadri di evidenza</h3>
+      <!-- Classi disponibili: info (blu) · ok (verde) · warn (magenta) · nessuna (oro) -->
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <p><b>Titolo del riquadro</b>Testo dell'osservazione.</p>
+      </div>
+
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">✅</span>
+        <p><b>Da ricordare</b>Per le cose che vanno sapute bene.</p>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Attenzione</b>Per gli errori tipici e le trappole d'esame.</p>
+      </div>
+
+      <h3>Blocco di codice</h3>
+      <!-- Il bottone "Copia" viene aggiunto automaticamente da app.js.
+           Per colorare il codice usa gli span:
+             tok-key  parole chiave      tok-str  stringhe
+             tok-com  commenti           tok-fn   funzioni
+             tok-num  numeri
+           Non è obbligatorio: senza span il codice resta comunque leggibile. -->
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Java</span></div>
+        <pre><code><span class="tok-key">public class</span> <span class="tok-fn">Esempio</span> {
+    <span class="tok-key">public static void</span> <span class="tok-fn">main</span>(<span class="tok-fn">String</span>[] args) {
+        <span class="tok-com">// un commento</span>
+        <span class="tok-fn">System.out.println</span>(<span class="tok-str">"Ciao"</span>);
+    }
+}</code></pre>
+      </div>
+
+      <h3>Tabella</h3>
+      <!-- Tienila sempre dentro .table-wrap: così su telefono scorre in orizzontale -->
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Colonna</th><th>Descrizione</th></tr></thead>
+          <tbody>
+            <tr><td>Prima</td><td>Testo della prima riga.</td></tr>
+            <tr><td>Seconda</td><td>Testo della seconda riga.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Citazione</h3>
+      <blockquote>Una frase da mettere in risalto, con la sua fonte.</blockquote>
+
+      <h3>Immagine con didascalia</h3>
+      <!-- Metti i file in assets/img/ e richiamali con ../assets/img/nome.png -->
+      <figure>
+        <img src="../assets/img/favicon.svg" alt="Descrivi qui l'immagine per chi non la vede" style="max-width:120px;margin:auto">
+        <figcaption>Didascalia dell'immagine.</figcaption>
+      </figure>
+
+      <h3>Riquadro per un'animazione o una demo</h3>
+      <!-- Struttura pronta: intestazione, palcoscenico e barra dei comandi.
+           Dentro .demo-stage puoi mettere un svg, un canvas oppure dei div.
+           Il JavaScript della demo va in fondo alla pagina, nel blocco script
+           che trovi dopo il footer. -->
+      <div class="demo" id="demoEsempio">
+        <div class="demo-head">Titolo della dimostrazione</div>
+        <div class="demo-stage">
+          <p class="center" style="margin:0">
+            <span id="demoBox" style="display:inline-block;width:60px;height:60px;border-radius:14px;
+                  background:linear-gradient(140deg,var(--brand-mag),var(--brand-700));
+                  transition:transform .5s cubic-bezier(.22,.61,.36,1)"></span>
+          </p>
+        </div>
+        <div class="demo-controls">
+          <button class="btn btn-ghost btn-sm" id="demoBtn" type="button">▶ Muovi</button>
+          <span class="spacer"></span>
+          <span class="demo-note" id="demoNota">pronto</span>
+        </div>
+      </div>
+
+      <h2>Da ricordare</h2>
+      <!-- Chiudi ogni dispensa con 4-6 punti: è la parte che gli studenti rileggono. -->
+      <ul>
+        <li>Primo concetto da portare a casa.</li>
+        <li>Secondo concetto.</li>
+        <li>Terzo concetto.</li>
+      </ul>
+
+      <!-- ==================== NAVIGAZIONE IN FONDO ======================= -->
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="index.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Tutti gli argomenti dell'anno</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Prossima dispensa</span>
+          <span class="ttl">SOSTITUISCI il titolo →</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+<!-- ============ JAVASCRIPT DELLA DEMO (cancella se non ti serve) ======== -->
+<script>
+(function () {
+  var box = document.getElementById('demoBox');
+  var btn = document.getElementById('demoBtn');
+  var nota = document.getElementById('demoNota');
+  if (!box || !btn) return;
+
+  var spostato = false;
+  btn.addEventListener('click', function () {
+    spostato = !spostato;
+    box.style.transform = spostato ? 'translateX(90px) rotate(45deg)' : 'none';
+    nota.textContent = spostato ? 'spostato a destra' : 'tornato al centro';
+  });
+})();
+</script>
+</body>
+</html>
