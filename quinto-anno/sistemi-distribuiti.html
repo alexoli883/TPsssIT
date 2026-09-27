@@ -40,6 +40,13 @@
   .cl-read { display:flex; flex-wrap:wrap; gap:.5rem 1.6rem; margin-top:1.1rem; font-size:.92rem; color:var(--text-soft); }
   .cl-read b { font-family:var(--font-mono); color:var(--text); }
 
+  /* --- esempi reali --- */
+  .ex { margin:1.2rem 0; padding:.85rem 1.1rem .9rem; border-left:3px solid var(--accent); border-radius:0 var(--r) var(--r) 0; background:color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+  .ex-tag { display:inline-block; margin-bottom:.35rem; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+  .ex p { margin:0; }
+  .ex p + p { margin-top:.5rem; }
+  .ex ul { margin:.3rem 0 0; }
+
   /* --- autoverifica --- */
   .quiz { display:grid; gap:.6rem; }
   .quiz details { border:1px solid var(--border); border-radius:var(--r); padding:.75rem 1rem; background:var(--surface); }
@@ -93,7 +100,7 @@
     </p>
     <div class="stats-row">
       <span class="stat-pill">Argomento <b>1</b></span>
-      <span class="stat-pill">Lettura <b>35</b> min</span>
+      <span class="stat-pill">Lettura <b>45</b> min</span>
       <span class="stat-pill">Con <b>simulatore</b></span>
     </div>
   </section>
@@ -135,6 +142,10 @@
         <span class="ico" aria-hidden="true">📌</span>
         <p><b>Sistema centralizzato</b>Un sistema informatico è centralizzato quando dati e applicazioni risiedono in un unico nodo di elaborazione.</p>
       </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Negli anni Ottanta una banca funzionava proprio così: nella sede centrale c'era un grande mainframe con tutti i conti correnti, e negli sportelli delle filiali c'erano solo terminali con lo schermo nero e le scritte verdi. Il terminale non calcolava nulla: spediva al mainframe «preleva 100 000 lire dal conto 1234» e mostrava la risposta. Se il mainframe si fermava, si fermavano tutti gli sportelli d'Italia insieme.</p>
+      </div>
 
       <h3>Il sistema distribuito</h3>
       <p>
@@ -147,6 +158,11 @@
         <li><strong>elaborazione distribuita</strong>: le applicazioni sono sparse su più host che collaborano;</li>
         <li><strong>base di dati distribuita</strong>: i dati dell'organizzazione sono conservati su più host.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Pensa a un'app di consegne a domicilio. Quando ordini una pizza lavorano insieme almeno quattro programmi su macchine diverse: l'app sul tuo telefono, il tablet del ristorante che riceve la comanda, l'app del rider che mostra il percorso e i server dell'azienda che smistano gli ordini e gestiscono il pagamento. Questa è <strong>elaborazione distribuita</strong>.</p>
+        <p>Le tue email su Gmail, invece, non stanno su un solo disco: Google ne conserva più copie in data center diversi, così anche se uno va in tilt la posta resta leggibile. Questa è una <strong>base di dati distribuita</strong>.</p>
+      </div>
 
       <figure>
         <div class="demo">
@@ -210,6 +226,11 @@
         </table>
       </div>
 
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>La battuta di Lamport si è avverata il 4 ottobre 2021: un errore nella configurazione dei router interni di Facebook ha reso irraggiungibili per circa sei ore Facebook, Instagram e WhatsApp in tutto il mondo. Miliardi di persone non potevano mandare un messaggio per colpa di apparati di cui non conoscevano nemmeno l'esistenza.</p>
+      </div>
+
       <p>Noi useremo una definizione più astratta, che non dipende da una tecnologia particolare:</p>
       <div class="callout ok">
         <span class="ico" aria-hidden="true">✅</span>
@@ -227,6 +248,10 @@
         <li><strong>server</strong> (servente): fornisce servizi che altre applicazioni usano;</li>
         <li><strong>attore</strong> (<em>actor</em>): a seconda della situazione fa da client oppure da server.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Quando compri un paio di scarpe online, il tuo browser è il <strong>client</strong> e il sito del negozio è il <strong>server</strong>. Ma al momento del pagamento il server del negozio si rivolge al circuito della carta (o a PayPal) per autorizzare la spesa: in quell'istante è lui a fare da client. Un programma che cambia ruolo così è un <strong>attore</strong>. Lo stesso vale per un programma come BitTorrent: mentre scarica pezzi di un file dagli altri utenti ne invia ad altri ancora, quindi è client e server allo stesso tempo.</p>
+      </div>
       <p>
         Il modello che prende il nome da questi ruoli, il <strong>client-server</strong>, sarà
         l'oggetto di una delle prossime dispense.
@@ -245,6 +270,10 @@
       <div class="callout warn">
         <span class="ico" aria-hidden="true">⚠️</span>
         <p><b>Attenzione</b>Nel sistema distribuito conta l'indipendenza dei nodi e la collaborazione; nel sistema parallelo conta la velocità su un singolo grande problema. Un sistema distribuito non è automaticamente un sistema parallelo.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>La rete dei Bancomat è un sistema <strong>distribuito</strong>: migliaia di sportelli automatici di banche diverse, indipendenti tra loro, che cooperano per farti prelevare ovunque. Nessuno di loro sta risolvendo «velocemente un grande problema». Il supercomputer <em>Leonardo</em> del CINECA di Bologna, invece, è un sistema <strong>parallelo</strong>: migliaia di processori lavorano insieme su un'unica enorme simulazione, per esempio del clima o di una nuova molecola, per finirla in ore invece che in anni.</p>
       </div>
 
       <h3>Tre famiglie di sistemi distribuiti</h3>
@@ -272,6 +301,15 @@
         <span class="ico" aria-hidden="true">🏛️</span>
         <p><b>Sistemi legacy</b>Sono i sistemi «ereditati» dalle prime fasi di informatizzazione di un'azienda: di solito un mainframe a cui si collegano terminali con interfaccia a caratteri. Sono vecchi e grandi, spesso svolgono compiti critici e hanno subito anni di manutenzione, ma non vengono sostituiti per un motivo molto semplice: funzionano.</p>
       </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <ul>
+          <li><strong>Calcolo distribuito</strong>: al CERN di Ginevra i dati prodotti dall'acceleratore LHC sono tanti che nessun centro di calcolo, da solo, riuscirebbe ad analizzarli; vengono smistati a centinaia di centri sparsi nel mondo, tra cui quello dell'INFN a Bologna.</li>
+          <li><strong>Sistema transazionale</strong>: un bonifico è una transazione. «Togli 50 € dal conto di Anna» e «aggiungi 50 € al conto di Luca» devono avvenire entrambe o nessuna delle due: se il sistema cade a metà, i soldi non possono sparire.</li>
+          <li><strong>Sistemi legacy</strong>: molte banche e grandi enti pubblici, INPS compreso, fanno girare ancora oggi programmi in COBOL scritti decenni fa su mainframe. L'app sul telefono è nuova, ma dietro spesso risponde quel vecchio sistema.</li>
+          <li><strong>Sistemi pervasivi</strong>: lo smartwatch che conta i passi e li manda al telefono, la lampadina che si accende con la voce, i sensori dei parcheggi che dicono all'app dove c'è un posto libero.</li>
+        </ul>
+      </div>
 
       <!-- ================================================================ -->
       <h2>Perché distribuire: i vantaggi</h2>
@@ -297,6 +335,11 @@
         Nella letteratura si parla rispettivamente di sistemi ad accoppiamento <em>forte</em> e ad
         accoppiamento <em>debole</em>.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Netflix prende l'affidabilità così sul serio che ha scritto un programma, <em>Chaos Monkey</em>, che spegne a caso i propri server mentre il servizio è in funzione. Se il film che stai guardando non si interrompe, vuol dire che il sistema sa davvero sostituire un nodo caduto.</p>
+        <p>Per l'accoppiamento: le filiali di una stessa banca rispondono tutte alla stessa direzione centrale (accoppiamento <strong>forte</strong>). Il sistema pagoPA, con cui paghi la tassa scolastica o una multa, fa invece cooperare enti pubblici, banche e Poste, ciascuno con i propri sistemi e le proprie regole (accoppiamento <strong>debole</strong>).</p>
+      </div>
 
       <h3>Integrazione</h3>
       <p>
@@ -312,6 +355,18 @@
         standard come <strong>XML</strong> (<em>eXtensible Markup Language</em>) e
         <strong>JSON</strong> (<em>JavaScript Object Notation</em>), che studieremo più avanti.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Quando apri l'app della banca sul telefono per vedere il saldo, un iPhone o un Android parla, attraverso Internet, con un server che magari interroga un mainframe di trent'anni fa. Nessuno dei tre conosce il sistema operativo degli altri: si capiscono perché si scambiano messaggi in un formato comune, per esempio un JSON come questo.</p>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span class="lang">JSON</span></div>
+        <pre><code>{
+  <span class="tok-str">"conto"</span>: <span class="tok-str">"IT60X0542811101000000123456"</span>,
+  <span class="tok-str">"saldo"</span>: <span class="tok-num">1250.40</span>,
+  <span class="tok-str">"valuta"</span>: <span class="tok-str">"EUR"</span>
+}</code></pre>
+      </div>
 
       <h3>Trasparenza</h3>
       <p>
@@ -322,16 +377,16 @@
       </p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Trasparenza</th><th>Che cosa nasconde</th></tr></thead>
+          <thead><tr><th>Trasparenza</th><th>Che cosa nasconde</th><th>Un esempio reale</th></tr></thead>
           <tbody>
-            <tr><td><strong>di accesso</strong></td><td>Le differenze nel modo di rappresentare i dati e di accedere alle risorse: una risorsa remota si usa con le stesse operazioni di una locale.</td></tr>
-            <tr><td><strong>di locazione</strong></td><td>Dove si trova fisicamente una risorsa. Un URL, per esempio, nasconde l'indirizzo IP del server.</td></tr>
-            <tr><td>di concorrenza</td><td>Il fatto che più processi usino la stessa risorsa insieme, lasciandola sempre in uno stato consistente (per esempio con meccanismi di <em>locking</em>).</td></tr>
-            <tr><td>di replicazione</td><td>L'esistenza di più copie della stessa risorsa, create per aumentare affidabilità e prestazioni: il nome resta uno solo.</td></tr>
-            <tr><td>ai guasti</td><td>Il guasto di una risorsa e il suo recupero.</td></tr>
-            <tr><td>alla migrazione</td><td>Lo spostamento, logico o fisico, di una risorsa, senza cambiare il modo in cui gli utenti vi accedono.</td></tr>
-            <tr><td>alle prestazioni</td><td>Le riconfigurazioni che il sistema fa da solo al variare del carico per restare veloce.</td></tr>
-            <tr><td>di scalabilità</td><td>L'espansione del sistema, che avviene senza interromperne il funzionamento.</td></tr>
+            <tr><td><strong>di accesso</strong></td><td>Le differenze nel modo di rappresentare i dati e di accedere alle risorse: una risorsa remota si usa con le stesse operazioni di una locale.</td><td>Apri, rinomini e salvi i file di OneDrive o di una cartella di rete del laboratorio con Esplora file, esattamente come quelli sul tuo disco.</td></tr>
+            <tr><td><strong>di locazione</strong></td><td>Dove si trova fisicamente una risorsa. Un URL, per esempio, nasconde l'indirizzo IP del server.</td><td>Scrivi <code>wikipedia.org</code> senza sapere in quale Paese sia il server che ti risponde.</td></tr>
+            <tr><td>di concorrenza</td><td>Il fatto che più processi usino la stessa risorsa insieme, lasciandola sempre in uno stato consistente (per esempio con meccanismi di <em>locking</em>).</td><td>In due cliccate nello stesso istante sull'ultimo biglietto di un concerto: uno solo lo ottiene, e il posto non viene venduto due volte.</td></tr>
+            <tr><td>di replicazione</td><td>L'esistenza di più copie della stessa risorsa, create per aumentare affidabilità e prestazioni: il nome resta uno solo.</td><td>Un video di YouTube esiste in molte copie su server sparsi nel mondo; ti arriva quella più vicina, ma il link è sempre lo stesso.</td></tr>
+            <tr><td>ai guasti</td><td>Il guasto di una risorsa e il suo recupero.</td><td>Nei data center di Google si rompono dischi ogni giorno, ma tu non ti accorgi di nulla quando apri la posta.</td></tr>
+            <tr><td>alla migrazione</td><td>Lo spostamento, logico o fisico, di una risorsa, senza cambiare il modo in cui gli utenti vi accedono.</td><td>La scuola sposta le caselle email su un nuovo fornitore: gli indirizzi restano identici e continui a scrivere come prima.</td></tr>
+            <tr><td>alle prestazioni</td><td>Le riconfigurazioni che il sistema fa da solo al variare del carico per restare veloce.</td><td>Durante il Black Friday i grandi negozi online accendono automaticamente nuovi server nel cloud, e li spengono quando il picco passa.</td></tr>
+            <tr><td>di scalabilità</td><td>L'espansione del sistema, che avviene senza interromperne il funzionamento.</td><td>Un social passa da milioni a centinaia di milioni di utenti aggiungendo server un po' alla volta, senza mai «chiudere per lavori».</td></tr>
           </tbody>
         </table>
       </div>
@@ -346,6 +401,10 @@
         tecnologie attuali la capacità di calcolo è paragonabile. In più, collegare i sistemi legacy
         costa poco: non si butta via un investimento già fatto, lo si fa convivere con le tecnologie nuove.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Alla fine degli anni Novanta i fondatori di Google non avevano i soldi per comprare grandi server. Assemblarono il loro motore di ricerca con tanti PC economici, di quelli che si trovavano nei negozi, collegati in rete. Se un PC si rompeva lo si sostituiva: costava meno che proteggere una macchina unica e costosissima. Oggi quasi tutti i grandi servizi online seguono la stessa filosofia.</p>
+      </div>
 
       <h3>Apertura</h3>
       <p>Usare protocolli standard apre il sistema a hardware e software di fornitori diversi, e questo porta tre benefici:</p>
@@ -354,6 +413,10 @@
         <li><strong>portabilità</strong>: un'applicazione scritta per un sistema operativo funziona anche su un altro, con la stessa interfaccia per l'utente;</li>
         <li><strong>ampliabilità</strong>: è relativamente facile far crescere il sistema aggiungendo hardware o software.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>L'email è l'esempio perfetto di sistema aperto. Da un indirizzo Gmail scrivi a un amico che usa Outlook, a un'azienda con il suo server di posta e alla PEC di un ufficio pubblico: aziende diverse, software diversi, eppure tutto funziona perché tutti rispettano gli stessi protocolli standard (SMTP, IMAP). Nessuno ti obbliga a usare lo stesso fornitore del destinatario.</p>
+      </div>
 
       <h3>Connettività e collaborazione</h3>
       <p>
@@ -361,6 +424,10 @@
         backup costosi possono servire tutta l'organizzazione. E condividere informazioni arricchisce
         chi le usa: nascono gruppi di lavoro (<em>groupware</em>) che collaborano attorno a interessi comuni.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>A scuola la stampante del corridoio è condivisa da tutte le aule: nessuno pensa di comprarne una per ogni classe. E quando scrivi una relazione con i compagni su Google Docs o su Teams, vedendo in diretta il cursore degli altri, stai usando un groupware.</p>
+      </div>
 
       <h3>Prestazioni e scalabilità</h3>
       <p>
@@ -371,6 +438,10 @@
       <div class="callout">
         <span class="ico" aria-hidden="true">📈</span>
         <p><b>Scalabilità orizzontale</b>È la capacità di crescere aggiungendo nuove macchine, invece di sostituire quella che c'è con una più potente. In un sistema centralizzato certe risorse sono limitate per costruzione; in uno distribuito, in linea di principio, basta che il sistema abbia spazio per espandersi.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Una pizzeria che ha troppi clienti può comprare un forno più grande (scalabilità <em>verticale</em>) oppure aggiungere un secondo forno accanto al primo (scalabilità <em>orizzontale</em>). Il forno più grande prima o poi non esiste più; di forni se ne possono aggiungere quanti ne servono. I siti di e-commerce ragionano allo stesso modo: sotto Natale non comprano un supercomputer, affittano per qualche settimana altre cento macchine nel cloud.</p>
       </div>
 
       <h3>Tolleranza ai guasti</h3>
@@ -384,6 +455,10 @@
         un software di recupero capace di riportare il sistema a uno stato consistente precedente e di
         trovare un'alternativa al componente guasto.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il DNS, il servizio che traduce <code>google.it</code> in un indirizzo IP, si appoggia a 13 «server radice». In realtà ognuno di questi nomi corrisponde a centinaia di copie sparse in tutti i continenti, con oltre mille macchine in totale. Se qualcuna si spegne, le richieste vanno alle altre: è un guasto parziale, e Internet non se ne accorge.</p>
+      </div>
 
       <!-- ================================================================ -->
       <h2>Il rovescio della medaglia: gli svantaggi</h2>
@@ -407,6 +482,10 @@
         Oggi anche <strong>Python</strong> è molto usato, soprattutto per scrivere microservizi e il
         back-end di sistemi web su larga scala.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il back-end di Instagram è scritto in gran parte in Python, con il framework Django; molti servizi di Netflix sono scritti in Java. Chi sviluppa per sistemi come questi non scrive «un programma» che parte e finisce: scrive servizi che restano sempre accesi, ricevono richieste dalla rete e devono sopravvivere al guasto dei servizi con cui parlano.</p>
+      </div>
 
       <h3>Complessità</h3>
       <p>
@@ -414,6 +493,10 @@
         dati. Anche misurare le prestazioni è più difficile: valutare un sistema distribuito è molto
         più complicato che valutare un singolo elaboratore.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Amazon ha raccontato che, per costruire una sola pagina del suo negozio, i server interpellano oltre cento servizi diversi: prezzi, disponibilità, consigli, recensioni, spedizione… Se la pagina ci mette cinque secondi a caricarsi, trovare quale di quei cento servizi sta rallentando è un lavoro da investigatori.</p>
+      </div>
 
       <h3>Sicurezza</h3>
       <p>
@@ -423,6 +506,10 @@
         Servono quindi accorgimenti specifici per proteggere riservatezza e integrità sia dei dati
         memorizzati sia di quelli in transito, dalle transazioni commerciali alle email.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Ti colleghi al Wi-Fi gratuito di una stazione o di un bar: sulla stessa rete può esserci chiunque. Se un sito trasmettesse la password «in chiaro», chi ascolta la rete potrebbe leggerla. Per questo oggi quasi tutti i siti usano HTTPS, il lucchetto nella barra degli indirizzi, che cifra i dati in transito: è esattamente uno degli «accorgimenti specifici» di cui parliamo.</p>
+      </div>
 
       <h3>Comunicazione</h3>
       <p>
@@ -432,6 +519,10 @@
         l'<strong>imprevedibilità</strong>: le richieste arrivano in modo casuale, e il carico — quindi
         il tempo di risposta — può cambiare molto anche a distanza di pochi minuti.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il 1° aprile 2020, in pieno lockdown, il sito dell'INPS è andato in crisi quando milioni di persone hanno provato nello stesso momento a chiedere il bonus di 600 euro. A novembre 2022 Ticketmaster è crollato sotto le richieste per i biglietti del tour di Taylor Swift. In entrambi i casi, pochi giorni prima lo stesso sistema funzionava senza problemi: il carico era arrivato tutto insieme, e non in modo prevedibile.</p>
+      </div>
       <div class="callout warn">
         <span class="ico" aria-hidden="true">⚠️</span>
         <p><b>Un errore di metodo</b>Spesso si progettano sistemi distribuiti con tecniche di analisi pensate per le vecchie applicazioni a processo singolo. Il risultato è una complessità «accidentale», che nasce dal metodo sbagliato e non dal problema.</p>
@@ -463,6 +554,10 @@
         scale i componenti si avvicinano alla dimensione di poche decine di atomi. Più i circuiti sono
         piccoli e densi, più diventano instabili e più è difficile smaltire il calore che producono.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il primo chip a «3 nm» arrivato in un telefono è stato l'A17 Pro dell'iPhone 15 Pro, nel 2023: contiene circa 19 miliardi di transistor in pochi centimetri quadrati. Se hai notato che il telefono si scalda molto mentre giochi, hai toccato con mano il problema del calore.</p>
+      </div>
       <p>
         Il secondo è la <strong>velocità della luce</strong>. Un segnale elettrico nel rame viaggia a
         circa 200 000 km/s: nulla può andare più veloce, e questo pone un limite alla distanza che un
@@ -480,9 +575,17 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         dell'ordine dei gigahertz, i collegamenti non possono essere più lunghi di così senza
         introdurre ritardi.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Un processore da gaming di oggi arriva a circa 5 GHz, quindi un ciclo di clock dura 0,2 ns. In quel tempo il segnale percorre 2 · 10<sup>8</sup> · 0,2 · 10<sup>-9</sup> = 0,04 m, cioè <strong>4 cm</strong>: meno della larghezza di una scheda madre. È uno dei motivi per cui la cache è dentro il processore e la RAM è montata il più vicino possibile.</p>
+      </div>
       <div class="callout info">
         <span class="ico" aria-hidden="true">💡</span>
         <p><b>La conseguenza</b>Se non si può rendere molto più veloce una singola CPU, bisogna usarne tante insieme. Questo vale sia per l'hardware (macchine con più processori) sia per il software (programmi organizzati per lavorare in parallelo e in rete).</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Lo vedi già nel tuo zaino: lo smartphone ha di solito 6 o 8 core, un portatile ne ha tra 4 e 16, e una scheda video ne ha migliaia. Da una ventina d'anni i produttori non vendono più processori «più veloci», ma processori «con più core».</p>
       </div>
 
       <!-- ================================================================ -->
@@ -512,6 +615,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         generazione. Si esegue un programma alla volta, un'istruzione dopo l'altra, in modo
         <strong>sequenziale</strong>.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>L'Arduino Uno che avete usato in laboratorio è una macchina SISD: il suo microcontrollore ha un solo core, legge un'istruzione alla volta dalla funzione <code>loop()</code> e la esegue su un dato alla volta. Lo stesso valeva per i PC con un Pentium degli anni Novanta.</p>
+      </div>
 
       <h3>SIMD</h3>
       <p>
@@ -523,6 +630,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <span class="ico" aria-hidden="true">✅</span>
         <p><b>A cosa serve</b>Il modello SIMD è perfetto per il calcolo su vettori e matrici, tipico della grafica: la stessa operazione ripetuta su migliaia di pixel o di coordinate.</p>
       </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Quando applichi un filtro «bianco e nero» a una foto sul telefono, per ognuno dei 12 milioni di pixel va fatto lo stesso calcolo: una media pesata di rosso, verde e blu. Invece di farlo un pixel alla volta, la scheda grafica (GPU) lancia la stessa istruzione su migliaia di pixel insieme. Anche i processori dei PC hanno istruzioni SIMD dedicate (le estensioni SSE e AVX di Intel e AMD, NEON sui chip ARM degli smartphone).</p>
+      </div>
 
       <h3>MISD</h3>
       <p>
@@ -531,6 +642,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <em>pipeline</em>, e potrebbe essere utile in crittografia, dove si applicano elaborazioni simili
         agli stessi dati. Però non sono mai state costruite macchine MISD commerciali.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>L'esempio che si cita più spesso viene dal volo: i computer di bordo dello Space Shuttle elaboravano in parallelo gli stessi dati dei sensori e poi «votavano» sul risultato; se uno dava una risposta diversa dagli altri, veniva considerato guasto ed escluso. Più che una vera macchina MISD è un uso ridondante di più processori, ma rende l'idea: tante unità, un solo flusso di dati.</p>
+      </div>
 
       <h3>MIMD</h3>
       <p>
@@ -548,6 +663,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         elaborazione: attraverso un <strong>mezzo condiviso</strong> (per esempio un bus o un anello)
         oppure con un <strong>canale diretto</strong> tra coppie di unità.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Sul tuo portatile, in questo momento, un core sta facendo girare il browser, un altro l'antivirus, un altro ancora Spotify: istruzioni diverse su dati diversi, nello stesso istante. È MIMD. Anche un intero data center è MIMD, solo su scala molto più grande.</p>
+      </div>
 
       <figure>
         <div class="demo">
@@ -596,6 +715,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <code>send</code> e <code>receive</code>. Una LAN di personal computer è a tutti gli effetti un
         sistema MIMD a memoria privata con mezzo condiviso.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il tuo PC quad-core è un <strong>multiprocessore</strong>: i quattro core leggono e scrivono la stessa RAM, e due thread dello stesso programma possono condividere una variabile. Il laboratorio di informatica della scuola, visto come un tutto, è invece un <strong>multicomputer</strong>: ogni PC ha la sua RAM, e se il PC 3 vuole un dato del PC 7 deve chiederglielo in rete con un messaggio. Allo stesso modo funzionano i supercomputer: migliaia di nodi, ognuno con la sua memoria, collegati da una rete velocissima.</p>
+      </div>
 
       <figure>
         <div class="demo">
@@ -659,6 +782,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
       <div class="callout">
         <span class="ico" aria-hidden="true">🧩</span>
         <p><b>Dove si colloca</b>Se consideriamo come entità le singole CPU, un cluster di PC è una macchina MIMD a memoria privata, cioè un multicomputer. Il suo grande vantaggio è rendere possibili calcoli che su un solo computer sarebbero lunghissimi o impossibili.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il primo cluster Beowulf fu costruito nel 1994 alla NASA collegando 16 normali PC in rete: costava una frazione di un supercomputer. Oggi quasi tutti i supercomputer del mondo, compreso Leonardo a Bologna, sono cluster. Anche gli studi di animazione usano cluster, le <em>render farm</em>: ogni fotogramma di un film come quelli Pixar può richiedere ore di calcolo, e migliaia di nodi ne elaborano ciascuno uno diverso nello stesso momento.</p>
       </div>
       <p>
         Qualche numero concreto: su un cluster di 4 PC, la ricerca dei numeri primi tra 5 e 500 000 è
@@ -731,6 +858,11 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <strong>OGSA</strong> (<em>Open Grid Services Architecture</em>), in cui ogni risorsa — calcolo,
         memoria, rete, programmi, database — è un servizio (<em>grid service</em>).
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il grid più famoso è la <em>Worldwide LHC Computing Grid</em> del CERN: circa 170 centri di calcolo in oltre 40 Paesi — università, istituti di ricerca, tra cui il CNAF dell'INFN a Bologna — mettono in comune le loro macchine per analizzare i dati dell'acceleratore LHC. È grazie a questa rete che nel 2012 è stato scoperto il bosone di Higgs. Ogni centro ha il suo hardware e le sue regole: è proprio un'organizzazione virtuale.</p>
+        <p>Una variante è il <em>volunteer computing</em>: con Folding@home, nel 2020, milioni di persone hanno prestato la potenza del proprio PC per simulare le proteine del virus del Covid-19.</p>
+      </div>
       <div class="table-wrap">
         <table>
           <thead><tr><th></th><th>Cluster</th><th>Grid</th></tr></thead>
@@ -755,9 +887,17 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <li><strong>facilità di configurazione</strong>: chi li usa spesso non è un tecnico;</li>
         <li><strong>condivisione come comportamento predefinito</strong>: i nodi entrano ed escono dalla rete e mettono in comune informazioni e servizi.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il tuo smartphone li vive tutti e quattro in una giornata: esci di casa e passa dal Wi-Fi al 4G senza interrompere la musica (<strong>cambio di contesto</strong>); lo stesso smartwatch registra la corsa del pomeriggio e il sonno della notte (<strong>composizione ad hoc</strong>); una lampadina smart si configura in due tocchi dall'app, senza sapere nulla di indirizzi IP (<strong>facilità di configurazione</strong>); con AirDrop o Quick Share mandi una foto al telefono del compagno di banco appena è nelle vicinanze (<strong>condivisione</strong>).</p>
+      </div>
       <div class="callout warn">
         <span class="ico" aria-hidden="true">⚠️</span>
         <p><b>Un'eccezione alla regola</b>Nei sistemi pervasivi la trasparenza è difficile da ottenere, perché i nodi vanno e vengono continuamente. Qui conviene <strong>mostrare</strong> la distribuzione all'utente, invece di provare a nasconderla.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Quando le cuffie Bluetooth si scaricano, il telefono non fa finta di niente: ti avvisa «cuffie disconnesse» e mette in pausa la musica. Spotify ti mostra su quale dispositivo sta suonando il brano (telefono, PC, cassa in salotto) e ti lascia scegliere. Nascondere questi dettagli sarebbe peggio: la musica partirebbe a tutto volume dall'altoparlante del telefono, in classe.</p>
       </div>
 
       <h4>Reti domestiche e domotica</h4>
@@ -767,6 +907,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <em>home box</em> centrale a cui si collegano in wireless tutti i dispositivi, compresi quelli
         degli ospiti.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>La home box di casa tua è il modem-router che ti ha dato l'operatore. Appena accendi un nuovo dispositivo gli assegna da solo un indirizzo IP (con il protocollo DHCP), e molti router hanno una «rete ospiti» separata, così l'amico che viene a trovarti naviga senza vedere i tuoi dispositivi. Nessuno in famiglia ha dovuto configurare nulla a mano.</p>
+      </div>
       <p>
         La <strong>domotica</strong> — da <em>domus</em>, casa, e «automatica» — riguarda le tecnologie che
         migliorano la qualità della vita in casa, e rientra nel quadro dell'Industria 4.0. Le persone si
@@ -777,6 +921,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
       <div class="callout">
         <span class="ico" aria-hidden="true">🏠</span>
         <p><b>Ambient Intelligence</b>Il modello che descrive meglio la domotica di oggi è quello di D. J. Cook: un ambiente digitale che aiuta le persone nella vita di tutti i giorni in modo <em>proattivo</em> (senza aspettare un comando) ma anche <em>sensato</em> (senza essere invadente).</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Un termostato smart impara a che ora di solito torni a casa e accende il riscaldamento mezz'ora prima; quando capisce dalla posizione del telefono che sono usciti tutti, abbassa la temperatura da solo. È <em>proattivo</em>, perché non gli hai detto niente; è <em>sensato</em>, perché non ti chiede conferma ogni cinque minuti.</p>
       </div>
 
       <h4>Wearable computing e reti di sensori</h4>
@@ -793,6 +941,13 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         database centrale; in alcuni casi però restano memorizzati ed elaborati nei sensori stessi, che
         rispondono solo alle interrogazioni dell'operatore: in pratica diventano una base di dati distribuita.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <ul>
+          <li><strong>Wearable</strong>: alcuni smartwatch riconoscono una caduta brusca e, se non rispondi entro pochi secondi, chiamano da soli i soccorsi mandando la posizione. Qui il problema di «come generare e propagare l'allarme» è molto concreto.</li>
+          <li><strong>Reti di sensori</strong>: le centraline che misurano la qualità dell'aria nelle città mandano i dati alle agenzie regionali per l'ambiente; in agricoltura, sensori piantati nel terreno misurano l'umidità e l'impianto irriga solo le zone che ne hanno bisogno.</li>
+        </ul>
+      </div>
 
       <!-- ================================================================ -->
       <h2>Le architetture software distribuite</h2>
@@ -809,6 +964,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         terminali sono tutti uguali, il software centrale ha un compito relativamente semplice: riserva a
         ciascuno un'area di memoria e fa avanzare separatamente i processi avviati da ogni terminale.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Sono i terminali «a schermo verde» che si vedevano negli sportelli di banche, uffici postali e agenzie di viaggio fino agli anni Novanta (il più diffuso era l'IBM 3270). In qualche ufficio pubblico o sportello di magazzino si vede ancora oggi quella schermata nera con le scritte a caratteri: è un programma che imita il vecchio terminale e parla con un mainframe.</p>
+      </div>
 
       <h3>Client-server</h3>
       <p>
@@ -819,6 +978,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         hardware e sistemi operativi diversi: per questo è l'architettura che meglio fa cooperare entità
         non omogenee.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>L'app di Spotify sul telefono è un client «intelligente»: mostra la grafica, gestisce le playlist scaricate, riproduce l'audio. Quando cerchi una canzone chiede il servizio al server di ricerca; quando premi play chiede il file audio a un altro server. Il server di ricerca, a sua volta, interroga un server di database: è server per te e client per il database.</p>
+      </div>
 
       <h3>Web-centric</h3>
       <p>
@@ -832,6 +995,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         fra loro, i client offrono un'interfaccia comoda per consultarli. Le architetture web si dividono
         in <strong>tradizionali</strong> e <strong>multilivello</strong>.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il registro elettronico è un'applicazione web-centric: voti, assenze e compiti stanno tutti sul server del fornitore, e il browser (o l'app) serve solo a mostrarli. Puoi entrare dal PC di scuola, dal telefono o dal computer di casa e vedi sempre la stessa cosa, perché sul tuo dispositivo non c'è niente da installare né da aggiornare. Lo stesso vale per Google Docs o per la versione web di Office.</p>
+      </div>
 
       <h3>Cooperativa</h3>
       <p>
@@ -842,6 +1009,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         però uno standard su come i servizi vengono offerti e richiesti: ODP (<em>Open Distributed Processing</em>)
         e CORBA (<em>Common Object Request Broker Architecture</em>) ne sono due esempi.
       </p>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Pensa a un sito che confronta voli e hotel. Non possiede né aerei né alberghi: chiede i prezzi ai sistemi delle compagnie aeree e delle catene di hotel, ognuno dei quali <em>esporta</em> un servizio di ricerca e prenotazione. Il sito non sa in che linguaggio sia scritto il sistema di una compagnia, né su che macchina giri: conosce solo il servizio che offre. È lo spirito dell'architettura cooperativa, che oggi si realizza soprattutto con i web service e le API.</p>
+      </div>
 
       <h3>Completamente distribuita</h3>
       <p>
@@ -854,6 +1025,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <li><strong>RMI</strong> (<em>Remote Method Invocation</em>): permette a programmi Java su macchine diverse di comunicare chiamando metodi a distanza; è specifica del mondo Java;</li>
         <li><strong>DCOM</strong> (<em>Distributed Component Object Model</em>): tecnologia Microsoft del 1996 che estende alla rete il precedente modello COM.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Bitcoin è un sistema completamente distribuito: non esiste un server della «banca Bitcoin». Migliaia di nodi alla pari conservano ciascuno una copia completa del registro di tutte le transazioni e si scambiano le novità a vicenda. Anche se molti nodi si spengono, il registro sopravvive, perché i dati sono duplicati apposta. Lo stesso principio, in piccolo, vale per BitTorrent.</p>
+      </div>
 
       <h3>Microservizi</h3>
       <p>
@@ -864,6 +1039,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
       <div class="callout ok">
         <span class="ico" aria-hidden="true">✅</span>
         <p><b>Quando conviene</b>I microservizi sono adatti ad applicazioni complesse che devono crescere, dove contano la modularità, l'indipendenza dei servizi e la possibilità di gestire in modo flessibile i picchi di carico.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Un'app di taxi o di consegne è fatta di microservizi: uno gestisce gli utenti, uno gli ordini, uno i pagamenti, uno calcola la posizione degli autisti, uno manda le notifiche. Il venerdì sera, quando le richieste esplodono, si moltiplicano solo le copie del servizio ordini e di quello di geolocalizzazione, non tutta l'applicazione. Netflix ha fatto questo passaggio dopo che, nel 2008, un guasto al suo unico grande database bloccò le spedizioni per tre giorni: oggi è fatta di centinaia di microservizi.</p>
       </div>
 
       <div class="table-wrap">
@@ -937,6 +1116,15 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
         <li>la <strong>chiamata di procedura remota</strong> (<abbr title="Remote Procedure Call">RPC</abbr>): si invoca una funzione che gira su un'altra macchina come se fosse locale;</li>
         <li>lo <strong>scambio di messaggi</strong>: i componenti si mandano messaggi e reagiscono a quelli che ricevono.</li>
       </ul>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Il middleware è come l'ufficio postale di un'azienda: chi scrive una lettera non deve sapere che strada farà, deve solo consegnarla allo sportello. Alcuni esempi concreti:</p>
+        <ul>
+          <li><strong>gRPC</strong>, nato in Google, realizza la chiamata di procedura remota: un servizio scritto in Go chiama una funzione di un servizio scritto in Python come se fosse sua;</li>
+          <li><strong>MQTT</strong>, usato nella domotica e nell'IoT: il sensore di temperatura pubblica un messaggio su un <em>broker</em>, e il termostato, l'app e il sistema di log lo ricevono senza conoscersi fra loro;</li>
+          <li><strong>JDBC</strong> e <strong>ODBC</strong>: permettono a un programma di parlare con MySQL, Oracle o PostgreSQL con le stesse istruzioni, qualunque sia il database sotto.</li>
+        </ul>
+      </div>
       <p>
         Tra i servizi che offre ci sono: servizi di astrazione e cooperazione, servizi per le applicazioni,
         servizi di amministrazione del sistema, il servizio di comunicazione e un ambiente di sviluppo.
@@ -944,6 +1132,10 @@ d = v · t = 2 · 10<sup>8</sup> · 10<sup>-9</sup> = 0,2 m = <span class="tok-n
       <div class="callout warn">
         <span class="ico" aria-hidden="true">⚠️</span>
         <p><b>Il middleware non risolve tutto</b>Non rimedia a un progetto fatto in fretta o con poca competenza: molti sviluppatori non conoscono nemmeno la differenza tra una chiamata di procedura remota e una locale (la prima può fallire per colpa della rete, la seconda no). E a volte il middleware si occupa solo della comunicazione, senza gestire errori dell'applicazione, cadute della rete o guasti dei server.</p>
+      </div>
+      <div class="ex">
+        <span class="ex-tag">Nella realtà</span>
+        <p>Stai facendo un bonifico dall'app della banca, premi «Conferma» e proprio in quel momento entri in galleria: la rotellina gira e poi compare «Errore di connessione». Il bonifico è partito o no? La richiesta potrebbe non essere mai arrivata, oppure essere arrivata ed eseguita mentre si è persa la risposta. Con una chiamata locale questo dubbio non esiste. Per questo le app serie non si fidano del middleware e basta: danno a ogni operazione un codice univoco, così se la ripeti la banca si accorge che è un doppione e non ti addebita due volte.</p>
       </div>
 
       <h3>Confronto finale tra le architetture</h3>
