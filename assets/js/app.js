@@ -180,11 +180,19 @@
     }
   }
 
+  // Tutte le dispense di un elenco, esercitazioni comprese
+  function conEsercitazioni(list) {
+    var out = [];
+    (list || []).forEach(function (a) { out.push(a); out.push.apply(out, a.esercitazioni || []); });
+    return out;
+  }
+  function pubblicate(list) { return conEsercitazioni(list).filter(function (a) { return !!a.f; }).length; }
+
   /* ------------------------ HOME: dispense pubblicate per ogni anno */
   if (window.DISPENSE) {
     $$('[data-count]').forEach(function (el) {
       var y = window.DISPENSE[el.getAttribute('data-count')];
-      var n = y ? (y.argomenti || []).filter(function (a) { return !!a.f; }).length : 0;
+      var n = y ? pubblicate(y.teoria) + pubblicate(y.laboratorio) : 0;
       el.textContent = n === 0 ? 'In preparazione'
         : n === 1 ? '1 dispensa pubblicata'
         : n + ' dispense pubblicate';
@@ -205,37 +213,49 @@
     return;
   }
 
-  var items = year.argomenti || [];
-
-  // --- statistiche
+  var SEZIONI = [
+    { key: 'teoria',      titolo: 'Teoria' },
+    { key: 'laboratorio', titolo: 'Laboratorio' }
+  ];
+  // --- statistiche: un contatore per sezione
   var statsBox = $('#stats');
-  if (statsBox && items.length) {
-    var pubblicati = items.filter(function (a) { return !!a.f; }).length;
-    statsBox.innerHTML =
-      '<span class="stat-pill"><b>' + items.length + '</b> argomenti</span>' +
-      '<span class="stat-pill"><b>' + pubblicati + '</b> pubblicati</span>';
+  if (statsBox) {
+    statsBox.innerHTML = SEZIONI.map(function (s) {
+      return '<span class="stat-pill"><b>' + pubblicate(year[s.key]) + '</b> ' + s.titolo.toLowerCase() + '</span>';
+    }).join('');
   }
 
-  function argHtml(a) {
-    var sotto = /\./.test(String(a.num));
+  function rowHtml(a, num, es) {
+    var cls = 'arg-row' + (es ? ' is-sub is-es' : /\./.test(String(num)) ? ' is-sub' : '');
     var inner =
-      '<span class="arg-num">' + esc(a.num) + '</span>' +
+      '<span class="arg-num">' + esc(num) + '</span>' +
       '<span class="arg-title">' + esc(a.t) +
+        (es ? ' <span class="badge-es">Esercitazione</span>' : '') +
         (a.f ? '' : ' <span class="badge-soon">In preparazione</span>') +
       '</span>' +
       (a.f ? '<span class="arg-arrow">' + ICON_ARROW + '</span>' : '');
 
     return a.f
-      ? '<li><a class="arg-row' + (sotto ? ' is-sub' : '') + '" href="' + esc(a.f) + '">' + inner + '</a></li>'
-      : '<li><div class="arg-row' + (sotto ? ' is-sub' : '') + ' is-draft" aria-disabled="true">' + inner + '</div></li>';
+      ? '<li><a class="' + cls + '" href="' + esc(a.f) + '">' + inner + '</a></li>'
+      : '<li><div class="' + cls + ' is-draft" aria-disabled="true">' + inner + '</div></li>';
   }
 
-  if (!items.length) {
-    // Messaggio per gli studenti (per aggiungere argomenti: assets/js/dispense.js)
-    host.innerHTML = '<div class="empty-state"><b>Le dispense di quest\'anno sono in preparazione</b>' +
-      'Torna a trovarci: compariranno qui man mano che vengono pubblicate.</div>';
-  } else {
-    host.innerHTML = '<ul class="arg-list reveal">' + items.map(argHtml).join('') + '</ul>';
-    $$('.reveal', host).forEach(function (el) { el.classList.add('is-in'); });
+  // Un modulo seguito dalle sue esercitazioni, numerate 1.1, 1.2…
+  function argHtml(a) {
+    return rowHtml(a, a.num, false) + (a.esercitazioni || []).map(function (e, i) {
+      return rowHtml(e, a.num + '.' + (i + 1), true);
+    }).join('');
   }
+
+  // Messaggi per gli studenti (per aggiungere argomenti: assets/js/dispense.js)
+  host.innerHTML = SEZIONI.map(function (s) {
+    var items = year[s.key] || [];
+    var body = items.length
+      ? '<ul class="arg-list reveal">' + items.map(argHtml).join('') + '</ul>'
+      : '<div class="empty-state"><b>Le dispense di ' + s.titolo.toLowerCase() + ' sono in preparazione</b>' +
+        'Torna a trovarci: compariranno qui man mano che vengono pubblicate.</div>';
+    return '<section class="arg-section" id="' + s.key + '" aria-labelledby="h-' + s.key + '">' +
+      '<h2 class="arg-section-title" id="h-' + s.key + '">' + s.titolo + '</h2>' + body + '</section>';
+  }).join('');
+  $$('.reveal', host).forEach(function (el) { el.classList.add('is-in'); });
 })();

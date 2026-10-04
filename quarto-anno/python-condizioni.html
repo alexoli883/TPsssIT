@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le strutture condizionali · TPSsssIT</title>
+<meta name="description" content="Dispensa 2 di Python: valori booleani e confronti, if / else, la catena if / elif / else, gli operatori logici and, or, not e gli errori più comuni.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- stili locali: diagramma del bivio, catena elif, tavola di verità --- */
+  .fc { display:block; width:100%; max-width:540px; margin:0 auto; height:auto; }
+  .fc .box rect, .fc .box polygon { fill:var(--surface-2); stroke:var(--border); stroke-width:1.5; transition:stroke .3s var(--ease), fill .3s var(--ease); }
+  .fc text { fill:var(--text); font-family:var(--font-mono); font-size:12.5px; font-variant-ligatures:none; text-anchor:middle; dominant-baseline:central; }
+  .fc .lbl { font-family:var(--font-sans); font-size:12px; font-weight:700; }
+  .fc .wire { fill:none; stroke:var(--muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .fc .br { transition:opacity .35s var(--ease); }
+  .fc .br.off { opacity:.25; }
+  .fc .br.on .wire { stroke:var(--gold); stroke-width:3; stroke-dasharray:300; animation:fc-draw .7s var(--ease) both; }
+  .fc .br.on .box rect { stroke:var(--gold); stroke-width:2.5; }
+  .fc .br.on .lbl { fill:var(--gold); }
+  @keyframes fc-draw { from { stroke-dashoffset:300; } to { stroke-dashoffset:0; } }
+  .fc-in { display:flex; align-items:center; gap:.7rem; }
+  .fc-in output { font-family:var(--font-mono); font-weight:700; color:var(--text); min-width:2ch; }
+
+  .chain.code-block pre { white-space:normal; padding:.8rem .6rem; }
+  .chain .grp { display:block; }
+  .chain code { background:none; padding:0; color:inherit; font-size:inherit; }
+  .chain .ln {
+    display:flex; align-items:center; gap:.8rem;
+    padding:.12rem .55rem; border-radius:6px; border-left:3px solid transparent;
+    white-space:pre; transition:background-color .25s var(--ease), opacity .25s var(--ease), border-color .25s var(--ease);
+  }
+  .chain .ln[data-st]::after {
+    content:attr(data-st); margin-left:auto; flex:0 0 auto;
+    font-family:var(--font-sans); font-size:.72rem; font-weight:700; letter-spacing:.03em;
+    padding:.05rem .5rem; border-radius:99px; border:1px solid rgba(255,255,255,.18); color:#7F93AE;
+  }
+  .chain .ln.hit { background:rgba(209,255,97,.1); border-left-color:#D1FF61; }
+  .chain .ln.hit[data-st]::after { color:#08172A; background:#D1FF61; border-color:#D1FF61; }
+  .chain .ln.miss[data-st]::after { color:#9fc6ff; border-color:rgba(159,198,255,.4); }
+  .chain .ln.skip { opacity:.35; }
+  .chain .ln.dim { opacity:.35; }
+  .chain-out { margin:.4rem 0 0; font-family:var(--font-mono); font-size:.95rem; color:var(--text-soft); text-align:center; }
+  .chain-out b { color:var(--gold); }
+  .chk { display:inline-flex; align-items:center; gap:.45rem; font-size:.86rem; color:var(--text-soft); cursor:pointer; }
+  .chk input { accent-color:var(--gold); width:1rem; height:1rem; }
+
+  .truth td.tv, .truth td.fv { font-family:var(--font-mono); font-size:.9rem; font-weight:700; }
+  .truth td.tv { color:var(--gold); }
+  .truth td.fv { color:var(--muted); }
+  .truth th:nth-child(n+3), .truth td:nth-child(n+3) { border-left:1px solid var(--border-soft); }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Le strutture condizionali</li>
+    </ul>
+    <h1>Le strutture condizionali</h1>
+    <p class="lead">Dispensa 2 · Valori booleani, if / elif / else, operatori logici.</p>
+    <div class="stats-row">
+      <span class="stat-pill">Dispensa <b>2</b></span>
+      <span class="stat-pill">Lettura <b>15</b> min</span>
+      <span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+      <h2>1. Dalla sequenza alla scelta</h2>
+      <p>
+        Finora i nostri programmi eseguivano le istruzioni <strong>una dopo l'altra, sempre nello stesso ordine</strong>.
+        Con le <strong>strutture condizionali</strong> un programma può invece <strong>scegliere</strong> quali istruzioni
+        eseguire in base ai dati: è ciò che gli permette di reagire a situazioni diverse. Per scegliere servono due
+        ingredienti: le <strong>condizioni</strong> (domande a cui si risponde Vero o Falso) e l'istruzione
+        <strong><code>if</code></strong> che le usa.
+      </p>
+
+      <h2>2. Valori booleani e confronti</h2>
+      <p>Un confronto produce un valore di tipo <strong><code>bool</code></strong>, che può essere solo <code>True</code> o <code>False</code>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-num">5</span> &gt; <span class="tok-num">3</span>)         <span class="tok-com"># True</span>
+<span class="tok-fn">print</span>(<span class="tok-num">5</span> == <span class="tok-num">3</span>)        <span class="tok-com"># False</span>
+<span class="tok-fn">print</span>(<span class="tok-num">5</span> != <span class="tok-num">3</span>)        <span class="tok-com"># True</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(<span class="tok-key">True</span>))    <span class="tok-com"># &lt;class 'bool'&gt;</span></code></pre></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Operatore</th><th>Significato</th><th>Esempio</th><th>Risultato</th></tr></thead>
+          <tbody>
+            <tr><td><code>==</code></td><td>Uguale a</td><td><code>3 == 3</code></td><td><code>True</code></td></tr>
+            <tr><td><code>!=</code></td><td>Diverso da</td><td><code>3 != 4</code></td><td><code>True</code></td></tr>
+            <tr><td><code>&lt;</code> <code>&lt;=</code></td><td>Minore, minore o uguale</td><td><code>2 &lt; 2</code></td><td><code>False</code></td></tr>
+            <tr><td><code>&gt;</code> <code>&gt;=</code></td><td>Maggiore, maggiore o uguale</td><td><code>2 &gt;= 2</code></td><td><code>True</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li><strong><code>True</code> e <code>False</code> hanno l'iniziale maiuscola</strong>: scrivere <code>true</code> provoca un <code>NameError</code>.</li>
+        <li><strong><code>=</code> assegna, <code>==</code> confronta.</strong> Scrivere <code>if x = 5:</code> è un errore di sintassi (in C compilerebbe, con effetti disastrosi).</li>
+        <li><strong>Confronti concatenati</strong>: si può scrivere <code>0 &lt;= x &lt; 10</code>, che equivale a <code>0 &lt;= x and x &lt; 10</code>. In C bisognerebbe usare <code>&amp;&amp;</code>.</li>
+        <li><strong>Le stringhe si confrontano con <code>==</code></strong> (niente <code>equals</code> come in Java), ma maiuscole e minuscole contano: <code>"Ciao" == "ciao"</code> è <code>False</code>. Si aggira con <code>"Ciao".lower() == "ciao"</code>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <div class="cbody">
+          <b>Non confrontare con == i risultati di calcoli decimali</b>
+          <p>I numeri float sono rappresentati in modo approssimato:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-num">0.1</span> + <span class="tok-num">0.2</span>)           <span class="tok-com"># 0.30000000000000004</span>
+<span class="tok-fn">print</span>(<span class="tok-num">0.1</span> + <span class="tok-num">0.2</span> == <span class="tok-num">0.3</span>)    <span class="tok-com"># False</span></code></pre></div>
+        </div>
+      </div>
+
+      <h2>3. L'istruzione if / else</h2>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🪧</span>
+        <p><b>Un'analogia: il bivio</b>Immagina il programma come un viaggiatore che cammina lungo una strada. L'<code>if</code> è un cartello al bivio: "se piove prendi la strada coperta, altrimenti quella panoramica". Si sceglie una sola delle due strade; poi i percorsi si riuniscono e il viaggio prosegue con le istruzioni successive.</p>
+      </div>
+
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Età: "</span>))
+<span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Maggiorenne"</span>)
+<span class="tok-key">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Minorenne"</span>)
+<span class="tok-fn">print</span>(<span class="tok-str">"Fine programma"</span>)      <span class="tok-com"># fuori dall'if: viene sempre eseguita</span></code></pre></div>
+
+      <figure>
+        <div class="demo" id="fcDemo">
+          <div class="demo-head">Il bivio in azione</div>
+          <div class="demo-stage">
+            <svg class="fc" id="fcSvg" viewBox="0 0 520 350" role="img" aria-labelledby="fcTitle">
+              <title id="fcTitle">Diagramma di flusso del programma: in base all'età si stampa Maggiorenne oppure Minorenne, poi in entrambi i casi Fine programma.</title>
+              <g class="box"><rect x="130" y="8" width="260" height="40" rx="8"/><text x="260" y="28">eta = int(input("Età: "))</text></g>
+              <path class="wire" d="M260 48 V78"/>
+              <g class="box"><polygon points="260,78 355,120 260,162 165,120"/><text x="260" y="120">eta &gt;= 18</text></g>
+
+              <g class="br" id="fcT">
+                <path class="wire" d="M165 120 H100 V190"/>
+                <text class="lbl" x="132" y="108">Vero</text>
+                <g class="box"><rect x="20" y="190" width="160" height="40" rx="8"/><text x="100" y="210">print("Maggiorenne")</text></g>
+                <path class="wire" d="M100 230 V265 H260"/>
+              </g>
+              <g class="br" id="fcF">
+                <path class="wire" d="M355 120 H420 V190"/>
+                <text class="lbl" x="388" y="108">Falso</text>
+                <g class="box"><rect x="340" y="190" width="160" height="40" rx="8"/><text x="420" y="210">print("Minorenne")</text></g>
+                <path class="wire" d="M420 230 V265 H260"/>
+              </g>
+
+              <path class="wire" d="M260 265 V292"/>
+              <circle cx="260" cy="265" r="4" fill="var(--muted)"/>
+              <g class="box"><rect x="150" y="292" width="220" height="40" rx="8"/><text x="260" y="312">print("Fine programma")</text></g>
+            </svg>
+
+            <div class="code-block run" style="max-width:540px;margin:1.2rem auto 0">
+              <div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div>
+              <pre><code id="fcOut"></code></pre>
+            </div>
+          </div>
+          <div class="demo-controls">
+            <span class="fc-in">
+              <label for="fcAge" class="demo-note">età</label>
+              <input type="range" id="fcAge" min="0" max="99" value="16">
+              <output id="fcAgeVal" for="fcAge">16</output>
+            </span>
+            <span class="spacer"></span>
+            <span class="demo-note">si percorre una sola strada, poi si riuniscono</span>
+          </div>
+        </div>
+        <figcaption>Muovi il cursore dell'età: si illumina il ramo che il programma esegue davvero.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>C / Java</th><th>Python</th></tr></thead>
+          <tbody>
+            <tr><td>Condizione</td><td><code>if (eta &gt;= 18) {</code></td><td><code>if eta &gt;= 18:</code></td></tr>
+            <tr><td>Delimitare il blocco</td><td>Parentesi graffe</td><td>Due punti + indentazione</td></tr>
+            <tr><td>Parentesi attorno alla condizione</td><td>Obbligatorie</td><td>Non si usano</td></tr>
+            <tr><td>Ramo alternativo</td><td><code>} else {</code></td><td><code>else:</code></td></tr>
+            <tr><td>Ramo intermedio</td><td><code>else if</code></td><td><code>elif</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Il blocco e l'indentazione</h3>
+      <ul>
+        <li>Dopo la condizione ci sono sempre i <strong>due punti</strong> <code>:</code>.</li>
+        <li>Tutte le righe del blocco hanno <strong>lo stesso rientro</strong> (4 spazi). Il blocco finisce quando il rientro torna al livello precedente.</li>
+        <li>Un blocco <strong>non può essere vuoto</strong>: se vuoi lasciarlo da completare scrivi <code>pass</code>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <div class="cbody">
+          <b>Gli errori di indentazione</b>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span>:
+<span class="tok-fn">print</span>(<span class="tok-str">"Maggiorenne"</span>)       <span class="tok-com"># IndentationError: expected an indented block</span></code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Maggiorenne"</span>)
+  <span class="tok-fn">print</span>(<span class="tok-str">"ok"</span>)               <span class="tok-com"># IndentationError: unindent does not match</span></code></pre></div>
+          <p>Non mischiare mai tab e spazi nello stesso file.</p>
+        </div>
+      </div>
+
+      <h2>4. La catena if / elif / else</h2>
+      <p>Quando le alternative sono più di due si usa <strong><code>elif</code></strong> (contrazione di "else if"), tante volte quante servono. <code>else</code> è facoltativo e, se c'è, sta sempre in fondo.</p>
+
+      <div class="demo" id="chainDemo">
+        <div class="demo-head">La catena passo per passo</div>
+        <div class="demo-stage">
+          <div class="code-block chain" style="margin-top:0">
+            <div class="code-head"><span class="lang">Python</span></div>
+            <pre id="chainCode"><span class="ln"><code>voto = <span class="tok-fn">float</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Voto: "</span>))</code></span><span class="grp" data-th="9"><span class="ln cond"><code><span class="tok-key">if</span> voto &gt;= <span class="tok-num">9</span>:</code></span><span class="ln body"><code>    giudizio = <span class="tok-str">"Ottimo"</span></code></span></span><span class="grp" data-th="7"><span class="ln cond"><code><span class="tok-key">elif</span> voto &gt;= <span class="tok-num">7</span>:</code></span><span class="ln body"><code>    giudizio = <span class="tok-str">"Buono"</span></code></span></span><span class="grp" data-th="6"><span class="ln cond"><code><span class="tok-key">elif</span> voto &gt;= <span class="tok-num">6</span>:</code></span><span class="ln body"><code>    giudizio = <span class="tok-str">"Sufficiente"</span></code></span></span><span class="grp" data-th="else"><span class="ln cond"><code><span class="tok-key">else</span>:</code></span><span class="ln body"><code>    giudizio = <span class="tok-str">"Insufficiente"</span></code></span></span><span class="ln"><code><span class="tok-fn">print</span>(<span class="tok-str">"Giudizio:"</span>, giudizio)</code></span></pre>
+          </div>
+          <p class="chain-out" id="chainOut"></p>
+        </div>
+        <div class="demo-controls">
+          <span class="fc-in">
+            <label for="chainVoto" class="demo-note">voto</label>
+            <input type="range" id="chainVoto" min="0" max="10" step="0.5" value="7.5">
+            <output id="chainVotoVal" for="chainVoto">7.5</output>
+          </span>
+          <span class="spacer"></span>
+          <label class="chk"><input type="checkbox" id="chainWrong"> ordine sbagliato: <code>voto &gt;= 6</code> per prima</label>
+        </div>
+      </div>
+
+      <ul>
+        <li>Le condizioni vengono valutate <strong>dall'alto verso il basso</strong> e si esegue <strong>solo il primo ramo vero</strong>: gli altri vengono saltati.</li>
+        <li>Quindi <strong>l'ordine conta</strong>. Se mettessi per prima <code>voto &gt;= 6</code>, un 9 verrebbe giudicato "Sufficiente".</li>
+        <li>Grazie all'ordine, in ogni <code>elif</code> si sa già che le condizioni precedenti erano false: per questo <code>elif voto &gt;= 7</code> non ha bisogno di scrivere anche <code>voto &lt; 9</code>.</li>
+      </ul>
+
+      <h3>Catena o if separati?</h3>
+<div class="code-block"><div class="code-head"><span class="lang">Catena</span></div><pre><code>x = <span class="tok-num">4</span>
+
+<span class="tok-com"># catena: si esegue al massimo UN ramo</span>
+<span class="tok-key">if</span> x &gt; <span class="tok-num">2</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"maggiore di 2"</span>)
+<span class="tok-key">elif</span> x &gt; <span class="tok-num">3</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"maggiore di 3"</span>)     <span class="tok-com"># non viene raggiunto: il primo ramo è già vero</span></code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">if separati</span></div><pre><code>x = <span class="tok-num">4</span>
+
+<span class="tok-com"># if separati: ciascuno viene valutato per conto suo</span>
+<span class="tok-key">if</span> x &gt; <span class="tok-num">2</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"maggiore di 2"</span>)
+<span class="tok-key">if</span> x &gt; <span class="tok-num">3</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"maggiore di 3"</span>)     <span class="tok-com"># stampato: decisioni indipendenti</span></code></pre></div>
+
+      <h2>5. Operatori logici: and, or, not</h2>
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🕴️</span>
+        <p><b>Un'analogia: il buttafuori</b>Una discoteca ha regole d'ingresso. Con <code>and</code> devi rispettare <strong>tutte</strong> le regole (sei maggiorenne e sei in lista). Con <code>or</code> ne basta <strong>una</strong> (sei in lista o conosci il proprietario). Con <code>not</code> la regola si <strong>capovolge</strong> (non sei stato bandito).</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>C / Java</th><th>Python</th><th>Significato</th></tr></thead>
+          <tbody>
+            <tr><td><code>&amp;&amp;</code></td><td><code>and</code></td><td>E logico: vero se entrambe le condizioni sono vere</td></tr>
+            <tr><td><code>||</code></td><td><code>or</code></td><td>O logico: vero se almeno una condizione è vera</td></tr>
+            <tr><td><code>!</code></td><td><code>not</code></td><td>Negazione: scambia vero e falso</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table class="truth">
+          <thead><tr><th>A</th><th>B</th><th>A and B</th><th>A or B</th><th>not A</th></tr></thead>
+          <tbody>
+            <tr><td class="tv">True</td><td class="tv">True</td><td class="tv">True</td><td class="tv">True</td><td class="fv">False</td></tr>
+            <tr><td class="tv">True</td><td class="fv">False</td><td class="fv">False</td><td class="tv">True</td><td class="fv">False</td></tr>
+            <tr><td class="fv">False</td><td class="tv">True</td><td class="fv">False</td><td class="tv">True</td><td class="tv">True</td></tr>
+            <tr><td class="fv">False</td><td class="fv">False</td><td class="fv">False</td><td class="fv">False</td><td class="tv">True</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Età: "</span>))
+<span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span> <span class="tok-key">and</span> eta &lt; <span class="tok-num">65</span>:        <span class="tok-com"># equivale a: 18 &lt;= eta &lt; 65</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">"Tariffa intera"</span>)
+<span class="tok-key">elif</span> eta &lt; <span class="tok-num">18</span> <span class="tok-key">or</span> eta &gt;= <span class="tok-num">65</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Tariffa ridotta"</span>)</code></pre></div>
+      <p>Un esempio più ricco: un anno è <strong>bisestile</strong> se è divisibile per 4 ma non per 100, <strong>oppure</strong> se è divisibile per 400.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>anno = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Anno: "</span>))
+<span class="tok-key">if</span> (anno % <span class="tok-num">4</span> == <span class="tok-num">0</span> <span class="tok-key">and</span> anno % <span class="tok-num">100</span> != <span class="tok-num">0</span>) <span class="tok-key">or</span> anno % <span class="tok-num">400</span> == <span class="tok-num">0</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Bisestile"</span>)
+<span class="tok-key">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Non bisestile"</span>)</code></pre></div>
+      <ul>
+        <li><strong>Precedenza</strong>: i confronti si valutano prima, poi <code>not</code>, poi <code>and</code>, poi <code>or</code>. Nel dubbio usa le <strong>parentesi</strong>: rendono il codice più chiaro.</li>
+        <li><strong>Corto circuito</strong>: <code>and</code> e <code>or</code> si fermano appena il risultato è noto. Per questo <code>if b != 0 and a / b &gt; 2:</code> non divide mai per zero.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <div class="cbody">
+          <b>Un errore classico: x == 1 or 2</b>
+          <p><code>if x == 1 or 2:</code> non significa "x vale 1 oppure 2". Python lo legge come <code>(x == 1) or 2</code> e il valore <code>2</code> conta sempre come "vero": la condizione è <strong>sempre vera</strong>, senza alcun messaggio di errore. Ogni confronto va scritto per intero:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">if</span> x == <span class="tok-num">1</span> <span class="tok-key">or</span> x == <span class="tok-num">2</span>:       <span class="tok-com"># corretto</span>
+<span class="tok-key">if</span> x <span class="tok-key">in</span> (<span class="tok-num">1</span>, <span class="tok-num">2</span>):            <span class="tok-com"># corretto e più breve</span></code></pre></div>
+        </div>
+      </div>
+
+      <h2>6. Altri strumenti utili</h2>
+      <h3>L'operatore in</h3>
+      <p>Verifica l'appartenenza: a una stringa (già visto) oppure a un <strong>elenco di valori tra parentesi</strong>. Il contrario è <code>not in</code>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">if</span> <span class="tok-str">"a"</span> <span class="tok-key">in</span> parola:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Contiene la a"</span>)
+
+<span class="tok-key">if</span> mese <span class="tok-key">in</span> (<span class="tok-num">4</span>, <span class="tok-num">6</span>, <span class="tok-num">9</span>, <span class="tok-num">11</span>):
+    <span class="tok-fn">print</span>(<span class="tok-str">"Il mese ha 30 giorni"</span>)
+
+<span class="tok-key">if</span> scelta <span class="tok-key">not</span> <span class="tok-key">in</span> (<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>):
+    <span class="tok-fn">print</span>(<span class="tok-str">"Scelta non valida"</span>)</code></pre></div>
+
+      <h3>Quando un valore conta come "vero" o "falso"</h3>
+      <p>In una condizione, <strong>ogni valore</strong> può essere interpretato come vero o falso. Sono considerati <strong>falsi</strong>: <code>0</code>, <code>0.0</code>, la stringa vuota <code>""</code> e <code>False</code>. Tutti gli altri valori sono <strong>veri</strong>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nome = <span class="tok-fn">input</span>(<span class="tok-str">"Nome: "</span>)
+<span class="tok-key">if</span> <span class="tok-key">not</span> nome:                       <span class="tok-com"># vero se l'utente ha premuto solo Invio</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">"Non hai scritto niente"</span>)</code></pre></div>
+
+      <h3>Espressione condizionale su una riga</h3>
+      <p>Corrisponde all'operatore <code>? :</code> del C: <code>condizione ? a : b</code> diventa <strong><code>a if condizione else b</code></strong>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero: "</span>))
+tipo = <span class="tok-str">"pari"</span> <span class="tok-key">if</span> n % <span class="tok-num">2</span> == <span class="tok-num">0</span> <span class="tok-key">else</span> <span class="tok-str">"dispari"</span>
+<span class="tok-fn">print</span>(n, <span class="tok-str">"è"</span>, tipo)</code></pre></div>
+
+      <h3>Condizioni annidate</h3>
+      <p>Un <code>if</code> può contenere altri <code>if</code>: basta aggiungere un livello di indentazione.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Età: "</span>))
+<span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span>:
+    <span class="tok-key">if</span> eta &gt;= <span class="tok-num">65</span>:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Maggiorenne, over 65"</span>)
+    <span class="tok-key">else</span>:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Maggiorenne"</span>)
+<span class="tok-key">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Minorenne"</span>)</code></pre></div>
+      <p>Non esagerare: oltre due o tre livelli il codice diventa illeggibile. Spesso si può semplificare con <code>and</code> oppure con una catena <code>elif</code>.</p>
+
+      <h2>7. Gli errori più comuni</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Errore</th><th>Cause tipiche</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td><code>SyntaxError</code></td><td>Due punti mancanti; <code>=</code> al posto di <code>==</code>; <code>else if</code> al posto di <code>elif</code></td><td><code>if x &gt; 3</code> (senza <code>:</code>)</td></tr>
+            <tr><td><code>IndentationError</code></td><td>Blocco mancante o rientri incoerenti</td><td>riga sotto l'<code>if</code> non indentata</td></tr>
+            <tr><td><code>TypeError</code></td><td>Confronto d'ordine tra tipi incompatibili</td><td><code>"12" &gt; 10</code></td></tr>
+            <tr><td><code>NameError</code></td><td><code>true</code> / <code>false</code> in minuscolo, nomi scritti male</td><td><code>if x == true:</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Gli errori che Python non segnala</h3>
+      <p>Sono i più insidiosi: il programma gira, ma sbaglia. Controlla sempre di non averne commessi.</p>
+      <ul>
+        <li><strong>Input non convertito</strong>: <code>input() == 5</code> è sempre <code>False</code>, perché la stringa <code>"5"</code> non è mai uguale al numero <code>5</code>. Converti subito con <code>int()</code> o <code>float()</code>.</li>
+        <li><strong>Il falso "o"</strong>: <code>x == 1 or 2</code> è sempre vero.</li>
+        <li><strong>Rami nell'ordine sbagliato</strong> in una catena <code>elif</code>.</li>
+        <li><strong>Confini sbagliati</strong>: <code>&gt;</code> al posto di <code>&gt;=</code> (o viceversa).</li>
+      </ul>
+
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">🧪</span>
+        <p><b>Come si collauda un programma con le condizioni</b>Prova almeno un caso per ogni ramo e poi i <strong>valori di confine</strong>. Per un biglietto con fasce 6 e 18 anni, ad esempio, prova 5, 6, 17 e 18: è lì che si nascondono quasi tutti gli errori.</p>
+      </div>
+
+      <h2>8. Riepilogo</h2>
+      <ul>
+        <li>I confronti producono <code>bool</code>: <code>True</code> e <code>False</code> (con la maiuscola). <strong><code>=</code> assegna, <code>==</code> confronta.</strong></li>
+        <li><code>if</code>, <code>elif</code>, <code>else</code> terminano con <strong><code>:</code></strong> e il loro blocco è delimitato dall'<strong>indentazione</strong> (4 spazi).</li>
+        <li>In una catena si esegue <strong>solo il primo ramo vero</strong>: l'ordine delle condizioni è importante.</li>
+        <li>Operatori logici: <code>and</code>, <code>or</code>, <code>not</code> (non <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>). Precedenza: confronti, <code>not</code>, <code>and</code>, <code>or</code>.</li>
+        <li><strong>Ogni confronto per intero</strong>: <code>x == 1 or x == 2</code>, oppure <code>x in (1, 2)</code>.</li>
+        <li>Converti sempre l'input prima di confrontarlo con un numero.</li>
+        <li>Collauda i programmi con un caso per ogni ramo e con i valori di confine.</li>
+      </ul>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="python-esercizi-1.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Esercitazione: scheda di esercizi 1</span>
+        </a>
+        <a class="next" href="python-esercizi-2.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Esercitazione: scheda di esercizi 2 →</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+<script>
+/* Il bivio: si illumina il ramo che il programma esegue */
+(function () {
+  var age = document.getElementById('fcAge');
+  if (!age) return;
+  var val = document.getElementById('fcAgeVal');
+  var out = document.getElementById('fcOut');
+  var T = document.getElementById('fcT'), F = document.getElementById('fcF');
+  var last = null;
+
+  function update() {
+    var eta = parseInt(age.value, 10), vero = eta >= 18;
+    val.textContent = eta;
+    out.innerHTML = 'Età: <span class="in">' + eta + '</span>\n' +
+      (vero ? 'Maggiorenne' : 'Minorenne') + '\nFine programma';
+    if (vero === last) return;
+    last = vero;
+    var on = vero ? T : F, off = vero ? F : T;
+    off.classList.remove('on'); off.classList.add('off');
+    on.classList.remove('off', 'on');
+    void on.getBoundingClientRect(); // fa ripartire l'animazione del tracciato
+    on.classList.add('on');
+  }
+  age.addEventListener('input', update);
+  update();
+})();
+
+/* La catena if / elif / else: solo il primo ramo vero viene eseguito */
+(function () {
+  var code = document.getElementById('chainCode');
+  if (!code) return;
+  var voto = document.getElementById('chainVoto');
+  var val = document.getElementById('chainVotoVal');
+  var wrong = document.getElementById('chainWrong');
+  var out = document.getElementById('chainOut');
+  var groups = {};
+  code.querySelectorAll('.grp').forEach(function (g) { groups[g.getAttribute('data-th')] = g; });
+  var NOMI = { '9': 'Ottimo', '7': 'Buono', '6': 'Sufficiente', 'else': 'Insufficiente' };
+
+  function update() {
+    var v = parseFloat(voto.value);
+    val.textContent = v;
+    var order = wrong.checked ? ['6', '9', '7'] : ['9', '7', '6'];
+    order.forEach(function (k, i) {
+      code.insertBefore(groups[k], groups['else']);
+      groups[k].querySelector('.cond .tok-key').textContent = i === 0 ? 'if' : 'elif';
+    });
+
+    var trovato = null;
+    order.concat('else').forEach(function (k) {
+      var cond = groups[k].querySelector('.cond'), body = groups[k].querySelector('.body');
+      cond.className = 'ln cond'; body.className = 'ln body';
+      if (trovato) {
+        cond.setAttribute('data-st', 'saltato');
+        cond.classList.add('skip'); body.classList.add('skip');
+      } else if (k === 'else' || v >= parseFloat(k)) {
+        trovato = k;
+        cond.setAttribute('data-st', k === 'else' ? 'eseguito' : 'vero ✓');
+        cond.classList.add('hit'); body.classList.add('hit');
+      } else {
+        cond.setAttribute('data-st', 'falso');
+        cond.classList.add('miss'); body.classList.add('dim');
+      }
+    });
+    out.innerHTML = 'Giudizio: <b>' + NOMI[trovato] + '</b>';
+  }
+  voto.addEventListener('input', update);
+  wrong.addEventListener('change', update);
+  update();
+})();
+</script>
+</body>
+</html>

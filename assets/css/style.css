@@ -737,6 +737,27 @@ a.arg-row:hover .arg-arrow { color: var(--gold); transform: translateX(3px); }
 a.arg-row.is-sub:hover .arg-num { background: var(--accent); color: var(--accent-ink); }
 .arg-row.is-sub .arg-title { font-family: var(--font-sans); font-size: 1rem; font-weight: 400; color: var(--text-soft); }
 
+/* Esercitazione di un modulo: rientrata, collegata alla traccia da un ramo */
+.arg-list { --indent: 1.75rem; }
+.arg-row.is-es { margin-left: var(--indent); }
+.arg-row.is-es .arg-num::before {
+  content: "";
+  position: absolute;
+  right: 100%; top: 50%;
+  width: calc(var(--indent) - .95rem + 1.5px);
+  height: 2px;
+  margin-top: -1px;
+  background: var(--accent);
+}
+.arg-row.is-es.is-draft .arg-num::before { background: var(--muted); }
+.badge-es {
+  font-family: var(--font-sans);
+  font-size: .78rem; font-weight: 600;
+  padding: .1rem .5rem; border-radius: 99px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
 /* Argomento in preparazione: nodo vuoto tratteggiato */
 .arg-row.is-draft .arg-num { border-style: dashed; border-color: var(--muted); color: var(--muted); }
 .arg-row.is-draft .arg-title { color: var(--muted); }
@@ -757,6 +778,16 @@ a.arg-row.is-sub:hover .arg-num { background: var(--accent); color: var(--accent
   border-radius: var(--r-lg);
 }
 .empty-state b { display: block; font-family: var(--font-display); color: var(--text); font-size: 1.15rem; margin-bottom: .35rem; }
+
+/* Sezioni della pagina anno: Teoria e Laboratorio */
+.arg-section + .arg-section { margin-top: clamp(2.5rem, 6vw, 3.5rem); }
+.arg-section-title {
+  max-width: 820px;
+  margin: 0 0 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.5rem;
+}
 
 /* ---------- 12. PAGINA DISPENSA (contenuto) ----------------------------- */
 .doc-layout {
@@ -918,6 +949,8 @@ a.arg-row.is-sub:hover .arg-num { background: var(--accent); color: var(--accent
   tab-size: 2;
 }
 .code-block pre code { font-family: inherit; }
+/* niente legature: >= deve restare >= e non diventare ≥ */
+code, pre, kbd { font-variant-ligatures: none; }
 /* evidenziazione manuale con <span> */
 .tok-key { color: #D1FF61; }
 .tok-str { color: #7ee2b8; }
@@ -1096,6 +1129,78 @@ input[type="range"]::-moz-range-thumb {
 .to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
 .to-top:hover { background: var(--gold); color: var(--gold-ink); }
 .to-top svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- 14. LABORATORIO: componenti per dispense ed esercitazioni ---- */
+/* Callout con più paragrafi o con codice dentro: usa un div.cbody al posto del p */
+.callout .cbody { min-width: 0; }
+.callout .cbody > * + * { margin-top: .6rem; }
+.callout .cbody .code-block { margin-top: .7rem; }
+
+/* Esempio di esecuzione: un terminale; .in è ciò che scrive l'utente */
+.code-block.run .code-head .lang { color: #C6D2E1; }
+.code-block.run .code-head .lang::before { content: "$ "; color: #7F93AE; }
+.run-legend { font-size: .74rem; color: #7F93AE; font-family: var(--font-mono); }
+.run-legend .in { padding: 0 .3em; }
+.code-block.run .in {
+  color: #D1FF61;
+  background: rgba(209,255,97,.1);
+  border-radius: 3px;
+  padding: 0 .15em;
+}
+.code-block.run .gap { display: block; height: .7rem; }
+
+/* Intestazione da compilare di una scheda di esercizi */
+.sheet-head {
+  display: flex; flex-wrap: wrap; gap: .6rem 1.4rem;
+  padding: .9rem 1.1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--r);
+  font-size: .92rem; color: var(--muted);
+}
+.sheet-head span { display: inline-flex; align-items: flex-end; gap: .5rem; flex: 1 1 auto; }
+.sheet-head span::after { content: ""; flex: 1; min-width: 5rem; border-bottom: 1px solid var(--border); margin-bottom: .3em; }
+.sheet-head span:first-child { flex-basis: 18rem; }
+
+/* Un esercizio */
+.ex {
+  margin-top: 1.4rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.ex > * + * { margin-top: .8rem; }
+.prose .ex > h3 { margin-top: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+.ex-n {
+  font-family: var(--font-mono); font-size: .78rem; font-weight: 700;
+  padding: .15rem .55rem; border-radius: 99px;
+  background: var(--gold); color: var(--gold-ink);
+  letter-spacing: .02em;
+}
+.ex-sep { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ex .run-title { font-size: .82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.ex .run-title + .code-block { margin-top: .45rem; }
+.ex.is-sfida { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.ex.is-sfida .ex-n { background: var(--accent); color: var(--accent-ink); }
+
+/* Spazi da compilare */
+.blank-row { display: grid; gap: .6rem; grid-template-columns: minmax(0, 1fr); margin-top: .8rem; }
+@media (min-width: 640px) { .blank-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.blank {
+  min-height: 2.6rem;
+  padding: .35rem .7rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-sm);
+  font-size: .8rem; color: var(--muted);
+}
+.prog-label { font-weight: 700; color: var(--text); }
+.prog-label + .code-block { margin-top: .45rem; }
+
+/* Tabella "prevedi l'output" */
+.prose table.predict { min-width: 520px; }
+.predict td:first-child { width: 2.5rem; font-family: var(--font-mono); font-weight: 700; color: var(--gold); }
+.predict pre { margin: 0; font-family: var(--font-mono); font-size: .84rem; line-height: 1.6; color: var(--text); white-space: pre; }
+.predict td:last-child { width: 38%; background: repeating-linear-gradient(transparent 0 1.9rem, var(--border-soft) 1.9rem calc(1.9rem + 1px)); }
 
 /* Stampa */
 @media print {

@@ -18,10 +18,14 @@
         non devi scrivere nulla a mano.
 
      4. Apri assets/js/dispense.js e aggiungi la voce nell'anno giusto,
-        indicando il numero che vuoi in elenco e il nome del file nel campo f:
+        nell'elenco "teoria" oppure "laboratorio", indicando il numero che
+        vuoi in elenco e il nome del file nel campo f:
             { num: '3', t: 'Titolo', f: 'gerarchia-memorie.html' }
-        Per un sotto-argomento (es. un'esercitazione) usa un numero col
-        punto, tipo '3.1': comparirà leggermente rientrato sotto il '3'.
+        Le esercitazioni di un modulo vanno DENTRO la sua voce, nel campo
+        esercitazioni: [ { t: 'Titolo', f: 'file.html' } ]: compaiono
+        rientrate sotto il modulo e numerate da sole (3.1, 3.2…).
+        Nella testata qui sotto, imposta la pillola "Tipo" a Teoria o
+        Laboratorio.
 
      Sotto, dopo il testo di esempio, trovi il CATALOGO DEI COMPONENTI
      già pronti (riquadri, codice, tabelle, immagini, animazioni).

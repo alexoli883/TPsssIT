@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduzione a Python · TPSsssIT</title>
+<meta name="description" content="Dispensa 1 di Python: che cos'è Python, sintassi di base, print, variabili e tipi, operazioni sui numeri, stringhe e f-string, input e gli errori più comuni.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- stili locali: le etichette (variabili) e il laboratorio dello slicing --- */
+  .tags-stage { display:flex; flex-wrap:wrap; gap:1.2rem 2.4rem; justify-content:center; align-items:flex-end; padding-top:2.6rem; }
+  .obj { position:relative; text-align:center; }
+  .obj-val {
+    min-width:7.5rem; padding:.9rem 1.1rem; border-radius:var(--r);
+    border:2px solid var(--border); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:1.15rem; font-weight:700; color:var(--text);
+    transition:border-color .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  .obj-type { margin-top:.4rem; font-family:var(--font-mono); font-size:.76rem; color:var(--muted); }
+  .obj .tag {
+    position:absolute; left:50%; top:-2.3rem;
+    padding:.18rem .7rem .18rem .55rem; border-radius:6px 99px 99px 6px;
+    background:var(--gold); color:var(--gold-ink);
+    font-family:var(--font-mono); font-weight:700; font-size:.9rem;
+    opacity:0; transform:translate(-50%, -10px) rotate(-6deg);
+    transition:opacity .3s var(--ease), transform .45s cubic-bezier(.3,1.6,.5,1);
+  }
+  .obj .tag::before { content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--gold-ink); margin-right:.4rem; vertical-align:middle; opacity:.6; }
+  .obj.has-tag .tag { opacity:1; transform:translate(-50%, 0) rotate(-6deg); }
+  .obj.has-tag .obj-val { border-color:var(--gold); box-shadow:0 0 0 4px var(--glow-gold); }
+  .tags-out { margin-top:1.2rem; text-align:center; font-family:var(--font-mono); font-size:.9rem; color:var(--text-soft); }
+  .tags-out b { color:var(--gold); }
+
+  .sl-cells { display:flex; justify-content:center; gap:.35rem; flex-wrap:wrap; }
+  .sl-cell { display:grid; grid-template-rows:auto auto auto; justify-items:center; gap:.3rem; min-width:2.6rem; }
+  .sl-cell .i { font-family:var(--font-mono); font-size:.75rem; color:var(--muted); }
+  .sl-cell .i.neg { color:var(--accent); }
+  .sl-cell .ch {
+    width:2.6rem; height:2.8rem; display:grid; place-items:center; border-radius:8px;
+    border:1.5px solid var(--border); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:1.2rem; font-weight:700; color:var(--text);
+    transition:all .25s var(--ease); position:relative;
+  }
+  .sl-cell.on .ch { background:var(--gold); border-color:var(--gold); color:var(--gold-ink); transform:translateY(-4px); }
+  .sl-cell .ord {
+    position:absolute; bottom:1px; right:4px;
+    font-size:.6rem; font-weight:700; line-height:1; opacity:.6; display:none;
+  }
+  .sl-cell.on .ord { display:block; }
+  .sl-legend { margin-top:.8rem; text-align:center; font-size:.78rem; color:var(--muted); }
+  .sl-legend .neg { color:var(--accent); }
+  .sl-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.6rem 1.2rem; margin-top:1.4rem; font-family:var(--font-mono); }
+  .sl-row label { font-size:.85rem; color:var(--muted); }
+  .sl-row input {
+    font-family:var(--font-mono); font-size:1rem; padding:.35rem .55rem; border-radius:var(--r-sm);
+    border:1px solid var(--border); background:var(--bg); color:var(--text);
+  }
+  .sl-row input:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }
+  #slWord { width:9rem; }
+  #slExpr { width:6.5rem; text-align:center; }
+  .sl-expr { color:var(--text); font-size:1.05rem; }
+  .sl-res { margin-top:1rem; text-align:center; font-family:var(--font-mono); font-size:1.05rem; color:var(--text-soft); min-height:1.6em; }
+  .sl-res b { color:var(--gold); }
+  .sl-res .err { color:var(--accent); }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Introduzione a Python</li>
+    </ul>
+    <h1>Introduzione a Python</h1>
+    <p class="lead">Dispensa 1 · Variabili, numeri, stringhe, input e output.</p>
+    <div class="stats-row">
+      <span class="stat-pill">Dispensa <b>1</b></span>
+      <span class="stat-pill">Lettura <b>15</b> min</span>
+      <span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+      <h2>1. Che cos'è Python</h2>
+      <p>
+        Python è un linguaggio di programmazione <strong>ad alto livello</strong>, <strong>interpretato</strong>
+        e a <strong>tipizzazione dinamica</strong>, nato all'inizio degli anni '90 per opera di Guido van Rossum.
+        La sua sintassi è volutamente compatta e leggibile: a parità di problema, un programma Python è in genere
+        molto più corto dell'equivalente in C o Java. Si usa in moltissimi ambiti: automazione e scripting,
+        analisi dei dati, intelligenza artificiale, sviluppo web, didattica.
+      </p>
+
+      <h3>Come si esegue un programma</h3>
+      <ul>
+        <li><strong>Shell interattiva</strong> (il prompt <code>&gt;&gt;&gt;</code>): scrivi un'istruzione e ottieni subito il risultato. Ottima per fare prove.</li>
+        <li><strong>File <code>.py</code></strong>: scrivi il programma in un editor e lo esegui con <code>python nomefile.py</code> oppure dal pulsante "Run" del tuo ambiente.</li>
+        <li>Ambienti consigliati: <strong>Thonny</strong> e <strong>IDLE</strong> (semplici), <strong>VS Code</strong> (più completo).</li>
+      </ul>
+
+      <h3>Python a confronto con C e Java</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aspetto</th><th>C / Java</th><th>Python</th></tr></thead>
+          <tbody>
+            <tr><td>Esecuzione</td><td>Compilato</td><td>Interpretato</td></tr>
+            <tr><td>Tipi delle variabili</td><td>Dichiarati (<code>int x;</code>)</td><td>Dinamici, nessuna dichiarazione</td></tr>
+            <tr><td>Fine istruzione</td><td>Punto e virgola <code>;</code></td><td>Fine della riga</td></tr>
+            <tr><td>Blocchi di codice</td><td>Parentesi graffe <code>{ }</code></td><td>Indentazione</td></tr>
+            <tr><td>Funzione main</td><td>Obbligatoria</td><td>Non necessaria</td></tr>
+            <tr><td>Interi</td><td>Dimensione fissa (overflow)</td><td>Dimensione illimitata</td></tr>
+            <tr><td>Incremento</td><td><code>i++</code></td><td><code>i += 1</code> (non esiste <code>++</code>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>2. Sintassi di base</h2>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-com"># Questo è un commento: Python lo ignora</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Ciao, mondo!"</span>)   <span class="tok-com"># commento a fine riga</span></code></pre></div>
+      <ul>
+        <li><strong>Niente punto e virgola</strong>: ogni istruzione sta su una riga.</li>
+        <li><strong>Commenti</strong> con il simbolo <code>#</code> (fino a fine riga).</li>
+        <li><strong>Maiuscole e minuscole contano</strong>: <code>totale</code> e <code>Totale</code> sono due variabili diverse, e <code>Print</code> non è <code>print</code>.</li>
+        <li><strong>Nomi delle variabili</strong>: lettere, cifre e underscore <code>_</code>, ma non possono iniziare con una cifra né coincidere con parole riservate (<code>if</code>, <code>for</code>, <code>while</code>, <code>class</code> ...). Per convenzione si usa lo stile <strong>snake_case</strong>: <code>somma_totale</code>, <code>voto_medio</code>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <div class="cbody">
+          <b>Attenzione all'indentazione</b>
+          <p>In Python i blocchi di codice si riconoscono dal rientro delle righe. Quando incontreremo <code>if</code> e cicli, sarà fondamentale. Per ora ricorda una regola: una riga normale non deve avere spazi all'inizio. Questo programma dà errore:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>x = <span class="tok-num">5</span>
+  y = <span class="tok-num">6</span>        <span class="tok-com"># IndentationError: unexpected indent</span></code></pre></div>
+          <p>Quando indenti usa sempre 4 spazi (la maggior parte degli editor lo fa premendo Tab).</p>
+        </div>
+      </div>
+
+      <h2>3. Il comando print</h2>
+      <p><code>print()</code> mostra a schermo uno o più valori. Puoi passargli argomenti di tipo diverso separati da virgola: non servono specificatori di formato come <code>%d</code> del C.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-str">"Ciao"</span>)                    <span class="tok-com"># Ciao</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Somma:"</span>, <span class="tok-num">3</span> + <span class="tok-num">4</span>)           <span class="tok-com"># Somma: 7</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"a"</span>, <span class="tok-str">"b"</span>, <span class="tok-str">"c"</span>, sep=<span class="tok-str">"-"</span>)    <span class="tok-com"># a-b-c</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Senza a capo"</span>, end=<span class="tok-str">""</span>)    <span class="tok-com"># non va a capo</span>
+<span class="tok-fn">print</span>()                          <span class="tok-com"># stampa una riga vuota</span></code></pre></div>
+      <ul>
+        <li>Tra gli argomenti <code>print</code> inserisce uno spazio. Si cambia con il parametro <strong><code>sep</code></strong>.</li>
+        <li>Alla fine <code>print</code> va a capo. Si cambia con il parametro <strong><code>end</code></strong>.</li>
+        <li>Le stringhe possono stare tra apici doppi <code>"..."</code> o singoli <code>'...'</code>: sono equivalenti.</li>
+      </ul>
+
+      <h2>4. Variabili e tipi di dato</h2>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-num">16</span>
+altezza = <span class="tok-num">1.75</span>
+nome = <span class="tok-str">"Luca"</span>
+iscritto = <span class="tok-key">True</span></code></pre></div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">🏷️</span>
+        <div class="cbody">
+          <b>Un'analogia: scatole contro etichette</b>
+          <p>In C una variabile è una <strong>scatola</strong> con sopra scritto il tipo: <code>int x;</code> è una scatola fatta apposta per contenere un intero, e ci metti dentro il valore.</p>
+          <p>In Python è l'opposto: i valori sono oggetti che esistono per conto loro, e la variabile è un'<strong>etichetta adesiva</strong> che ci attacchi sopra. L'etichetta si può staccare e riattaccare a un oggetto di tipo diverso:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>x = <span class="tok-num">5</span>          <span class="tok-com"># l'etichetta x è attaccata all'intero 5</span>
+x = <span class="tok-str">"ciao"</span>     <span class="tok-com"># ora x è attaccata a una stringa: nessun errore</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="demo" id="tagDemo">
+        <div class="demo-head">Prova tu: sposta l'etichetta x</div>
+        <div class="demo-stage">
+          <div class="tags-stage">
+            <div class="obj has-tag" data-obj="int">
+              <span class="tag">x</span>
+              <div class="obj-val">5</div>
+              <div class="obj-type">int</div>
+            </div>
+            <div class="obj" data-obj="str">
+              <span class="tag">x</span>
+              <div class="obj-val">"ciao"</div>
+              <div class="obj-type">str</div>
+            </div>
+          </div>
+          <p class="tags-out" id="tagOut">type(x) → <b>&lt;class 'int'&gt;</b></p>
+        </div>
+        <div class="demo-controls">
+          <button class="btn btn-ghost btn-sm" type="button" data-set="int"><code>x = 5</code></button>
+          <button class="btn btn-ghost btn-sm" type="button" data-set="str"><code>x = "ciao"</code></button>
+          <span class="spacer"></span>
+          <span class="demo-note">l'oggetto resta, l'etichetta si sposta</span>
+        </div>
+      </div>
+
+      <h3>I tipi fondamentali</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tipo</th><th>Significato</th><th>Esempi</th></tr></thead>
+          <tbody>
+            <tr><td><code>int</code></td><td>Numero intero</td><td><code>0</code>, <code>42</code>, <code>-7</code></td></tr>
+            <tr><td><code>float</code></td><td>Numero con la virgola</td><td><code>3.14</code>, <code>-0.5</code>, <code>2.0</code></td></tr>
+            <tr><td><code>str</code></td><td>Stringa (testo)</td><td><code>"ciao"</code>, <code>'a'</code>, <code>""</code></td></tr>
+            <tr><td><code>bool</code></td><td>Valore logico</td><td><code>True</code>, <code>False</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Il tipo non si dichiara: è il <strong>valore</strong> ad averlo. Per scoprirlo si usa <code>type()</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-fn">type</span>(<span class="tok-num">16</span>))         <span class="tok-com"># &lt;class 'int'&gt;</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(<span class="tok-num">1.75</span>))       <span class="tok-com"># &lt;class 'float'&gt;</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(<span class="tok-str">"Luca"</span>))     <span class="tok-com"># &lt;class 'str'&gt;</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(<span class="tok-key">True</span>))       <span class="tok-com"># &lt;class 'bool'&gt;</span></code></pre></div>
+
+      <h3>Assegnazione multipla e scambio</h3>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a, b = <span class="tok-num">3</span>, <span class="tok-num">7</span>          <span class="tok-com"># a vale 3, b vale 7</span>
+a, b = b, a          <span class="tok-com"># scambio: ora a vale 7 e b vale 3</span></code></pre></div>
+      <p>In C serve una variabile temporanea; in Python lo scambio si fa in una sola riga.</p>
+
+      <h3>Conversioni di tipo</h3>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">int</span>(<span class="tok-str">"12"</span>)      <span class="tok-com"># 12      da stringa a intero</span>
+<span class="tok-fn">float</span>(<span class="tok-str">"3.5"</span>)   <span class="tok-com"># 3.5     da stringa a decimale</span>
+<span class="tok-fn">str</span>(<span class="tok-num">10</span>)        <span class="tok-com"># "10"    da numero a stringa</span>
+<span class="tok-fn">int</span>(<span class="tok-num">3.9</span>)       <span class="tok-com"># 3       il decimale viene troncato, non arrotondato</span></code></pre></div>
+
+      <h2>5. Operazioni sui numeri</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Operatore</th><th>Significato</th><th>Esempio</th><th>Risultato</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code> <code>-</code> <code>*</code></td><td>Somma, differenza, prodotto</td><td><code>7 * 3</code></td><td><code>21</code></td></tr>
+            <tr><td><code>/</code></td><td>Divisione (il risultato è sempre un float)</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr>
+            <tr><td><code>//</code></td><td>Divisione intera</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
+            <tr><td><code>%</code></td><td>Resto della divisione</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+            <tr><td><code>**</code></td><td>Potenza</td><td><code>2 ** 10</code></td><td><code>1024</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li><strong>Precedenza</strong>: prima <code>**</code>, poi <code>*</code> <code>/</code> <code>//</code> <code>%</code>, infine <code>+</code> <code>-</code>. Le parentesi hanno sempre la precedenza più alta.</li>
+        <li><strong>Operatori composti</strong>: <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code> ... ad esempio <code>x += 1</code> equivale a <code>x = x + 1</code>. Non esistono <code>++</code> e <code>--</code>.</li>
+        <li><strong>Funzioni utili</strong>: <code>abs(x)</code> valore assoluto, <code>round(x, n)</code> arrotonda a <code>n</code> decimali, <code>min(a, b)</code> e <code>max(a, b)</code>.</li>
+      </ul>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">📌</span>
+        <div class="cbody">
+          <b>Due differenze importanti rispetto a C e Java</b>
+          <ol>
+            <li>La divisione <code>/</code> restituisce sempre un float: <code>4 / 2</code> vale <code>2.0</code>, non <code>2</code>. Per la divisione intera usa <code>//</code>.</li>
+            <li>Gli interi non hanno limite di grandezza: <code>2 ** 100</code> vale <code style="word-break:break-all">1267650600228229401496703205376</code>, senza overflow.</li>
+          </ol>
+        </div>
+      </div>
+
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>base = <span class="tok-num">5</span>
+altezza = <span class="tok-num">3</span>
+area = base * altezza / <span class="tok-num">2</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Area del triangolo:"</span>, area)    <span class="tok-com"># Area del triangolo: 7.5</span></code></pre></div>
+
+      <h2>6. Le stringhe</h2>
+      <p>Una stringa è una <strong>sequenza di caratteri</strong>. Ogni carattere ha una posizione (indice) che parte da <strong>0</strong>; gli indici negativi contano dalla fine.</p>
+
+      <div class="demo" id="slDemo">
+        <div class="demo-head">Indici e slicing: prova tu</div>
+        <div class="demo-stage">
+          <div class="sl-cells" id="slCells" aria-live="polite">
+            <div class="sl-cell"><span class="i">0</span><span class="ch">P</span><span class="i neg">-6</span></div>
+            <div class="sl-cell"><span class="i">1</span><span class="ch">y</span><span class="i neg">-5</span></div>
+            <div class="sl-cell"><span class="i">2</span><span class="ch">t</span><span class="i neg">-4</span></div>
+            <div class="sl-cell"><span class="i">3</span><span class="ch">h</span><span class="i neg">-3</span></div>
+            <div class="sl-cell"><span class="i">4</span><span class="ch">o</span><span class="i neg">-2</span></div>
+            <div class="sl-cell"><span class="i">5</span><span class="ch">n</span><span class="i neg">-1</span></div>
+          </div>
+          <p class="sl-legend">sopra: indice · <span class="neg">sotto: indice negativo</span></p>
+          <div class="sl-row">
+            <span><label for="slWord">s = </label><input id="slWord" type="text" value="Python" maxlength="12" spellcheck="false" autocomplete="off"></span>
+            <span class="sl-expr"><label for="slExpr">s[</label><input id="slExpr" type="text" value="1:4" spellcheck="false" autocomplete="off">]</span>
+          </div>
+          <p class="sl-res" id="slRes"></p>
+        </div>
+        <div class="demo-controls" id="slPresets">
+          <button class="btn btn-ghost btn-sm" type="button" data-e="0">s[0]</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-e="-1">s[-1]</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-e="1:4">s[1:4]</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-e=":3">s[:3]</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-e="3:">s[3:]</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-e="::-1">s[::-1]</button>
+        </div>
+      </div>
+
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>s = <span class="tok-str">"Python"</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(s))        <span class="tok-com"># 6         lunghezza</span>
+<span class="tok-fn">print</span>(s[<span class="tok-num">0</span>])          <span class="tok-com"># P         primo carattere</span>
+<span class="tok-fn">print</span>(s[-<span class="tok-num">1</span>])         <span class="tok-com"># n         ultimo carattere</span>
+<span class="tok-fn">print</span>(s[<span class="tok-num">1</span>:<span class="tok-num">4</span>])        <span class="tok-com"># yth       dal 1 incluso al 4 escluso</span>
+<span class="tok-fn">print</span>(s[:<span class="tok-num">3</span>])         <span class="tok-com"># Pyt       dall'inizio al 3 escluso</span>
+<span class="tok-fn">print</span>(s[<span class="tok-num">3</span>:])         <span class="tok-com"># hon       dal 3 alla fine</span>
+<span class="tok-fn">print</span>(s[::-<span class="tok-num">1</span>])       <span class="tok-com"># nohtyP    stringa al contrario</span></code></pre></div>
+
+      <h3>Operazioni e metodi</h3>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-str">"ab"</span> + <span class="tok-str">"cd"</span>          <span class="tok-com"># "abcd"        concatenazione</span>
+<span class="tok-str">"ab"</span> * <span class="tok-num">3</span>             <span class="tok-com"># "ababab"      ripetizione</span>
+<span class="tok-str">"th"</span> <span class="tok-key">in</span> <span class="tok-str">"Python"</span>     <span class="tok-com"># True          contenimento</span></code></pre></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metodo</th><th>Cosa fa</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td><code>upper()</code> <code>lower()</code></td><td>Maiuscolo / minuscolo</td><td><code>"ciao".upper()</code> → <code>"CIAO"</code></td></tr>
+            <tr><td><code>strip()</code></td><td>Toglie gli spazi a inizio e fine</td><td><code>"  ok ".strip()</code> → <code>"ok"</code></td></tr>
+            <tr><td><code>replace(a, b)</code></td><td>Sostituisce <code>a</code> con <code>b</code></td><td><code>"casa".replace("a", "o")</code> → <code>"coso"</code></td></tr>
+            <tr><td><code>find(x)</code></td><td>Posizione di <code>x</code> (<code>-1</code> se assente)</td><td><code>"casa".find("s")</code> → <code>2</code></td></tr>
+            <tr><td><code>split()</code></td><td>Divide in una lista di parole</td><td><code>"a b c".split()</code> → <code>["a", "b", "c"]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">🔒</span>
+        <p><b>Le stringhe sono immutabili</b>Non si può modificare un singolo carattere: <code>s[0] = "C"</code> dà <code>TypeError</code>. Si crea invece una nuova stringa, ad esempio <code>s = "C" + s[1:]</code>.</p>
+      </div>
+
+      <h3>Sequenze di escape</h3>
+      <p><code>\n</code> va a capo, <code>\t</code> inserisce una tabulazione, <code>\"</code> un apice doppio, <code>\\</code> una barra rovesciata.</p>
+
+      <h3>Le f-string: il modo migliore per comporre testo</h3>
+      <p>Mettendo una <strong><code>f</code></strong> davanti alla stringa, ciò che sta tra graffe viene sostituito con il valore dell'espressione.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nome = <span class="tok-str">"Luca"</span>
+eta = <span class="tok-num">16</span>
+<span class="tok-fn">print</span>(<span class="tok-str">f"{nome} ha {eta} anni"</span>)              <span class="tok-com"># Luca ha 16 anni</span>
+<span class="tok-fn">print</span>(<span class="tok-str">f"Tra 5 anni avrà {eta + 5} anni"</span>)     <span class="tok-com"># Tra 5 anni avrà 21 anni</span>
+<span class="tok-fn">print</span>(<span class="tok-str">f"Pi greco: {3.14159:.2f}"</span>)            <span class="tok-com"># Pi greco: 3.14</span></code></pre></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Formato</th><th>Effetto</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td><code>:.2f</code></td><td>Numero con 2 decimali</td><td><code>f"{3.14159:.2f}"</code> → <code>3.14</code></td></tr>
+            <tr><td><code>:02d</code></td><td>Intero su 2 cifre, con zero iniziale</td><td><code>f"{7:02d}"</code> → <code>07</code></td></tr>
+            <tr><td><code>:&gt;8</code></td><td>Allinea a destra in 8 caratteri</td><td><code>f"{42:&gt;8}"</code> → <code style="white-space:pre">      42</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⚠️</span>
+        <p><b>Non si concatenano stringhe e numeri</b><code>"Età: " + 16</code> dà <code>TypeError</code>. Hai due soluzioni: convertire con <code>str(16)</code> oppure (meglio) usare una f-string: <code>f"Età: {16}"</code>.</p>
+      </div>
+
+      <h2>7. Leggere dati con input</h2>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nome = <span class="tok-fn">input</span>(<span class="tok-str">"Come ti chiami? "</span>)
+<span class="tok-fn">print</span>(<span class="tok-str">"Ciao"</span>, nome)</code></pre></div>
+      <p>Il testo tra parentesi è il messaggio mostrato all'utente. Il programma si ferma e attende che venga premuto Invio.</p>
+
+      <div class="callout warn">
+        <span class="ico" aria-hidden="true">⌨️</span>
+        <div class="cbody">
+          <b>input restituisce sempre una stringa</b>
+          <p>Anche se scrivi un numero, Python lo riceve come testo. Questo programma stampa <code>34</code> invece di <code>7</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = <span class="tok-fn">input</span>(<span class="tok-str">"Primo numero: "</span>)      <span class="tok-com"># l'utente scrive 3</span>
+b = <span class="tok-fn">input</span>(<span class="tok-str">"Secondo numero: "</span>)    <span class="tok-com"># l'utente scrive 4</span>
+<span class="tok-fn">print</span>(a + b)                     <span class="tok-com"># 34   (concatenazione di stringhe!)</span></code></pre></div>
+          <p>Bisogna convertire subito il valore letto:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Primo numero: "</span>))
+b = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Secondo numero: "</span>))
+<span class="tok-fn">print</span>(<span class="tok-str">"Somma:"</span>, a + b)           <span class="tok-com"># Somma: 7</span></code></pre></div>
+          <p>Per numeri con la virgola usa <code>float(input(...))</code>. Se l'utente scrive un testo non numerico, Python segnala <code>ValueError</code>: imparerai a gestirlo più avanti.</p>
+        </div>
+      </div>
+
+      <h2>8. Gli errori più comuni</h2>
+      <p>Leggi sempre <strong>l'ultima riga</strong> del messaggio di errore: dice il tipo di errore e la riga del programma in cui è avvenuto.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Errore</th><th>Causa tipica</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td><code>SyntaxError</code></td><td>Parentesi o apici non chiusi, simboli sbagliati</td><td><code>print("ciao"</code></td></tr>
+            <tr><td><code>NameError</code></td><td>Variabile non definita, o nome scritto male (anche maiuscole!)</td><td><code>Print("ciao")</code></td></tr>
+            <tr><td><code>TypeError</code></td><td>Operazione tra tipi incompatibili</td><td><code>"Età: " + 16</code></td></tr>
+            <tr><td><code>ValueError</code></td><td>Conversione impossibile</td><td><code>int("abc")</code></td></tr>
+            <tr><td><code>IndentationError</code></td><td>Rientro sbagliato</td><td>riga con spazi iniziali inutili</td></tr>
+            <tr><td><code>ZeroDivisionError</code></td><td>Divisione per zero</td><td><code>5 / 0</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>9. Riepilogo</h2>
+      <ul>
+        <li>Niente <code>;</code>, niente graffe: conta la <strong>fine riga</strong> e l'<strong>indentazione</strong>.</li>
+        <li>Le variabili sono <strong>etichette</strong> attaccate ai valori; il tipo appartiene al valore e si controlla con <code>type()</code>.</li>
+        <li><code>/</code> dà sempre un float; per la divisione intera usa <code>//</code>, per il resto <code>%</code>, per la potenza <code>**</code>.</li>
+        <li>Le stringhe si indicizzano da 0, si affettano con <code>[inizio:fine]</code> e sono <strong>immutabili</strong>.</li>
+        <li>Per comporre testo usa le <strong>f-string</strong>: <code>f"{x:.2f}"</code>.</li>
+        <li><code>input()</code> restituisce <strong>sempre una stringa</strong>: converti con <code>int()</code> o <code>float()</code>.</li>
+        <li>Di fronte a un errore leggi <strong>l'ultima riga</strong> del messaggio.</li>
+      </ul>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="index.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Tutti gli argomenti del quarto anno</span>
+        </a>
+        <a class="next" href="python-esercizi-1.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Esercitazione: scheda di esercizi 1 →</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+<script>
+/* Etichetta x: si stacca da un oggetto e si attacca all'altro */
+(function () {
+  var demo = document.getElementById('tagDemo');
+  if (!demo) return;
+  var out = document.getElementById('tagOut');
+  demo.querySelectorAll('[data-set]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var k = btn.getAttribute('data-set');
+      demo.querySelectorAll('.obj').forEach(function (o) {
+        o.classList.toggle('has-tag', o.getAttribute('data-obj') === k);
+      });
+      out.innerHTML = 'type(x) → <b>&lt;class \'' + k + '\'&gt;</b>';
+    });
+  });
+})();
+
+/* Slicing: stessa logica di Python per s[i] e s[inizio:fine:passo] */
+(function () {
+  var word = document.getElementById('slWord');
+  var expr = document.getElementById('slExpr');
+  var cellsBox = document.getElementById('slCells');
+  var res = document.getElementById('slRes');
+  if (!word || !expr) return;
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function drawCells(s) {
+    var n = s.length, html = '';
+    for (var i = 0; i < n; i++) {
+      html += '<div class="sl-cell"><span class="i">' + i + '</span>' +
+        '<span class="ch">' + (s[i] === ' ' ? '␣' : esc(s[i])) + '<span class="ord"></span></span>' +
+        '<span class="i neg">' + (i - n) + '</span></div>';
+    }
+    cellsBox.innerHTML = html;
+  }
+
+  function parseInt2(t) {
+    t = t.trim();
+    if (t === '') return null;
+    if (!/^-?\d+$/.test(t)) throw new Error('SyntaxError: indice non valido');
+    return parseInt(t, 10);
+  }
+
+  // Restituisce l'elenco degli indici selezionati, nell'ordine di lettura
+  function evaluate(s, e) {
+    var n = s.length, parts = e.split(':');
+    if (parts.length > 3 || e.trim() === '') throw new Error('SyntaxError: espressione non valida');
+    if (parts.length === 1) {
+      var i = parseInt2(parts[0]);
+      if (i < -n || i >= n) throw new Error('IndexError: string index out of range');
+      return { idx: [i < 0 ? i + n : i], single: true };
+    }
+    var a = parseInt2(parts[0]), b = parseInt2(parts[1]);
+    var k = parts.length === 3 ? parseInt2(parts[2]) : null;
+    if (k === null) k = 1;
+    if (k === 0) throw new Error('ValueError: slice step cannot be zero');
+    function adj(v, def) {
+      if (v === null) return def;
+      if (v < 0) { v += n; if (v < 0) v = k < 0 ? -1 : 0; }
+      else if (v >= n) v = k < 0 ? n - 1 : n;
+      return v;
+    }
+    var start = adj(a, k > 0 ? 0 : n - 1), stop = adj(b, k > 0 ? n : -1), out = [];
+    for (var j = start; k > 0 ? j < stop : j > stop; j += k) out.push(j);
+    return { idx: out, single: false };
+  }
+
+  function update() {
+    var s = word.value;
+    if (cellsBox.children.length !== s.length || cellsBox.getAttribute('data-w') !== s) {
+      drawCells(s);
+      cellsBox.setAttribute('data-w', s);
+    }
+    var cells = cellsBox.querySelectorAll('.sl-cell');
+    cells.forEach(function (c) { c.classList.remove('on'); });
+    try {
+      var r = evaluate(s, expr.value);
+      r.idx.forEach(function (i, pos) {
+        cells[i].classList.add('on');
+        cells[i].querySelector('.ord').textContent = pos + 1;
+      });
+      var val = r.idx.map(function (i) { return s[i]; }).join('');
+      res.innerHTML = 's[' + esc(expr.value.trim()) + '] → <b>\'' + esc(val) + '\'</b>' +
+        (r.single ? '' : ' <span style="color:var(--muted)">(' + val.length + ' caratteri)</span>');
+    } catch (err) {
+      res.innerHTML = '<span class="err">' + esc(err.message) + '</span>';
+    }
+  }
+
+  word.addEventListener('input', update);
+  expr.addEventListener('input', update);
+  document.querySelectorAll('#slPresets [data-e]').forEach(function (b) {
+    b.addEventListener('click', function () { expr.value = b.getAttribute('data-e'); update(); });
+  });
+  update();
+})();
+</script>
+</body>
+</html>
