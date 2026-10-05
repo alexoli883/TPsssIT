@@ -67,7 +67,9 @@ window.DISPENSE = {
       { num: '0', t: 'Ripasso dell\'anno precedente: processi, thread e concorrenza', f: 'ripasso-concorrenza.html' },
       { num: '1', t: 'Sistemi distribuiti e modelli architetturali', f: 'sistemi-distribuiti.html' }
     ],
-    laboratorio: []
+    laboratorio: [
+      { num: '0', t: 'Ripasso HTML', f: 'ripasso-html.html' }
+    ]
   }
 
 };
