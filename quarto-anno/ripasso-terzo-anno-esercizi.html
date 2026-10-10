@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esercitazione di ripasso · TPSsssIT</title>
+<meta name="description" content="Esercitazione di ripasso del terzo anno: codifica UTF-8 in binario, calcolo e verifica del CRC, scheduling della CPU con FCFS, SJF, SRTF, priorità e Round Robin. Con le soluzioni.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- stili locali: riquadri delle soluzioni e tabelle da compilare --- */
+  .esercizio {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--surface-2) 35%, transparent);
+    padding: 1.1rem 1.2rem;
+  }
+  .esercizio > * + * { margin-top: .7rem; }
+  .esercizio ol, .esercizio ul { margin-top: .5rem; }
+  .esercizio .sol {
+    padding-top: .7rem;
+    border-top: 1px dashed var(--border-soft);
+    font-weight: 650;
+    color: var(--text);
+  }
+  .esercizio .sol-alg {
+    margin-top: 1.6rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .esercizio .sol-alg:first-child { margin-top: 0; }
+  .esercizio .sol-alg span { font-weight: 400; color: var(--muted); }
+  table.fill td { height: 2.4rem; }
+  table.fill td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Esercitazione di ripasso</li>
+    </ul>
+    <h1>Esercitazione di ripasso</h1>
+    <p class="lead">UTF-8 in binario, CRC e scheduling della CPU. In fondo trovi le soluzioni, svolte passo passo.</p>
+    <div class="stats-row">
+      <span class="stat-pill">Esercitazione della dispensa <b>0</b></span>
+      <span class="stat-pill">Esercizi <b>9</b></span>
+      <span class="stat-pill">Tipo <b>Teoria</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa scheda</p>
+    </nav>
+
+    <article class="prose">
+
+      <div class="sheet-head">
+        <span>Nome e cognome</span><span>Classe</span><span>Data</span>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">💡</span>
+        <p><b>Come usare la scheda</b>Gli esercizi riprendono la dispensa <a href="ripasso-terzo-anno.html">«Ripasso: codici, sistemi operativi e memoria»</a>: se hai un dubbio sul procedimento, rileggi prima la sezione corrispondente. Svolgi tutto su carta, poi confronta con le soluzioni in fondo alla pagina.</p>
+      </div>
+
+<h2>Parte A · UTF-8 in binario</h2>
+
+<p>Per ogni carattere è dato il <em>code point</em> Unicode, nella solita notazione <code>U+</code> esadecimale. Scrivi la sua codifica <strong>UTF-8 in binario</strong>, byte per byte: indica quanti byte servono, lo schema usato e come distribuisci i bit. Il risultato resta in binario: <strong>non</strong> va riconvertito in esadecimale.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Intervallo code point</th><th>Byte</th><th>Schema UTF-8</th><th>Bit liberi</th></tr></thead>
+<tbody>
+<tr><td><code>U+0000 – U+007F</code></td><td>1</td><td><code>0zzzzzzz</code></td><td>7</td></tr>
+<tr><td><code>U+0080 – U+07FF</code></td><td>2</td><td><code>110yyyyy 10zzzzzz</code></td><td>11</td></tr>
+<tr><td><code>U+0800 – U+FFFF</code></td><td>3</td><td><code>1110xxxx 10yyyyyy 10zzzzzz</code></td><td>16</td></tr>
+<tr><td><code>U+10000 – U+10FFFF</code></td><td>4</td><td><code>11110www 10xxxxxx 10yyyyyy 10zzzzzz</code></td><td>21</td></tr>
+</tbody></table></div>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 1</span><span class="ex-sep"> · </span>Il carattere «ñ»</h3>
+<p>Codifica in UTF-8, in binario, il carattere <strong>«ñ»</strong>, la «n con tilde» dello spagnolo: code point <code>U+00F1</code>.</p>
+<div class="blank-row"><div class="blank">Numero di byte e schema</div><div class="blank">Codifica UTF-8 in binario</div></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 2</span><span class="ex-sep"> · </span>Il carattere «€»</h3>
+<p>Codifica in UTF-8, in binario, il carattere <strong>«€»</strong>, il simbolo dell'euro: code point <code>U+20AC</code>.</p>
+<div class="blank-row"><div class="blank">Numero di byte e schema</div><div class="blank">Codifica UTF-8 in binario</div></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 3</span><span class="ex-sep"> · </span>Il carattere «😀»</h3>
+<p>Codifica in UTF-8, in binario, il carattere <strong>«😀»</strong>, l'emoji «faccina sorridente»: code point <code>U+1F600</code>.</p>
+<div class="blank-row"><div class="blank">Numero di byte e schema</div><div class="blank">Codifica UTF-8 in binario</div></div>
+</section>
+
+<h2>Parte B · Il CRC</h2>
+
+<p>Il procedimento: si accodano al messaggio <code>M</code> tanti zeri quanto è il grado <code>r</code> del generatore (cioè il numero di bit di <code>G</code> meno uno), si divide in modulo 2 per <code>G</code> &mdash; con lo <strong>XOR</strong>, senza prestiti né riporti &mdash; e il <strong>resto</strong> a <code>r</code> bit è il CRC da accodare al messaggio. Il ricevente divide la trama ricevuta per lo stesso <code>G</code>: resto tutto a zero &rarr; nessun errore rilevato.</p>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 4</span><span class="ex-sep"> · </span>Calcolo del CRC con G = 10011</h3>
+<p>Il messaggio da trasmettere è <code>M = 1101011011</code>, il polinomio generatore è <code>G(x) = x<sup>4</sup> + x + 1</code>, cioè <code>G = 10011</code>.</p>
+<ol><li>Scrivi il dividendo: <code>M</code> con gli zeri accodati.</li><li>Esegui la divisione in modulo 2 e ricava il resto, cioè il CRC.</li><li>Scrivi la trama trasmessa.</li></ol>
+<div class="blank-row"><div class="blank">CRC (resto)</div><div class="blank">Trama trasmessa</div></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 5</span><span class="ex-sep"> · </span>Calcolo del CRC con G = 1011</h3>
+<p>Il messaggio da trasmettere è <code>M = 10110011</code>, il polinomio generatore è <code>G(x) = x<sup>3</sup> + x + 1</code>, cioè <code>G = 1011</code>.</p>
+<ol><li>Scrivi il dividendo: <code>M</code> con gli zeri accodati.</li><li>Esegui la divisione in modulo 2 e ricava il resto, cioè il CRC.</li><li>Scrivi la trama trasmessa.</li></ol>
+<div class="blank-row"><div class="blank">CRC (resto)</div><div class="blank">Trama trasmessa</div></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 6</span><span class="ex-sep"> · </span>Verifica in ricezione</h3>
+<p>Mittente e destinatario usano <code>G(x) = x<sup>3</sup> + x<sup>2</sup> + 1</code>, cioè <code>G = 1101</code>. Il destinatario riceve due trame, in cui gli ultimi 3 bit sono il CRC:</p>
+<ul><li>trama a: <code>100100001</code></li><li>trama b: <code>100110001</code></li></ul>
+<p>Per ciascuna esegui la divisione per <code>G</code> e stabilisci se è arrivata corretta o se contiene un errore. Per quella corretta, qual era il messaggio originale <code>M</code>?</p>
+<div class="blank-row"><div class="blank">Trama a: resto e verdetto</div><div class="blank">Trama b: resto e verdetto</div></div>
+</section>
+
+<h2>Parte C · Scheduling della CPU</h2>
+
+<p>Per ciascuna tabella applica i cinque algoritmi: <strong>FCFS</strong>, <strong>SJF</strong> (non-pre-emptive), <strong>SRTF</strong> (la versione pre-emptive di SJF), <strong>Priorità pre-emptive</strong> e <strong>Round Robin</strong> con il quanto indicato. Per ognuno disegna il diagramma di Gantt, calcola il tempo di attesa T<sub>w</sub> di ogni processo e l'<strong>ETAM</strong>, il tempo di attesa medio. Alla fine confronta i risultati: quale algoritmo dà l'attesa media più bassa?</p>
+
+<div class="code-block"><div class="code-head"><span class="lang">Formule</span></div><pre><code>T_w(P) = istante di fine &minus; durata &minus; istante di arrivo
+ETAM   = (T_w(P1) + T_w(P2) + &hellip; + T_w(Pn)) / n</code></pre></div>
+
+<div class="callout warn">
+<span class="ico" aria-hidden="true">📏</span>
+<p><b>Le regole da usare</b>Priorità: il <strong>numero più basso</strong> è la priorità più alta (<code>1</code> batte <code>3</code>, come in Unix). A parità di criterio vince chi è arrivato prima. Negli algoritmi pre-emptive il processo in esecuzione perde la CPU solo se ne arriva uno <em>strettamente</em> migliore. Nel Round Robin un processo appena arrivato entra in coda <em>prima</em> di quello che ha appena esaurito il quanto. I dati sono scelti in modo che non ci siano casi ambigui.</p>
+</div>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 7</span><span class="ex-sep"> · </span>Tabella 1, Round Robin con quanto 3</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Processo</th><th>Arrivo</th><th>Durata</th><th>Priorità</th></tr></thead>
+<tbody><tr><td>P1</td><td>0</td><td>7</td><td>3</td></tr><tr><td>P2</td><td>2</td><td>4</td><td>1</td></tr><tr><td>P3</td><td>4</td><td>1</td><td>4</td></tr><tr><td>P4</td><td>5</td><td>6</td><td>2</td></tr><tr><td>P5</td><td>7</td><td>3</td><td>5</td></tr></tbody>
+</table></div>
+<p>Applica FCFS, SJF, SRTF, Priorità pre-emptive e Round Robin con <strong>q = 3</strong>. Riporta per ognuno il Gantt e i T<sub>w</sub>, poi completa la tabella.</p>
+<div class="table-wrap"><table class="fill">
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SJF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SRTF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Priorità</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Round Robin q=3</td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+</table></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 8</span><span class="ex-sep"> · </span>Tabella 2, Round Robin con quanto 2</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Processo</th><th>Arrivo</th><th>Durata</th><th>Priorità</th></tr></thead>
+<tbody><tr><td>P1</td><td>0</td><td>8</td><td>4</td></tr><tr><td>P2</td><td>1</td><td>3</td><td>2</td></tr><tr><td>P3</td><td>3</td><td>6</td><td>5</td></tr><tr><td>P4</td><td>5</td><td>2</td><td>1</td></tr><tr><td>P5</td><td>7</td><td>4</td><td>3</td></tr></tbody>
+</table></div>
+<p>Applica FCFS, SJF, SRTF, Priorità pre-emptive e Round Robin con <strong>q = 2</strong>. Riporta per ognuno il Gantt e i T<sub>w</sub>, poi completa la tabella.</p>
+<div class="table-wrap"><table class="fill">
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SJF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SRTF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Priorità</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Round Robin q=2</td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+</table></div>
+</section>
+
+<section class="ex">
+<h3><span class="ex-n">Esercizio 9</span><span class="ex-sep"> · </span>Tabella 3, Round Robin con quanto 4</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Processo</th><th>Arrivo</th><th>Durata</th><th>Priorità</th></tr></thead>
+<tbody><tr><td>P1</td><td>0</td><td>5</td><td>3</td></tr><tr><td>P2</td><td>1</td><td>9</td><td>5</td></tr><tr><td>P3</td><td>2</td><td>2</td><td>2</td></tr><tr><td>P4</td><td>6</td><td>6</td><td>1</td></tr><tr><td>P5</td><td>9</td><td>3</td><td>4</td></tr></tbody>
+</table></div>
+<p>Applica FCFS, SJF, SRTF, Priorità pre-emptive e Round Robin con <strong>q = 4</strong>. Riporta per ognuno il Gantt e i T<sub>w</sub>, poi completa la tabella.</p>
+<div class="table-wrap"><table class="fill">
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SJF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SRTF</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Priorità</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Round Robin q=4</td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+</table></div>
+</section>
+
+<h2>Soluzioni</h2>
+
+<div class="callout ok">
+<span class="ico" aria-hidden="true">✅</span>
+<p><b>Prima prova da solo</b>Guarda le soluzioni solo dopo aver svolto l'esercizio. Confronta il risultato finale e, se non torna, ripercorri i passaggi qui sotto per trovare il punto esatto in cui la tua strada si è separata.</p>
+</div>
+
+<h3>Soluzione 1 · «ñ»</h3>
+<div class="esercizio">
+<ol>
+<li><strong>Intervallo</strong>: <code>U+00F1</code> cade in <code>U+0080 – U+07FF</code> &rarr; servono <strong>2 byte</strong>, con lo schema <code>110yyyyy 10zzzzzz</code>, che ha <strong>11 bit</strong> liberi.</li>
+<li><strong>Code point in binario</strong> (ogni cifra esadecimale diventa 4 bit): <code>0&rarr;0000 &nbsp; 0&rarr;0000 &nbsp; F&rarr;1111 &nbsp; 1&rarr;0001</code> &rarr; <code>0000000011110001</code> (16 bit).</li>
+<li><strong>Porto a 11 bit</strong>: tolgo 5 zeri iniziali, che non cambiano il valore &rarr; <code>00011110001</code>.</li>
+<li><strong>Divido in gruppi</strong> partendo da destra (gruppi da 6, il primo da 5): <code>00011 | 110001</code>.</li>
+<li><strong>Riempio lo schema</strong>, mettendo ogni gruppo dopo il suo prefisso: <code>110</code>&thinsp;+&thinsp;<code>00011</code>, <code>10</code>&thinsp;+&thinsp;<code>110001</code>.</li>
+</ol>
+<p class="sol">«ñ» in UTF-8 = <code>11000011 10110001</code> (2 byte)</p>
+</div>
+
+<h3>Soluzione 2 · «€»</h3>
+<div class="esercizio">
+<ol>
+<li><strong>Intervallo</strong>: <code>U+20AC</code> cade in <code>U+0800 – U+FFFF</code> &rarr; servono <strong>3 byte</strong>, con lo schema <code>1110xxxx 10yyyyyy 10zzzzzz</code>, che ha <strong>16 bit</strong> liberi.</li>
+<li><strong>Code point in binario</strong> (ogni cifra esadecimale diventa 4 bit): <code>2&rarr;0010 &nbsp; 0&rarr;0000 &nbsp; A&rarr;1010 &nbsp; C&rarr;1100</code> &rarr; <code>0010000010101100</code> (16 bit).</li>
+<li><strong>16 bit</strong>: la lunghezza è già quella giusta &rarr; <code>0010000010101100</code>.</li>
+<li><strong>Divido in gruppi</strong> partendo da destra (gruppi da 6, il primo da 4): <code>0010 | 000010 | 101100</code>.</li>
+<li><strong>Riempio lo schema</strong>, mettendo ogni gruppo dopo il suo prefisso: <code>1110</code>&thinsp;+&thinsp;<code>0010</code>, <code>10</code>&thinsp;+&thinsp;<code>000010</code>, <code>10</code>&thinsp;+&thinsp;<code>101100</code>.</li>
+</ol>
+<p class="sol">«€» in UTF-8 = <code>11100010 10000010 10101100</code> (3 byte)</p>
+</div>
+
+<h3>Soluzione 3 · «😀»</h3>
+<div class="esercizio">
+<ol>
+<li><strong>Intervallo</strong>: <code>U+1F600</code> cade in <code>U+10000 – U+10FFFF</code> &rarr; servono <strong>4 byte</strong>, con lo schema <code>11110www 10xxxxxx 10yyyyyy 10zzzzzz</code>, che ha <strong>21 bit</strong> liberi.</li>
+<li><strong>Code point in binario</strong> (ogni cifra esadecimale diventa 4 bit): <code>1&rarr;0001 &nbsp; F&rarr;1111 &nbsp; 6&rarr;0110 &nbsp; 0&rarr;0000 &nbsp; 0&rarr;0000</code> &rarr; <code>00011111011000000000</code> (20 bit).</li>
+<li><strong>Porto a 21 bit</strong>: aggiungo 1 zeri a sinistra &rarr; <code>000011111011000000000</code>.</li>
+<li><strong>Divido in gruppi</strong> partendo da destra (gruppi da 6, il primo da 3): <code>000 | 011111 | 011000 | 000000</code>.</li>
+<li><strong>Riempio lo schema</strong>, mettendo ogni gruppo dopo il suo prefisso: <code>11110</code>&thinsp;+&thinsp;<code>000</code>, <code>10</code>&thinsp;+&thinsp;<code>011111</code>, <code>10</code>&thinsp;+&thinsp;<code>011000</code>, <code>10</code>&thinsp;+&thinsp;<code>000000</code>.</li>
+</ol>
+<p class="sol">«😀» in UTF-8 = <code>11110000 10011111 10011000 10000000</code> (4 byte)</p>
+</div>
+
+<h3>Soluzione 4 · CRC di 1101011011</h3>
+<div class="esercizio">
+<p><code>G = 10011</code> ha 5 bit, quindi grado <code>r = 4</code>: accodo 4 zeri e il dividendo è <code>11010110110000</code>. A ogni passo allineo G sotto il primo 1 rimasto e faccio lo XOR; sotto la riga tratteggiata riscrivo il dividendo aggiornato.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Divisione in modulo 2</span></div><pre><code>11010110110000
+10011
+-----
+ 1001110110000
+ 10011
+ -----
+  000010110000
+      10011
+      -----
+       0101000
+        10011
+        -----
+         01110</code></pre></div>
+<p>Quando non c'è più spazio per G, le ultime 4 cifre sono il resto: <code>CRC = 1110</code>. Controprova: dividendo <code>11010110111110</code> per G si ottiene resto <code>0000</code>.</p>
+<p class="sol">CRC = <code>1110</code> &nbsp;|&nbsp; trama trasmessa = <code>1101011011 1110</code></p>
+</div>
+
+<h3>Soluzione 5 · CRC di 10110011</h3>
+<div class="esercizio">
+<p><code>G = 1011</code> ha 4 bit, quindi grado <code>r = 3</code>: accodo 3 zeri e il dividendo è <code>10110011000</code>. A ogni passo allineo G sotto il primo 1 rimasto e faccio lo XOR; sotto la riga tratteggiata riscrivo il dividendo aggiornato.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Divisione in modulo 2</span></div><pre><code>10110011000
+1011
+----
+ 0000011000
+      1011
+      ----
+       1110
+       1011
+       ----
+        101</code></pre></div>
+<p>Quando non c'è più spazio per G, le ultime 3 cifre sono il resto: <code>CRC = 101</code>. Controprova: dividendo <code>10110011101</code> per G si ottiene resto <code>000</code>.</p>
+<p class="sol">CRC = <code>101</code> &nbsp;|&nbsp; trama trasmessa = <code>10110011 101</code></p>
+</div>
+
+<h3>Soluzione 6 · Verifica in ricezione</h3>
+<div class="esercizio">
+<p>In ricezione <strong>non</strong> si accodano zeri: si divide direttamente la trama ricevuta per <code>G = 1101</code>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Trama a</span></div><pre><code>100100001
+1101
+----
+ 10000001
+ 1101
+ ----
+  1010001
+  1101
+  ----
+   111001
+   1101
+   ----
+    01101
+     1101
+     ----
+      000</code></pre></div>
+<p>Resto <code>000</code> &rarr; <strong>nessun errore rilevato</strong>. Il messaggio è la trama senza gli ultimi 3 bit: <code>M = 100100</code>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Trama b</span></div><pre><code>100110001
+1101
+----
+ 10010001
+ 1101
+ ----
+  1000001
+  1101
+  ----
+   101001
+   1101
+   ----
+    11101
+    1101
+    ----
+     0111</code></pre></div>
+<p>Resto <code>111</code> &ne; <code>000</code> &rarr; <strong>errore rilevato</strong>: la trama va scartata e richiesta di nuovo. Confrontandola con la trama a si vede che si è invertito il 5° bit da sinistra.</p>
+<p class="sol">Trama a: corretta (resto 000, M = 100100) &nbsp;|&nbsp; trama b: errata (resto 111)</p>
+</div>
+
+<h3>Soluzione 7 · Tabella 1</h3>
+<div class="esercizio">
+<p class="sol-alg">FCFS <span>· First Come, First Served</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — FCFS</span></div><pre><code>| P1           | P2     | P3| P4         | P5   |
+0              7        11  12           18     21</code></pre></div>
+<p>T<sub>w</sub>: P1 = 7 &minus; 7 &minus; 0 = <strong>0</strong>, P2 = 11 &minus; 4 &minus; 2 = <strong>5</strong>, P3 = 12 &minus; 1 &minus; 4 = <strong>7</strong>, P4 = 18 &minus; 6 &minus; 5 = <strong>7</strong>, P5 = 21 &minus; 3 &minus; 7 = <strong>11</strong>.</p>
+<p class="sol">ETAM FCFS = (0 + 5 + 7 + 7 + 11) / 5 = 30 / 5 = <strong>6</strong></p>
+<p class="sol-alg">SJF <span>· Shortest Job First, non-pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SJF</span></div><pre><code>| P1           | P3| P5   | P2     | P4         |
+0              7   8      11       15           21</code></pre></div>
+<p>T<sub>w</sub>: P1 = 7 &minus; 7 &minus; 0 = <strong>0</strong>, P2 = 15 &minus; 4 &minus; 2 = <strong>9</strong>, P3 = 8 &minus; 1 &minus; 4 = <strong>3</strong>, P4 = 21 &minus; 6 &minus; 5 = <strong>10</strong>, P5 = 11 &minus; 3 &minus; 7 = <strong>1</strong>.</p>
+<p class="sol">ETAM SJF = (0 + 9 + 3 + 10 + 1) / 5 = 23 / 5 = <strong>4,6</strong></p>
+<p class="sol-alg">SRTF <span>· Shortest Remaining Time First, pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SRTF</span></div><pre><code>| P1 | P2 | P3| P2 | P5   | P1       | P4         |
+0    2    4   5    7      10         15           21</code></pre></div>
+<p>T<sub>w</sub>: P1 = 15 &minus; 7 &minus; 0 = <strong>8</strong>, P2 = 7 &minus; 4 &minus; 2 = <strong>1</strong>, P3 = 5 &minus; 1 &minus; 4 = <strong>0</strong>, P4 = 21 &minus; 6 &minus; 5 = <strong>10</strong>, P5 = 10 &minus; 3 &minus; 7 = <strong>0</strong>.</p>
+<p class="sol">ETAM SRTF = (8 + 1 + 0 + 10 + 0) / 5 = 19 / 5 = <strong>3,8</strong></p>
+<p class="sol-alg">Priorità <span>· pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Priorità</span></div><pre><code>| P1 | P2     | P4         | P1       | P3| P5   |
+0    2        6            12         17  18     21</code></pre></div>
+<p>T<sub>w</sub>: P1 = 17 &minus; 7 &minus; 0 = <strong>10</strong>, P2 = 6 &minus; 4 &minus; 2 = <strong>0</strong>, P3 = 18 &minus; 1 &minus; 4 = <strong>13</strong>, P4 = 12 &minus; 6 &minus; 5 = <strong>1</strong>, P5 = 21 &minus; 3 &minus; 7 = <strong>11</strong>.</p>
+<p class="sol">ETAM Priorità = (10 + 0 + 13 + 1 + 11) / 5 = 35 / 5 = <strong>7</strong></p>
+<p class="sol-alg">Round Robin <span>· quanto = 3</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Round Robin q=3</span></div><pre><code>| P1   | P2   | P1   | P3| P4   | P2| P5   | P1| P4   |
+0      3      6      9   10     13  14     17  18     21</code></pre></div>
+<p>T<sub>w</sub>: P1 = 18 &minus; 7 &minus; 0 = <strong>11</strong>, P2 = 14 &minus; 4 &minus; 2 = <strong>8</strong>, P3 = 10 &minus; 1 &minus; 4 = <strong>5</strong>, P4 = 21 &minus; 6 &minus; 5 = <strong>10</strong>, P5 = 17 &minus; 3 &minus; 7 = <strong>7</strong>.</p>
+<p class="sol">ETAM Round Robin = (11 + 8 + 5 + 10 + 7) / 5 = 41 / 5 = <strong>8,2</strong></p>
+<p class="sol-alg">Riepilogo</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td>0</td><td>5</td><td>7</td><td>7</td><td>11</td><td>6</td></tr><tr><td>SJF</td><td>0</td><td>9</td><td>3</td><td>10</td><td>1</td><td>4,6</td></tr><tr><td><strong>SRTF</strong></td><td>8</td><td>1</td><td>0</td><td>10</td><td>0</td><td><strong>3,8</strong></td></tr><tr><td>Priorità</td><td>10</td><td>0</td><td>13</td><td>1</td><td>11</td><td>7</td></tr><tr><td>Round Robin q=3</td><td>11</td><td>8</td><td>5</td><td>10</td><td>7</td><td>8,2</td></tr></tbody>
+</table></div>
+</div>
+
+<h3>Soluzione 8 · Tabella 2</h3>
+<div class="esercizio">
+<p class="sol-alg">FCFS <span>· First Come, First Served</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — FCFS</span></div><pre><code>| P1             | P2   | P3         | P4 | P5     |
+0                8      11           17   19       23</code></pre></div>
+<p>T<sub>w</sub>: P1 = 8 &minus; 8 &minus; 0 = <strong>0</strong>, P2 = 11 &minus; 3 &minus; 1 = <strong>7</strong>, P3 = 17 &minus; 6 &minus; 3 = <strong>8</strong>, P4 = 19 &minus; 2 &minus; 5 = <strong>12</strong>, P5 = 23 &minus; 4 &minus; 7 = <strong>12</strong>.</p>
+<p class="sol">ETAM FCFS = (0 + 7 + 8 + 12 + 12) / 5 = 39 / 5 = <strong>7,8</strong></p>
+<p class="sol-alg">SJF <span>· Shortest Job First, non-pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SJF</span></div><pre><code>| P1             | P4 | P2   | P5     | P3         |
+0                8    10     13       17           23</code></pre></div>
+<p>T<sub>w</sub>: P1 = 8 &minus; 8 &minus; 0 = <strong>0</strong>, P2 = 13 &minus; 3 &minus; 1 = <strong>9</strong>, P3 = 23 &minus; 6 &minus; 3 = <strong>14</strong>, P4 = 10 &minus; 2 &minus; 5 = <strong>3</strong>, P5 = 17 &minus; 4 &minus; 7 = <strong>6</strong>.</p>
+<p class="sol">ETAM SJF = (0 + 9 + 14 + 3 + 6) / 5 = 32 / 5 = <strong>6,4</strong></p>
+<p class="sol-alg">SRTF <span>· Shortest Remaining Time First, pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SRTF</span></div><pre><code>| P1| P2   | P3| P4 | P5     | P3       | P1           |
+0   1      4   5    7        11         16             23</code></pre></div>
+<p>T<sub>w</sub>: P1 = 23 &minus; 8 &minus; 0 = <strong>15</strong>, P2 = 4 &minus; 3 &minus; 1 = <strong>0</strong>, P3 = 16 &minus; 6 &minus; 3 = <strong>7</strong>, P4 = 7 &minus; 2 &minus; 5 = <strong>0</strong>, P5 = 11 &minus; 4 &minus; 7 = <strong>0</strong>.</p>
+<p class="sol">ETAM SRTF = (15 + 0 + 7 + 0 + 0) / 5 = 22 / 5 = <strong>4,4</strong></p>
+<p class="sol-alg">Priorità <span>· pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Priorità</span></div><pre><code>| P1| P2   | P1| P4 | P5     | P1         | P3         |
+0   1      4   5    7        11           17           23</code></pre></div>
+<p>T<sub>w</sub>: P1 = 17 &minus; 8 &minus; 0 = <strong>9</strong>, P2 = 4 &minus; 3 &minus; 1 = <strong>0</strong>, P3 = 23 &minus; 6 &minus; 3 = <strong>14</strong>, P4 = 7 &minus; 2 &minus; 5 = <strong>0</strong>, P5 = 11 &minus; 4 &minus; 7 = <strong>0</strong>.</p>
+<p class="sol">ETAM Priorità = (9 + 0 + 14 + 0 + 0) / 5 = 23 / 5 = <strong>4,6</strong></p>
+<p class="sol-alg">Round Robin <span>· quanto = 2</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Round Robin q=2</span></div><pre><code>| P1 | P2 | P1 | P3 | P2| P4 | P1 | P5 | P3 | P1 | P5 | P3 |
+0    2    4    6    8   9    11   13   15   17   19   21   23</code></pre></div>
+<p>T<sub>w</sub>: P1 = 19 &minus; 8 &minus; 0 = <strong>11</strong>, P2 = 9 &minus; 3 &minus; 1 = <strong>5</strong>, P3 = 23 &minus; 6 &minus; 3 = <strong>14</strong>, P4 = 11 &minus; 2 &minus; 5 = <strong>4</strong>, P5 = 21 &minus; 4 &minus; 7 = <strong>10</strong>.</p>
+<p class="sol">ETAM Round Robin = (11 + 5 + 14 + 4 + 10) / 5 = 44 / 5 = <strong>8,8</strong></p>
+<p class="sol-alg">Riepilogo</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td>0</td><td>7</td><td>8</td><td>12</td><td>12</td><td>7,8</td></tr><tr><td>SJF</td><td>0</td><td>9</td><td>14</td><td>3</td><td>6</td><td>6,4</td></tr><tr><td><strong>SRTF</strong></td><td>15</td><td>0</td><td>7</td><td>0</td><td>0</td><td><strong>4,4</strong></td></tr><tr><td>Priorità</td><td>9</td><td>0</td><td>14</td><td>0</td><td>0</td><td>4,6</td></tr><tr><td>Round Robin q=2</td><td>11</td><td>5</td><td>14</td><td>4</td><td>10</td><td>8,8</td></tr></tbody>
+</table></div>
+</div>
+
+<h3>Soluzione 9 · Tabella 3</h3>
+<div class="esercizio">
+<p class="sol-alg">FCFS <span>· First Come, First Served</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — FCFS</span></div><pre><code>| P1       | P2               | P3 | P4         | P5   |
+0          5                  14   16           22     25</code></pre></div>
+<p>T<sub>w</sub>: P1 = 5 &minus; 5 &minus; 0 = <strong>0</strong>, P2 = 14 &minus; 9 &minus; 1 = <strong>4</strong>, P3 = 16 &minus; 2 &minus; 2 = <strong>12</strong>, P4 = 22 &minus; 6 &minus; 6 = <strong>10</strong>, P5 = 25 &minus; 3 &minus; 9 = <strong>13</strong>.</p>
+<p class="sol">ETAM FCFS = (0 + 4 + 12 + 10 + 13) / 5 = 39 / 5 = <strong>7,8</strong></p>
+<p class="sol-alg">SJF <span>· Shortest Job First, non-pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SJF</span></div><pre><code>| P1       | P3 | P4         | P5   | P2               |
+0          5    7            13     16                 25</code></pre></div>
+<p>T<sub>w</sub>: P1 = 5 &minus; 5 &minus; 0 = <strong>0</strong>, P2 = 25 &minus; 9 &minus; 1 = <strong>15</strong>, P3 = 7 &minus; 2 &minus; 2 = <strong>3</strong>, P4 = 13 &minus; 6 &minus; 6 = <strong>1</strong>, P5 = 16 &minus; 3 &minus; 9 = <strong>4</strong>.</p>
+<p class="sol">ETAM SJF = (0 + 15 + 3 + 1 + 4) / 5 = 23 / 5 = <strong>4,6</strong></p>
+<p class="sol-alg">SRTF <span>· Shortest Remaining Time First, pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — SRTF</span></div><pre><code>| P1 | P3 | P1   | P4 | P5   | P4     | P2               |
+0    2    4      7    9      12       16                 25</code></pre></div>
+<p>T<sub>w</sub>: P1 = 7 &minus; 5 &minus; 0 = <strong>2</strong>, P2 = 25 &minus; 9 &minus; 1 = <strong>15</strong>, P3 = 4 &minus; 2 &minus; 2 = <strong>0</strong>, P4 = 16 &minus; 6 &minus; 6 = <strong>4</strong>, P5 = 12 &minus; 3 &minus; 9 = <strong>0</strong>.</p>
+<p class="sol">ETAM SRTF = (2 + 15 + 0 + 4 + 0) / 5 = 21 / 5 = <strong>4,2</strong></p>
+<p class="sol-alg">Priorità <span>· pre-emptive</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Priorità</span></div><pre><code>| P1 | P3 | P1 | P4         | P1| P5   | P2               |
+0    2    4    6            12  13     16                 25</code></pre></div>
+<p>T<sub>w</sub>: P1 = 13 &minus; 5 &minus; 0 = <strong>8</strong>, P2 = 25 &minus; 9 &minus; 1 = <strong>15</strong>, P3 = 4 &minus; 2 &minus; 2 = <strong>0</strong>, P4 = 12 &minus; 6 &minus; 6 = <strong>0</strong>, P5 = 16 &minus; 3 &minus; 9 = <strong>4</strong>.</p>
+<p class="sol">ETAM Priorità = (8 + 15 + 0 + 0 + 4) / 5 = 27 / 5 = <strong>5,4</strong></p>
+<p class="sol-alg">Round Robin <span>· quanto = 4</span></p>
+<div class="code-block"><div class="code-head"><span class="lang">Gantt — Round Robin q=4</span></div><pre><code>| P1     | P2     | P3 | P1| P4     | P2     | P5   | P4 | P2|
+0        4        8    10  11       15       19     22   24  25</code></pre></div>
+<p>T<sub>w</sub>: P1 = 11 &minus; 5 &minus; 0 = <strong>6</strong>, P2 = 25 &minus; 9 &minus; 1 = <strong>15</strong>, P3 = 10 &minus; 2 &minus; 2 = <strong>6</strong>, P4 = 24 &minus; 6 &minus; 6 = <strong>12</strong>, P5 = 22 &minus; 3 &minus; 9 = <strong>10</strong>.</p>
+<p class="sol">ETAM Round Robin = (6 + 15 + 6 + 12 + 10) / 5 = 49 / 5 = <strong>9,8</strong></p>
+<p class="sol-alg">Riepilogo</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Algoritmo</th><th>T<sub>w</sub> P1</th><th>T<sub>w</sub> P2</th><th>T<sub>w</sub> P3</th><th>T<sub>w</sub> P4</th><th>T<sub>w</sub> P5</th><th>ETAM</th></tr></thead>
+<tbody><tr><td>FCFS</td><td>0</td><td>4</td><td>12</td><td>10</td><td>13</td><td>7,8</td></tr><tr><td>SJF</td><td>0</td><td>15</td><td>3</td><td>1</td><td>4</td><td>4,6</td></tr><tr><td><strong>SRTF</strong></td><td>2</td><td>15</td><td>0</td><td>4</td><td>0</td><td><strong>4,2</strong></td></tr><tr><td>Priorità</td><td>8</td><td>15</td><td>0</td><td>0</td><td>4</td><td>5,4</td></tr><tr><td>Round Robin q=4</td><td>6</td><td>15</td><td>6</td><td>12</td><td>10</td><td>9,8</td></tr></tbody>
+</table></div>
+</div>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="ripasso-terzo-anno.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Dispensa 0: Ripasso dell'anno precedente</span>
+        </a>
+        <a class="next" href="processi.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Dispensa 1: Il modello a processi &rarr;</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+</body>
+</html>

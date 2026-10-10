@@ -45,7 +45,11 @@ window.DISPENSE = {
 
   quarto: {
     teoria: [
-      { num: '0', t: 'Ripasso dell\'anno precedente: codici, sistemi operativi e memoria', f: 'ripasso-terzo-anno.html' },
+      { num: '0', t: 'Ripasso dell\'anno precedente: codici, sistemi operativi e memoria', f: 'ripasso-terzo-anno.html',
+        esercitazioni: [
+          { t: 'UTF-8, CRC e scheduling della CPU', f: 'ripasso-terzo-anno-esercizi.html' }
+        ]
+      },
       { num: '1', t: 'Il modello a processi', f: 'processi.html' }
     ],
     laboratorio: [
