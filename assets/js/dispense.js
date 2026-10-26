@@ -62,6 +62,16 @@ window.DISPENSE = {
         esercitazioni: [
           { t: 'Scheda di esercizi 2', f: 'python-esercizi-2.html' }
         ]
+      },
+      { num: '3', t: 'Le iterazioni', f: 'python-iterazioni.html',
+        esercitazioni: [
+          { t: 'Scheda di esercizi 3', f: 'python-esercizi-3.html' }
+        ]
+      },
+      { num: '4', t: 'Le liste', f: 'python-liste.html',
+        esercitazioni: [
+          { t: 'Scheda di esercizi 4', f: 'python-esercizi-4.html' }
+        ]
       }
     ]
   },
@@ -69,7 +79,8 @@ window.DISPENSE = {
   quinto: {
     teoria: [
       { num: '0', t: 'Ripasso dell\'anno precedente: processi, thread e concorrenza', f: 'ripasso-concorrenza.html' },
-      { num: '1', t: 'Sistemi distribuiti e modelli architetturali', f: 'sistemi-distribuiti.html' }
+      { num: '1', t: 'Sistemi distribuiti e modelli architetturali', f: 'sistemi-distribuiti.html' },
+      { num: '2', t: 'Applicazioni web, modello client-server e applicazioni di rete', f: 'applicazioni-di-rete.html' }
     ],
     laboratorio: [
       { num: '0', t: 'Ripasso HTML', f: 'ripasso-html.html' }

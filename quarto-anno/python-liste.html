@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le liste · TPSsssIT</title>
+<meta name="description" content="Dispensa 4 di Python: creare una lista, indici e fette, liste mutabili, operazioni e metodi, scorrere una lista, schemi di programmazione, split e join, ordinare, liste di liste e copie.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- titoletti prima dei blocchi (Sintassi, Output, Esempio di esecuzione) --- */
+  .prose .run-title { margin-bottom:0; font-size:.82rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .prose .run-title + .code-block { margin-top:.45rem; }
+  .callout .cbody .run-title + .code-block { margin-top:.45rem; }
+
+  /* --- campi e risultati dei playground --- */
+  .pg-row { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem .8rem; font-family:var(--font-mono); }
+  .pg-row label { font-size:.85rem; color:var(--muted); }
+  .pg-row input {
+    width:4.4rem; text-align:center;
+    font-family:var(--font-mono); font-size:1rem; padding:.3rem .45rem; border-radius:var(--r-sm);
+    border:1px solid var(--border); background:var(--bg); color:var(--text);
+  }
+  .pg-row input:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }
+  .pg-res { margin:1rem 0 0; text-align:center; font-family:var(--font-mono); font-size:1rem; color:var(--text-soft); min-height:1.6em; }
+  .pg-res b { color:var(--gold); }
+  .pg-res .err { color:var(--accent); }
+  .pg-presets { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .pg-presets .btn { font-family:var(--font-mono); }
+  @keyframes pgIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+
+  /* --- indici e fette su una lista --- */
+  .sl-cells { display:flex; justify-content:center; gap:.4rem; flex-wrap:wrap; }
+  .sl-cell { display:grid; justify-items:center; gap:.3rem; min-width:3.2rem; }
+  .sl-cell .i { font-family:var(--font-mono); font-size:.75rem; color:var(--muted); }
+  .sl-cell .i.neg { color:var(--accent); }
+  .sl-cell .v {
+    position:relative; width:3.2rem; height:2.8rem; display:grid; place-items:center; border-radius:8px;
+    border:1.5px solid var(--border); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text);
+    transition:all .25s var(--ease);
+  }
+  .sl-cell.on .v { background:var(--gold); border-color:var(--gold); color:var(--gold-ink); transform:translateY(-4px); }
+  .sl-cell .ord { position:absolute; bottom:1px; right:4px; font-size:.6rem; line-height:1; opacity:.6; display:none; }
+  .sl-cell.on .ord { display:block; }
+  .sl-legend { margin-top:.8rem; text-align:center; font-size:.78rem; color:var(--muted); }
+  .sl-legend .neg { color:var(--accent); }
+  .sl-in { justify-content:center; margin-top:1.3rem; }
+  .sl-in input { width:8rem; }
+
+  /* --- b = a oppure b = a.copy() --- */
+  .al-stage { display:flex; flex-wrap:wrap; justify-content:center; gap:2.6rem 3rem; padding-top:2.4rem; min-height:7.5rem; }
+  .al-obj { position:relative; }
+  .al-list {
+    display:flex; gap:.3rem; padding:.55rem .65rem; border-radius:var(--r);
+    border:2px solid var(--border); background:var(--surface-2);
+  }
+  .al-list span {
+    min-width:2.2rem; padding:.35rem .4rem; border-radius:6px; text-align:center;
+    background:var(--surface); font-family:var(--font-mono); font-weight:700; color:var(--text);
+  }
+  .al-list span.is-new { background:var(--gold); color:var(--gold-ink); animation:pgIn .35s var(--ease) both; }
+  .al-tags { position:absolute; left:0; right:0; top:-2.2rem; display:flex; justify-content:center; gap:.4rem; }
+  .al-tag {
+    padding:.15rem .65rem .15rem .5rem; border-radius:6px 99px 99px 6px;
+    background:var(--gold); color:var(--gold-ink); font-family:var(--font-mono); font-weight:700; font-size:.9rem;
+    animation:pgIn .35s var(--ease) both;
+  }
+  .al-tag.b { background:var(--accent); color:var(--accent-ink); }
+  .al-cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:1.4rem; }
+  .al-cols .code-block { margin-top:0; }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Le liste</li>
+    </ul>
+    <h1>Le liste</h1>
+    <p class="lead">Dispensa 4 · Raccolte di dati, indici, metodi, liste di liste</p>
+    <div class="stats-row">
+<span class="stat-pill">Dispensa <b>4</b></span>
+<span class="stat-pill">Lettura <b>35</b></span>
+<span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+<h2>1. Tanti dati in una sola variabile</h2>
+<p>Finora ogni variabile conteneva <strong>un solo valore</strong>. Ma se dobbiamo memorizzare i voti di 30 studenti, non possiamo creare 30 variabili con nomi diversi. Serve una variabile che contenga <strong>tanti valori</strong>: in Python questo ruolo lo svolge la <strong>lista</strong> (<code>list</code>).</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: gli armadietti numerati</b>Pensa agli armadietti di una palestra: una fila di armadietti, tutti con <strong>lo stesso nome della fila</strong> ma con un <strong>numero</strong> diverso. Per aprirne uno dici "armadietto numero 3". In una lista è uguale: un nome solo (<code>voti</code>) e una <strong>posizione</strong> (indice) per scegliere l'elemento. Si possono aggiungere armadietti in fondo alla fila, toglierne, cambiarne il contenuto: <strong>la fila si adatta</strong>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>C</th><th>Java</th><th>Python</th></tr></thead>
+<tbody>
+<tr><td>Tipo</td><td><code>int v[5];</code> (array)</td><td><code>int[] v = new int[5];</code></td><td><code>v = [0, 0, 0, 0, 0]</code> (list)</td></tr>
+<tr><td>Dimensione</td><td>fissa</td><td>fissa</td><td><strong>variabile</strong>: cresce e si riduce</td></tr>
+<tr><td>Tipo degli elementi</td><td>tutti uguali</td><td>tutti uguali</td><td>anche <strong>misti</strong></td></tr>
+<tr><td>Controllo indici</td><td>nessuno (comportamento indefinito)</td><td><code>ArrayIndexOutOfBounds</code></td><td><code>IndexError</code></td></tr>
+<tr><td>Lunghezza</td><td><code>sizeof</code> o variabile a parte</td><td><code>v.length</code></td><td><code>len(v)</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2>2. Creare una lista</h2>
+<p>Una lista si scrive con le parentesi <strong>quadre</strong> [ ], mettendo gli elementi uno dopo l'altro separati da <strong>virgole</strong>. Gli elementi possono essere di qualunque tipo: numeri, stringhe, booleani, e anche tipi diversi nella stessa lista. Il nome della lista, come per ogni variabile, è scelto da noi: conviene un nome <strong>al plurale</strong> (<code>voti</code>, <code>nomi</code>) perché contiene più valori.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">8</span>, <span class="tok-num">7</span>, <span class="tok-num">9</span>]
+nomi = [<span class="tok-str">"Anna"</span>, <span class="tok-str">"Luca"</span>, <span class="tok-str">"Sara"</span>]
+mista = [<span class="tok-num">1</span>, <span class="tok-str">"ciao"</span>, <span class="tok-num">3.5</span>, <span class="tok-key">True</span>]
+vuota = []
+<span class="tok-fn">print</span>(voti)
+<span class="tok-fn">print</span>(mista)
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(nomi), <span class="tok-fn">len</span>(vuota))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[6, 8, 7, 9]
+[1, 'ciao', 3.5, True]
+3 0</code></pre></div>
+<p>Guardando l'output si nota che <strong><code>print</code> mostra la lista intera</strong>, con le parentesi quadre e le virgole; le stringhe compaiono tra apici. Una lista può anche essere <strong>vuota</strong> (<code>[]</code>): sembra inutile, ma è il punto di partenza ideale quando i dati arrivano a poco a poco, per esempio dalla tastiera.</p>
+<h3>2.1 Gli elementi possono essere variabili ed espressioni</h3>
+<p>Dentro le parentesi si può scrivere qualsiasi espressione: Python la calcola <strong>in quel momento</strong> e mette nella lista il <strong>valore</strong> ottenuto. La lista non "ricorda" l'espressione né la variabile: se in seguito <code>x</code> cambia, la lista resta com'è.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>x = <span class="tok-num">5</span>
+voti = [<span class="tok-num">6</span>, x, x * <span class="tok-num">2</span>, x + <span class="tok-num">1</span>]
+<span class="tok-fn">print</span>(voti)
+x = <span class="tok-num">100</span>
+<span class="tok-fn">print</span>(voti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[6, 5, 10, 6]
+[6, 5, 10, 6]</code></pre></div>
+<p>Come si vede, dopo <code>x = 100</code> la lista è identica: dentro c'è il valore <code>5</code>, non il collegamento alla variabile <code>x</code>.</p>
+<h3>2.2 Crearla da altre sequenze</h3>
+<p>Spesso una lista non si scrive a mano ma si <strong>ricava</strong> da qualcosa che già esiste. La funzione <code>list()</code> trasforma una sequenza (un <code>range</code>, una stringa) in una lista; l'operatore <code>*</code> ripete un elemento e serve a creare una lista di <code>n</code> valori uguali, per esempio per partire da una serie di contatori a zero.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-fn">list</span>(<span class="tok-fn">range</span>(<span class="tok-num">5</span>)))
+<span class="tok-fn">print</span>(<span class="tok-fn">list</span>(<span class="tok-str">"ciao"</span>))
+<span class="tok-fn">print</span>([<span class="tok-num">0</span>] * <span class="tok-num">5</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[0, 1, 2, 3, 4]
+['c', 'i', 'a', 'o']
+[0, 0, 0, 0, 0]</code></pre></div>
+<p>Il <code>range</code> è quello della lezione 3 e accetta gli stessi tre argomenti (inizio, fine escluso, passo):</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-fn">list</span>(<span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">6</span>)))
+<span class="tok-fn">print</span>(<span class="tok-fn">list</span>(<span class="tok-fn">range</span>(<span class="tok-num">0</span>, <span class="tok-num">20</span>, <span class="tok-num">5</span>)))
+<span class="tok-fn">print</span>(<span class="tok-fn">list</span>(<span class="tok-fn">range</span>(<span class="tok-num">5</span>, <span class="tok-num">0</span>, -<span class="tok-num">1</span>)))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 2, 3, 4, 5]
+[0, 5, 10, 15]
+[5, 4, 3, 2, 1]</code></pre></div>
+<h3>2.3 Riempirla con dati letti da tastiera</h3>
+<p>Con <code>input()</code> si legge <strong>un valore alla volta</strong>, quindi per riempire una lista si parte da una lista vuota o da un primo elemento e si aggiungono i valori con <code>append</code> (descritto meglio nella sezione 5). Ricorda che <code>input</code> restituisce sempre una stringa: se servono numeri bisogna convertire.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nome = <span class="tok-fn">input</span>(<span class="tok-str">"Nome: "</span>)
+studenti = [nome]
+nome = <span class="tok-fn">input</span>(<span class="tok-str">"Nome: "</span>)
+studenti.<span class="tok-fn">append</span>(nome)
+<span class="tok-fn">print</span>(studenti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Nome: <span class="in">Anna</span>
+Nome: <span class="in">Luca</span>
+['Anna', 'Luca']</code></pre></div>
+<p>Notare che la variabile <code>nome</code> viene riutilizzata: ogni volta che la lista la usa ne <strong>copia il valore</strong>, quindi nella lista restano entrambi i nomi.</p>
+<h3>2.4 La lunghezza: len</h3>
+<p><code>len(lista)</code> conta <strong>gli elementi del livello più esterno</strong>. Una lista che contiene altre liste ha tanti elementi quante sono le liste interne, non quanti sono tutti i numeri (vedi la sezione 10). Una lista vuota ha lunghezza 0.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-fn">len</span>([<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]))
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>([[<span class="tok-num">1</span>, <span class="tok-num">2</span>], [<span class="tok-num">3</span>, <span class="tok-num">4</span>], [<span class="tok-num">5</span>, <span class="tok-num">6</span>]]))
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>([]))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>3
+3
+0</code></pre></div>
+<div class="callout info">
+<span class="ico" aria-hidden="true">📌</span>
+<div class="cbody">
+<b>Da ricordare</b>
+<p>Una lista è una <strong>sequenza ordinata</strong> di valori: l'ordine in cui li scrivi è quello in cui restano.</p>
+<p>Il suo nome è uno solo, i valori sono tanti: per distinguerli si usa la loro <strong>posizione</strong> (indice), come spiegato ora.</p>
+</div>
+</div>
+<h2>3. Indici e fette</h2>
+<h3>3.1 L'indice: il numero dell'armadietto</h3>
+<p>Ogni elemento ha una <strong>posizione</strong>, detta <strong>indice</strong>, che <strong>parte da 0</strong> (come in C e Java e come per le stringhe della lezione 1). Il primo elemento ha indice 0, il secondo 1 e così via: in una lista di 5 elementi gli indici validi sono 0, 1, 2, 3, 4. Si scrive il nome della lista seguito dall'indice <strong>tra parentesi quadre</strong>: <code>l[2]</code> significa "l'elemento in posizione 2 della lista <code>l</code>".</p>
+<p>Python permette anche gli <strong>indici negativi</strong>, che contano dalla <strong>fine</strong>: <code>-1</code> è l'ultimo elemento, <code>-2</code> il penultimo, ecc. Sono comodissimi perché non occorre sapere quanto è lunga la lista per arrivare all'ultimo elemento. Ecco la lista <code>l = [10, 20, 30, 40, 50]</code> con i due tipi di indice:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>l[0]</th><th>l[1]</th><th>l[2]</th><th>l[3]</th><th>l[4]</th></tr></thead>
+<tbody>
+<tr><td><strong>Valore</strong></td><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td></tr>
+<tr><td><strong>Indice positivo</strong></td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+<tr><td><strong>Indice negativo</strong></td><td>-5</td><td>-4</td><td>-3</td><td>-2</td><td>-1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">10</span>, <span class="tok-num">20</span>, <span class="tok-num">30</span>, <span class="tok-num">40</span>, <span class="tok-num">50</span>]
+<span class="tok-fn">print</span>(l[<span class="tok-num">0</span>], l[<span class="tok-num">4</span>])
+<span class="tok-fn">print</span>(l[-<span class="tok-num">1</span>], l[-<span class="tok-num">5</span>])
+<span class="tok-fn">print</span>(l[<span class="tok-num">2</span>])
+<span class="tok-fn">print</span>(l[-<span class="tok-num">2</span>])</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>10 50
+50 10
+30
+40</code></pre></div>
+<p>Le quattro righe di output corrispondono alle quattro <code>print</code>: <code>l[0]</code> e <code>l[4]</code> sono primo e ultimo; <code>l[-1]</code> e <code>l[-5]</code> sono ancora ultimo e primo, scritti dalla parte della fine; poi <code>l[2]</code> (30) e <code>l[-2]</code> (il penultimo, 40).</p>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<p><b>Attenzione: IndexError</b>In una lista di 5 elementi l'indice più alto è <strong>4</strong>, non 5. Chiedere un indice che non esiste provoca l'errore <code>IndexError: list index out of range</code>. In generale, in una lista di <code>n</code> elementi gli indici validi vanno da <code>0</code> a <code>n - 1</code> (e da <code>-n</code> a <code>-1</code>). L'ultimo elemento si ottiene sempre con <code>l[-1]</code> oppure <code>l[len(l) - 1]</code>.</p>
+</div>
+<h3>3.2 Le fette: ritagliare un pezzo di lista</h3>
+<p>Una <strong>fetta</strong> (in inglese "slice") è un pezzo di lista <strong>consecutivo</strong>. Si scrive <code>l[inizio:fine]</code>: comprende gli elementi dall'indice <code>inizio</code> fino a <strong><code>fine - 1</code></strong>, cioè <strong>l'indice finale è escluso</strong>. Come nella lezione 1: pensa alle posizioni come a "tagli" tra un elemento e l'altro; <code>l[1:4]</code> prende ciò che sta tra il taglio 1 e il taglio 4.</p>
+<p>Si possono <strong>omettere</strong> i limiti: se manca l'inizio si parte dal primo elemento, se manca la fine si arriva all'ultimo. Un terzo numero opzionale è il <strong>passo</strong>: <code>l[inizio:fine:passo]</code>. Con passo negativo si percorre la lista all'indietro.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">10</span>, <span class="tok-num">20</span>, <span class="tok-num">30</span>, <span class="tok-num">40</span>, <span class="tok-num">50</span>]
+<span class="tok-fn">print</span>(l[<span class="tok-num">1</span>:<span class="tok-num">4</span>])
+<span class="tok-fn">print</span>(l[:<span class="tok-num">3</span>])
+<span class="tok-fn">print</span>(l[<span class="tok-num">3</span>:])
+<span class="tok-fn">print</span>(l[:])
+<span class="tok-fn">print</span>(l[::<span class="tok-num">2</span>])
+<span class="tok-fn">print</span>(l[-<span class="tok-num">2</span>:])
+<span class="tok-fn">print</span>(l[<span class="tok-num">2</span>:<span class="tok-num">100</span>])</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[20, 30, 40]
+[10, 20, 30]
+[40, 50]
+[10, 20, 30, 40, 50]
+[10, 30, 50]
+[40, 50]
+[30, 40, 50]</code></pre></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Scrittura</th><th>Significato</th></tr></thead>
+<tbody>
+<tr><td><code>l[1:4]</code></td><td>dall'indice 1 al 3 (il 4 è escluso)</td></tr>
+<tr><td><code>l[:3]</code></td><td>dall'inizio fino all'indice 2: i <strong>primi tre</strong></td></tr>
+<tr><td><code>l[3:]</code></td><td>dall'indice 3 fino alla fine</td></tr>
+<tr><td><code>l[:]</code></td><td>tutta la lista (una copia, vedi sezione 11)</td></tr>
+<tr><td><code>l[::2]</code></td><td>un elemento ogni due, partendo dal primo</td></tr>
+<tr><td><code>l[-2:]</code></td><td>dal penultimo alla fine: gli <strong>ultimi due</strong></td></tr>
+<tr><td><code>l[::-1]</code></td><td>tutta la lista <strong>al contrario</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="demo" id="slDemo">
+<div class="demo-head">Indici e fette su l = [10, 20, 30, 40, 50]</div>
+<div class="demo-stage">
+<div class="sl-cells" id="slCells"></div>
+<p class="sl-legend">sopra l'indice positivo, sotto quello <span class="neg">negativo</span>; il numerino indica l'ordine in cui gli elementi finiscono nel risultato</p>
+<div class="pg-row sl-in"><label for="slExpr">espressione</label><input type="text" id="slExpr" value="l[1:4]" spellcheck="false" autocomplete="off"></div>
+<p class="pg-res" id="slRes" aria-live="polite"></p>
+</div>
+<div class="demo-controls">
+<span class="pg-presets" id="slPresets">
+<button class="btn btn-ghost btn-sm" type="button">l[1:4]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[:3]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[3:]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[::2]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[-2:]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[::-1]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[2:100]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[-1]</button>
+<button class="btn btn-ghost btn-sm" type="button">l[5]</button>
+</span>
+</div>
+</div>
+<p>Un fatto utile: <strong>una fetta non dà mai errore</strong>, neanche se i limiti superano la lunghezza (l'ultima riga dell'esempio, <code>l[2:100]</code>, si ferma semplicemente alla fine). È diverso dall'indice singolo, che invece va fuori misura con <code>IndexError</code>.</p>
+<p>Una fetta è una <strong>nuova lista</strong>: modificarla non cambia la lista originale.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">10</span>, <span class="tok-num">20</span>, <span class="tok-num">30</span>]
+fetta = l[<span class="tok-num">0</span>:<span class="tok-num">2</span>]
+fetta[<span class="tok-num">0</span>] = <span class="tok-num">99</span>
+<span class="tok-fn">print</span>(fetta)
+<span class="tok-fn">print</span>(l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[99, 20]
+[10, 20, 30]</code></pre></div>
+<p>Un esempio completo con i voti di uno studente:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">8</span>, <span class="tok-num">7</span>, <span class="tok-num">9</span>, <span class="tok-num">5</span>]
+<span class="tok-fn">print</span>(<span class="tok-str">"Primo:"</span>, voti[<span class="tok-num">0</span>])
+<span class="tok-fn">print</span>(<span class="tok-str">"Ultimo:"</span>, voti[-<span class="tok-num">1</span>])
+<span class="tok-fn">print</span>(<span class="tok-str">"Primi tre:"</span>, voti[:<span class="tok-num">3</span>])
+<span class="tok-fn">print</span>(<span class="tok-str">"Ultimi due:"</span>, voti[-<span class="tok-num">2</span>:])
+<span class="tok-fn">print</span>(<span class="tok-str">"Ordine inverso:"</span>, voti[::-<span class="tok-num">1</span>])</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Primo: 6
+Ultimo: 5
+Primi tre: [6, 8, 7]
+Ultimi due: [9, 5]
+Ordine inverso: [5, 9, 7, 8, 6]</code></pre></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>C</th><th>Java</th><th>Python</th></tr></thead>
+<tbody>
+<tr><td>Ultimo elemento</td><td><code>v[n - 1]</code></td><td><code>v[v.length - 1]</code></td><td><code>v[-1]</code></td></tr>
+<tr><td>Primi tre elementi</td><td>ciclo che copia</td><td><code>Arrays.copyOfRange(v, 0, 3)</code></td><td><code>v[:3]</code></td></tr>
+<tr><td>Al contrario</td><td>ciclo che scambia</td><td>ciclo o <code>Collections.reverse</code></td><td><code>v[::-1]</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2>4. Le liste sono modificabili</h2>
+<p>Una caratteristica fondamentale delle liste è che sono <strong>mutabili</strong>: dopo averle create, possiamo <strong>cambiare i valori</strong> dei loro elementi senza ricreare la lista. Si assegna un nuovo valore all'indice desiderato, esattamente come si farebbe con una variabile: <code>lista[indice] = nuovo_valore</code>. L'elemento vecchio viene sostituito, tutti gli altri restano dove sono.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: la lavagna e il foglio stampato</b>Una <strong>stringa</strong> è come un testo <strong>stampato</strong>: per correggere una lettera devi stampare un foglio nuovo. Una <strong>lista</strong> è come una <strong>lavagna</strong>: puoi cancellare un solo riquadro e riscriverlo, e il resto non si tocca. Per questo si dice che le stringhe sono <strong>immutabili</strong> e le liste <strong>mutabili</strong>.</p>
+</div>
+<p>Vediamo l'evoluzione di una lista passo dopo passo. Ogni <code>print</code> mostra com'è la lista in quel momento:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">8</span>, <span class="tok-num">7</span>]
+<span class="tok-fn">print</span>(voti)
+voti[<span class="tok-num">1</span>] = voti[<span class="tok-num">1</span>] + <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(voti)
+voti[<span class="tok-num">2</span>] += <span class="tok-num">2</span>
+<span class="tok-fn">print</span>(voti)
+voti[<span class="tok-num">0</span>] = <span class="tok-str">"assente"</span>
+<span class="tok-fn">print</span>(voti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[6, 8, 7]
+[6, 9, 7]
+[6, 9, 9]
+['assente', 9, 9]</code></pre></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Istruzione</th><th>Che cosa fa</th><th>Lista dopo</th></tr></thead>
+<tbody>
+<tr><td><code>voti = [6, 8, 7]</code></td><td>crea la lista</td><td><code>[6, 8, 7]</code></td></tr>
+<tr><td><code>voti[1] = voti[1] + 1</code></td><td>legge l'elemento in posizione 1 (8), calcola 9 e lo riscrive nella stessa posizione</td><td><code>[6, 9, 7]</code></td></tr>
+<tr><td><code>voti[2] += 2</code></td><td>forma abbreviata di <code>voti[2] = voti[2] + 2</code></td><td><code>[6, 9, 9]</code></td></tr>
+<tr><td><code>voti[0] = "assente"</code></td><td>sostituisce con un valore di <strong>tipo diverso</strong>: permesso, le liste non impongono un tipo</td><td><code>['assente', 9, 9]</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Si noti che l'indice può comparire <strong>sia a destra sia a sinistra</strong> del segno <code>=</code>: a destra significa "leggi quell'elemento", a sinistra "scrivi in quella posizione".</p>
+<h3>4.1 Modificare tutti gli elementi: serve l'indice</h3>
+<p>Se vogliamo cambiare <strong>ogni</strong> elemento (per esempio aumentare di 1 tutti i voti) il ciclo deve conoscere la <strong>posizione</strong>, quindi si usa <code>range(len(lista))</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">5</span>, <span class="tok-num">6</span>, <span class="tok-num">4</span>]
+<span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-fn">len</span>(voti)):
+    voti[i] = voti[i] + <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(voti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[6, 7, 5]</code></pre></div>
+<p>Attenzione alla tentazione di scorrere direttamente gli elementi. Nel programma seguente la variabile <code>v</code> è soltanto una <strong>copia temporanea</strong> del valore dell'elemento: assegnare un nuovo valore a <code>v</code> non cambia la lista.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">5</span>, <span class="tok-num">6</span>, <span class="tok-num">4</span>]
+<span class="tok-key">for</span> v <span class="tok-key">in</span> voti:
+    v = v + <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(voti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[5, 6, 4]</code></pre></div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<p><b>Le stringhe invece no</b>Con una stringa, <code>s[0] = "C"</code> non è consentito e dà l'errore <code>TypeError: 'str' object does not support item assignment</code>. Per "modificare" una stringa se ne costruisce una nuova (con fette e concatenazione). Le <strong>liste</strong> si cambiano sul posto; le <strong>stringhe</strong> no.</p>
+</div>
+<p>Oltre a sostituire un valore, una lista può anche <strong>crescere e rimpicciolirsi</strong>: aggiungere o togliere elementi. Di questo parliamo nella sezione 5.</p>
+<h2>5. Operazioni e metodi</h2>
+<p>Una volta creata, una lista si può <strong>interrogare</strong> (quanti elementi ha? c'è il 7? qual è il massimo?) e <strong>modificare</strong> (aggiungere, togliere, riordinare). Le due famiglie di operazioni si comportano in modo molto diverso e confonderle è la causa del maggior numero di errori sulle liste:</p>
+<ul>
+<li>le operazioni che <strong>leggono</strong> calcolano un risultato e <strong>lasciano la lista com'è</strong>: il risultato va usato (stampato o salvato in una variabile);</li>
+<li>i metodi che <strong>modificano</strong> cambiano la lista <strong>sul posto</strong> e <strong>non restituiscono nulla</strong>: non c'è niente da salvare.</li>
+</ul>
+<p>Un <strong>metodo</strong> è una funzione che appartiene a un oggetto e si chiama con il punto: <code>lista.append(5)</code> si legge "alla lista, aggiungi 5". Le funzioni normali come <code>len(lista)</code> o <code>sum(lista)</code> invece ricevono la lista come argomento.</p>
+<h3>5.1 Leggere la lista senza modificarla</h3>
+<p>Le funzioni <code>len</code>, <code>sum</code>, <code>min</code>, <code>max</code> restituiscono un numero; <code>count</code> e <code>index</code> cercano un valore. Negli esempi usiamo <code>l = [4, 7, 2, 7]</code>, dove il 7 compare <strong>due volte</strong> apposta per vedere la differenza tra le due ricerche:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>, <span class="tok-num">7</span>]
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(l))
+<span class="tok-fn">print</span>(<span class="tok-fn">sum</span>(l))
+<span class="tok-fn">print</span>(<span class="tok-fn">min</span>(l), <span class="tok-fn">max</span>(l))
+<span class="tok-fn">print</span>(l.<span class="tok-fn">count</span>(<span class="tok-num">7</span>))
+<span class="tok-fn">print</span>(l.<span class="tok-fn">index</span>(<span class="tok-num">7</span>))
+<span class="tok-fn">print</span>(l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>4
+20
+2 7
+2
+1
+[4, 7, 2, 7]</code></pre></div>
+<p><code>count(7)</code> conta quante volte compare il 7 (2). <code>index(7)</code> dà la posizione della <strong>prima</strong> comparsa (1): non dice nulla delle successive. Se il valore non c'è, <code>index</code> provoca un errore, quindi prima si verifica con l'operatore <code>in</code>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Espressione</th><th>Risultato</th><th>Significato</th></tr></thead>
+<tbody>
+<tr><td><code>len(l)</code></td><td><code>4</code></td><td>numero di elementi</td></tr>
+<tr><td><code>sum(l)</code></td><td><code>20</code></td><td>somma degli elementi (solo numeri)</td></tr>
+<tr><td><code>min(l)</code></td><td><code>2</code></td><td>elemento più piccolo</td></tr>
+<tr><td><code>max(l)</code></td><td><code>7</code></td><td>elemento più grande</td></tr>
+<tr><td><code>sorted(l)</code></td><td><code>[2, 4, 7, 7]</code></td><td>nuova lista ordinata; l non cambia</td></tr>
+<tr><td><code>l.count(7)</code></td><td><code>2</code></td><td>quante volte compare 7</td></tr>
+<tr><td><code>l.index(7)</code></td><td><code>1</code></td><td>posizione della prima comparsa di 7</td></tr>
+<tr><td><code>7 in l</code></td><td><code>True</code></td><td>7 è nella lista?</td></tr>
+<tr><td><code>9 not in l</code></td><td><code>True</code></td><td>9 non è nella lista?</td></tr>
+<tr><td><code>l + [1, 1]</code></td><td><code>[4, 7, 2, 7, 1, 1]</code></td><td>concatenazione: nuova lista</td></tr>
+<tr><td><code>[0] * 3</code></td><td><code>[0, 0, 0]</code></td><td>ripetizione: nuova lista</td></tr>
+</tbody>
+</table>
+</div>
+<p>L'operatore <strong><code>in</code></strong> risponde con un booleano (<code>True</code> o <code>False</code>) e si usa tipicamente dentro un <code>if</code> (lezione 2):</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>, <span class="tok-num">7</span>]
+<span class="tok-fn">print</span>(<span class="tok-num">7</span> <span class="tok-key">in</span> l)
+<span class="tok-fn">print</span>(<span class="tok-num">9</span> <span class="tok-key">in</span> l)
+<span class="tok-fn">print</span>(<span class="tok-num">9</span> <span class="tok-key">not</span> <span class="tok-key">in</span> l)
+<span class="tok-key">if</span> <span class="tok-num">2</span> <span class="tok-key">in</span> l:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Il 2 c'è, in posizione"</span>, l.<span class="tok-fn">index</span>(<span class="tok-num">2</span>))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>True
+False
+True
+Il 2 c'è, in posizione 2</code></pre></div>
+<p>Anche <code>+</code> e <code>*</code> funzionano sulle liste, come sulle stringhe, e <strong>creano una lista nuova</strong> senza toccare le originali:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>]
+b = [<span class="tok-num">3</span>, <span class="tok-num">4</span>]
+c = a + b
+<span class="tok-fn">print</span>(c)
+<span class="tok-fn">print</span>(a)
+<span class="tok-fn">print</span>(a * <span class="tok-num">2</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 2, 3, 4]
+[1, 2]
+[1, 2, 1, 2]</code></pre></div>
+<p>Lo stesso vale per <code>sorted</code>: restituisce una lista nuova ordinata, mentre l'originale resta nell'ordine di partenza.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>]
+risultato = <span class="tok-fn">sorted</span>(l)
+<span class="tok-fn">print</span>(risultato)
+<span class="tok-fn">print</span>(l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[2, 4, 7]
+[4, 7, 2]</code></pre></div>
+<h3>5.2 Modificare la lista: aggiungere</h3>
+<p>La lista può <strong>crescere</strong>. <code>append(x)</code> aggiunge <strong>un elemento in fondo</strong> (è il metodo più usato in assoluto). Se l'argomento è una lista, viene aggiunta <strong>come un unico elemento</strong> (una lista dentro la lista), come mostrano la seconda stampa e la <code>len</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>]
+l.<span class="tok-fn">append</span>(<span class="tok-num">9</span>)
+<span class="tok-fn">print</span>(l)
+l.<span class="tok-fn">append</span>([<span class="tok-num">1</span>, <span class="tok-num">2</span>])
+<span class="tok-fn">print</span>(l)
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(l))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[4, 7, 2, 9]
+[4, 7, 2, 9, [1, 2]]
+5</code></pre></div>
+<p>Per aggiungere <strong>in fondo tutti gli elementi</strong> di un'altra lista si usa <code>extend</code>; per inserire in una <strong>posizione precisa</strong> si usa <code>insert(posizione, valore)</code>: gli elementi da quella posizione in poi scorrono di un posto verso destra. <code>insert(0, x)</code> inserisce in testa.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>]
+l.<span class="tok-fn">extend</span>([<span class="tok-num">1</span>, <span class="tok-num">2</span>])
+<span class="tok-fn">print</span>(l)
+l.<span class="tok-fn">insert</span>(<span class="tok-num">1</span>, <span class="tok-num">99</span>)
+<span class="tok-fn">print</span>(l)
+l.<span class="tok-fn">insert</span>(<span class="tok-num">0</span>, <span class="tok-num">5</span>)
+<span class="tok-fn">print</span>(l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[4, 7, 2, 1, 2]
+[4, 99, 7, 2, 1, 2]
+[5, 4, 99, 7, 2, 1, 2]</code></pre></div>
+<h3>5.3 Modificare la lista: togliere</h3>
+<p>Ci sono tre modi, che differiscono per <strong>come si indica l'elemento da eliminare</strong>:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Istruzione</th><th>Elimina...</th><th>Restituisce</th></tr></thead>
+<tbody>
+<tr><td><code>l.remove(valore)</code></td><td>la <strong>prima comparsa del valore</strong> indicato</td><td>niente</td></tr>
+<tr><td><code>del l[i]</code></td><td>l'elemento in <strong>posizione</strong> i</td><td>niente</td></tr>
+<tr><td><code>l.pop()</code> / <code>l.pop(i)</code></td><td>l'ultimo elemento / quello in posizione i</td><td>l'elemento eliminato</td></tr>
+</tbody>
+</table>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>, <span class="tok-num">7</span>]
+l.<span class="tok-fn">remove</span>(<span class="tok-num">7</span>)
+<span class="tok-fn">print</span>(l)
+<span class="tok-key">del</span> l[<span class="tok-num">0</span>]
+<span class="tok-fn">print</span>(l)
+ultimo = l.<span class="tok-fn">pop</span>()
+<span class="tok-fn">print</span>(ultimo, l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[4, 2, 7]
+[2, 7]
+7 [2]</code></pre></div>
+<p>Nell'esempio <code>remove(7)</code> ha tolto solo il <strong>primo</strong> 7 (il secondo è rimasto), poi <code>del l[0]</code> ha tolto l'elemento in posizione 0, infine <code>pop()</code> ha tolto l'ultimo <strong>e ce l'ha restituito</strong>, così abbiamo potuto salvarlo nella variabile <code>ultimo</code>.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: la coda alla cassa</b>Una lista usata con <code>append</code> e <code>pop(0)</code> è una <strong>coda</strong>: chi arriva si mette in fondo (<code>append</code>), chi sta in testa viene servito e esce dalla fila (<code>pop(0)</code>), e tutti gli altri avanzano di un posto. Con <code>append</code> e <code>pop()</code> (senza numero) è invece una <strong>pila di piatti</strong>: l'ultimo che metti è il primo che prendi. Le code e le pile ritorneranno nella teoria di sistemi operativi e concorrenza.</p>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>coda = [<span class="tok-str">"Anna"</span>, <span class="tok-str">"Luca"</span>, <span class="tok-str">"Sara"</span>]
+primo = coda.<span class="tok-fn">pop</span>(<span class="tok-num">0</span>)
+<span class="tok-fn">print</span>(<span class="tok-str">"Servito:"</span>, primo)
+<span class="tok-fn">print</span>(<span class="tok-str">"In attesa:"</span>, coda)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Servito: Anna
+In attesa: ['Luca', 'Sara']</code></pre></div>
+<h3>5.4 Modificare la lista: riordinare</h3>
+<p><code>reverse()</code> inverte l'ordine; <code>sort()</code> ordina in modo crescente, e con <code>reverse=True</code> in modo decrescente. Entrambi modificano la lista stessa.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>l = [<span class="tok-num">4</span>, <span class="tok-num">7</span>, <span class="tok-num">2</span>]
+l.<span class="tok-fn">reverse</span>()
+<span class="tok-fn">print</span>(l)
+l.<span class="tok-fn">sort</span>()
+<span class="tok-fn">print</span>(l)
+l.<span class="tok-fn">sort</span>(reverse=<span class="tok-key">True</span>)
+<span class="tok-fn">print</span>(l)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[2, 7, 4]
+[2, 4, 7]
+[7, 4, 2]</code></pre></div>
+<p>Con le stringhe l'ordinamento è alfabetico <strong>secondo il codice dei caratteri</strong>: le lettere maiuscole vengono prima di tutte le minuscole (per questo <code>"Mela"</code> è la prima). Con <code>key=len</code> si ordina invece per <strong>lunghezza</strong> delle parole; a parità di lunghezza resta l'ordine di prima.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>parole = [<span class="tok-str">"pera"</span>, <span class="tok-str">"Mela"</span>, <span class="tok-str">"kiwi"</span>, <span class="tok-str">"banana"</span>]
+parole.<span class="tok-fn">sort</span>()
+<span class="tok-fn">print</span>(parole)
+parole.<span class="tok-fn">sort</span>(key=len)
+<span class="tok-fn">print</span>(parole)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>['Mela', 'banana', 'kiwi', 'pera']
+['Mela', 'kiwi', 'pera', 'banana']</code></pre></div>
+<h3>5.5 Riepilogo dei metodi che modificano</h3>
+<p>Negli esempi della tabella si parte ogni volta da <code>l = [4, 7, 2]</code>:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Istruzione</th><th>l dopo</th><th>Significato</th></tr></thead>
+<tbody>
+<tr><td><code>l.append(9)</code></td><td><code>[4, 7, 2, 9]</code></td><td>aggiunge 9 in fondo</td></tr>
+<tr><td><code>l.insert(1, 9)</code></td><td><code>[4, 9, 7, 2]</code></td><td>inserisce 9 in posizione 1</td></tr>
+<tr><td><code>l.extend([1, 2])</code></td><td><code>[4, 7, 2, 1, 2]</code></td><td>aggiunge in fondo tutti gli elementi</td></tr>
+<tr><td><code>l.remove(7)</code></td><td><code>[4, 2]</code></td><td>elimina la prima comparsa del valore 7</td></tr>
+<tr><td><code>l.pop()</code></td><td><code>[4, 7]</code></td><td>elimina e restituisce l'ultimo elemento</td></tr>
+<tr><td><code>l.pop(0)</code></td><td><code>[7, 2]</code></td><td>elimina e restituisce l'elemento in posizione 0</td></tr>
+<tr><td><code>del l[1]</code></td><td><code>[4, 2]</code></td><td>elimina l'elemento in posizione 1</td></tr>
+<tr><td><code>l.sort()</code></td><td><code>[2, 4, 7]</code></td><td>ordina la lista stessa</td></tr>
+<tr><td><code>l.reverse()</code></td><td><code>[2, 7, 4]</code></td><td>inverte l'ordine della lista stessa</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<div class="cbody">
+<b>Metodi che modificano restituiscono None</b>
+<p><code>append</code>, <code>insert</code>, <code>extend</code>, <code>remove</code>, <code>sort</code>, <code>reverse</code> cambiano la lista e <strong>non restituiscono nulla</strong> (in realtà il valore speciale <code>None</code>). Scrivere <code>numeri = numeri.append(5)</code> <strong>cancella la lista</strong>, perché la variabile viene sovrascritta con <code>None</code>. Si scrive semplicemente <code>numeri.append(5)</code>.</p>
+<p>Se il valore non c'è, <code>remove</code> dà <code>ValueError: list.remove(x): x not in list</code>: si controlla prima con <code>in</code>.</p>
+</div>
+</div>
+<h2>6. Scorrere una lista</h2>
+<p>Una lista contiene dati perché prima o poi vogliamo <strong>fare qualcosa con ognuno</strong>: stamparli, sommarli, confrontarli. Per questo il ciclo <code>for</code> della lezione 3 e le liste vanno sempre insieme. Un <code>for</code> si legge quasi come una frase: <strong>"per ogni prodotto nella spesa, stampa Compra e il prodotto"</strong>.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>spesa = [<span class="tok-str">"pane"</span>, <span class="tok-str">"latte"</span>, <span class="tok-str">"uova"</span>]
+<span class="tok-key">for</span> prodotto <span class="tok-key">in</span> spesa:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Compra:"</span>, prodotto)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Compra: pane
+Compra: latte
+Compra: uova</code></pre></div>
+<p>Ad ogni giro la variabile <code>prodotto</code> assume il <strong>valore</strong> dell'elemento successivo, dal primo all'ultimo. Non c'è bisogno di contare né di usare gli indici: Python sa quando la lista finisce. Rispetto al C o a Java (dove si scrive <code>for (int i = 0; i &lt; n; i++)</code> e poi <code>v[i]</code>) il codice è più corto e c'è meno rischio di errore sugli indici.</p>
+<h3>6.1 Quando serve anche la posizione</h3>
+<p>Ci sono casi in cui il valore non basta: per numerare gli elementi (1, 2, 3 ...), per <strong>modificarli</strong> (sezione 4.1) o per confrontare un elemento con il vicino. Si usa allora <code>range(len(lista))</code>, che produce proprio gli indici validi 0, 1, ..., <code>len - 1</code>, e si legge l'elemento con <code>lista[i]</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>spesa = [<span class="tok-str">"pane"</span>, <span class="tok-str">"latte"</span>, <span class="tok-str">"uova"</span>]
+<span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-fn">len</span>(spesa)):
+    <span class="tok-fn">print</span>(i + <span class="tok-num">1</span>, spesa[i])</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>1 pane
+2 latte
+3 uova</code></pre></div>
+<p>Python offre una scorciatoia, <code>enumerate</code>, che a ogni giro fornisce <strong>due valori</strong>: la posizione e l'elemento. Il secondo argomento dice da quale numero cominciare a contare (qui 1, per una numerazione "umana"). I due programmi seguenti producono lo stesso output:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>spesa = [<span class="tok-str">"pane"</span>, <span class="tok-str">"latte"</span>, <span class="tok-str">"uova"</span>]
+<span class="tok-key">for</span> i, prodotto <span class="tok-key">in</span> <span class="tok-fn">enumerate</span>(spesa, <span class="tok-num">1</span>):
+    <span class="tok-fn">print</span>(i, prodotto)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>1 pane
+2 latte
+3 uova</code></pre></div>
+<div class="callout ok">
+<span class="ico" aria-hidden="true">🧭</span>
+<div class="cbody">
+<b>Quale ciclo scelgo?</b>
+<p><strong><code>for elemento in lista</code></strong>: serve solo il <strong>valore</strong> (somme, ricerche, stampe, conteggi).</p>
+<p><strong><code>for i in range(len(lista))</code></strong> o <strong><code>enumerate</code></strong>: serve la <strong>posizione</strong> (modificare gli elementi, numerare, confrontare vicini).</p>
+<p>Una regola pratica: se nel corpo del ciclo scrivi <code>lista[i]</code> solo per leggere, probabilmente basta il primo.</p>
+</div>
+</div>
+<h2>7. Schemi di programmazione con le liste</h2>
+<p>Quasi tutti i problemi sulle liste si risolvono con pochi <strong>schemi</strong>, cioè piccoli programmi tipo che si adattano ogni volta. Imparali bene: ritorneranno nei cicli, nelle funzioni e in NumPy e pandas. Per ognuno trovi l'idea, il codice e, dove serve, una <strong>traccia</strong> che mostra come cambiano le variabili ad ogni giro.</p>
+<h3>7.1 Somma e media: l'accumulatore</h3>
+<p>Si parte da una variabile a 0 (l'<strong>accumulatore</strong>) e ad ogni giro si aggiunge l'elemento corrente. È la stessa idea del totale dello scontrino alla cassa: si passa un prodotto alla volta e il totale cresce. Qui la stampa dentro il ciclo mostra la crescita:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">4</span>, <span class="tok-num">8</span>]
+totale = <span class="tok-num">0</span>
+<span class="tok-key">for</span> v <span class="tok-key">in</span> voti:
+    totale += v
+    <span class="tok-fn">print</span>(<span class="tok-str">"v ="</span>, v, <span class="tok-str">" totale ="</span>, totale)
+<span class="tok-fn">print</span>(<span class="tok-str">"Media:"</span>, totale / <span class="tok-fn">len</span>(voti))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>v = 6  totale = 6
+v = 4  totale = 10
+v = 8  totale = 18
+Media: 6.0</code></pre></div>
+<p>Questo schema è così comune che Python lo offre già pronto: <code>sum(voti) / len(voti)</code> dà lo stesso risultato in una riga, ed è quello che si usa nel codice vero. Ma capire il ciclo serve per quando la somma ha una <strong>condizione</strong> (somma dei soli pari, dei soli sufficienti ...).</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">8</span>, <span class="tok-num">7</span>, <span class="tok-num">9</span>]
+media = <span class="tok-fn">sum</span>(voti) / <span class="tok-fn">len</span>(voti)
+<span class="tok-fn">print</span>(<span class="tok-str">f"Media: {media:.2f}"</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Media: 7.50</code></pre></div>
+<h3>7.2 Costruire una lista: lista vuota + append</h3>
+<p>Quando i valori <strong>non sono già in una lista</strong> ma si producono con un ciclo, si crea prima una lista <strong>vuota</strong>, poi nel ciclo si aggiunge ogni valore con <code>append</code>. Ricorda: la lista vuota va creata <strong>prima</strong> del ciclo (se la crei dentro, viene azzerata ad ogni giro).</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>quadrati = []
+<span class="tok-key">for</span> n <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">6</span>):
+    quadrati.<span class="tok-fn">append</span>(n * n)
+<span class="tok-fn">print</span>(quadrati)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 4, 9, 16, 25]</code></pre></div>
+<h3>7.3 Filtro: aggiungere solo se la condizione è vera</h3>
+<p>È lo schema precedente con un <code>if</code> davanti all'<code>append</code>: si scorre una sequenza e si <strong>tengono</strong> solo gli elementi che soddisfano la condizione. Si legge: "per ogni numero, se è pari, aggiungilo alla lista dei pari".</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>pari = []
+<span class="tok-key">for</span> n <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">11</span>):
+    <span class="tok-key">if</span> n % <span class="tok-num">2</span> == <span class="tok-num">0</span>:
+        pari.<span class="tok-fn">append</span>(n)
+<span class="tok-fn">print</span>(pari)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[2, 4, 6, 8, 10]</code></pre></div>
+<h3>7.4 Massimo e minimo "a mano"</h3>
+<p>Idea: tieni in una variabile <strong>il migliore finora</strong>. Parti dal primo elemento e ad ogni giro confronti l'elemento corrente con il migliore: se è più piccolo (o più grande) lo <strong>sostituisci</strong>. Alla fine la variabile contiene il risultato. Ecco la traccia per il minimo di <code>[6, 4, 8, 5]</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-num">5</span>]
+minimo = voti[<span class="tok-num">0</span>]
+<span class="tok-key">for</span> v <span class="tok-key">in</span> voti:
+    <span class="tok-key">if</span> v &lt; minimo:
+        minimo = v
+    <span class="tok-fn">print</span>(<span class="tok-str">"v ="</span>, v, <span class="tok-str">" minimo ="</span>, minimo)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>v = 6  minimo = 6
+v = 4  minimo = 4
+v = 8  minimo = 4
+v = 5  minimo = 4</code></pre></div>
+<p>Esistono già <code>min</code> e <code>max</code>, ma lo schema è importante: lo useremo per trovare, ad esempio, "la parola più lunga" o "lo studente con il voto più alto", dove <code>max</code> da solo non basta. Perché si parte dal primo elemento e non da 0? Perché se tutti i voti fossero positivi e si partisse da 0, il minimo risulterebbe 0, che non è nella lista!</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-num">5</span>, <span class="tok-num">9</span>]
+massimo = voti[<span class="tok-num">0</span>]
+<span class="tok-key">for</span> v <span class="tok-key">in</span> voti:
+    <span class="tok-key">if</span> v &gt; massimo:
+        massimo = v
+<span class="tok-fn">print</span>(<span class="tok-str">"Massimo:"</span>, massimo)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Massimo: 9</code></pre></div>
+<h3>7.5 Conteggio e ricerca</h3>
+<p><strong>Conteggio</strong>: un contatore a 0 che sale di 1 ogni volta che la condizione è vera. <strong>Ricerca</strong>: una variabile booleana (qui <code>trovato</code>) che parte da <code>False</code> e diventa <code>True</code> se si incontra l'elemento cercato. Per una ricerca semplice basta l'operatore <code>in</code> (secondo esempio); il ciclo serve quando devi fare altro oltre a cercare.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">6</span>, <span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-num">5</span>, <span class="tok-num">9</span>]
+insufficienti = <span class="tok-num">0</span>
+<span class="tok-key">for</span> v <span class="tok-key">in</span> voti:
+    <span class="tok-key">if</span> v &lt; <span class="tok-num">6</span>:
+        insufficienti += <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Insufficienti:"</span>, insufficienti)
+<span class="tok-fn">print</span>(<span class="tok-str">"C'è un 9?"</span>, <span class="tok-num">9</span> <span class="tok-key">in</span> voti)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Insufficienti: 2
+C'è un 9? True</code></pre></div>
+<p>La stessa ricerca scritta con il ciclo e la variabile booleana (con l'espressione condizionale della lezione 2 per stampare il messaggio):</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nomi = [<span class="tok-str">"Anna"</span>, <span class="tok-str">"Luca"</span>, <span class="tok-str">"Sara"</span>]
+ricerca = <span class="tok-str">"Luca"</span>
+trovato = <span class="tok-key">False</span>
+<span class="tok-key">for</span> n <span class="tok-key">in</span> nomi:
+    <span class="tok-key">if</span> n == ricerca:
+        trovato = <span class="tok-key">True</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Trovato"</span> <span class="tok-key">if</span> trovato <span class="tok-key">else</span> <span class="tok-str">"Non trovato"</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Trovato</code></pre></div>
+<h3>7.6 Per chi vuole di più: list comprehension</h3>
+<p>I due schemi 7.2 e 7.3 si possono scrivere <strong>in una sola riga</strong>, con una forma tipica di Python detta <strong>list comprehension</strong>. Si legge quasi come in matematica, "{ n² per n da 1 a 5 }". Il risultato è identico a quello dei cicli; non è obbligatoria, ma la incontrerai spesso nel codice altrui.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>quadrati = [n * n <span class="tok-key">for</span> n <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">6</span>)]
+pari = [n <span class="tok-key">for</span> n <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">11</span>) <span class="tok-key">if</span> n % <span class="tok-num">2</span> == <span class="tok-num">0</span>]
+<span class="tok-fn">print</span>(quadrati)
+<span class="tok-fn">print</span>(pari)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 4, 9, 16, 25]
+[2, 4, 6, 8, 10]</code></pre></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Forma</th><th>Come si legge</th></tr></thead>
+<tbody>
+<tr><td><code>[n * n for n in range(1, 6)]</code></td><td>"n per n al quadrato, per ogni n da 1 a 5"</td></tr>
+<tr><td><code>[n for n in range(1, 11) if n % 2 == 0]</code></td><td>"n, per ogni n da 1 a 10, <strong>se</strong> n è pari"</td></tr>
+</tbody>
+</table>
+</div>
+<h2>8. Dividere e unire: split e join</h2>
+<p>Spesso i dati arrivano come un <strong>unico testo</strong> (una riga digitata, una riga di un file) ma ci servono <strong>separati</strong>. <code>testo.split()</code> taglia la stringa in corrispondenza degli spazi e restituisce la <strong>lista delle parti</strong>. <code>separatore.join(lista)</code> fa l'operazione opposta: <strong>incolla</strong> gli elementi di una lista (che devono essere stringhe) mettendo il separatore tra uno e l'altro.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>frase = <span class="tok-str">"il gatto dorme"</span>
+parole = frase.<span class="tok-fn">split</span>()
+<span class="tok-fn">print</span>(parole)
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(parole))
+<span class="tok-fn">print</span>(<span class="tok-str">"-"</span>.<span class="tok-fn">join</span>(parole))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>['il', 'gatto', 'dorme']
+3
+il-gatto-dorme</code></pre></div>
+<p>Senza argomenti <code>split()</code> divide sugli spazi (anche più spazi di fila e anche a capo). Con un argomento, divide su <strong>quel</strong> carattere. Nota: due separatori consecutivi producono una stringa vuota; <code>join</code> funziona con qualsiasi separatore, anche vuoto.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-fn">print</span>(<span class="tok-str">"2026/10/26"</span>.<span class="tok-fn">split</span>(<span class="tok-str">"/"</span>))
+<span class="tok-fn">print</span>(<span class="tok-str">"a,b,,c"</span>.<span class="tok-fn">split</span>(<span class="tok-str">","</span>))
+<span class="tok-fn">print</span>(<span class="tok-str">", "</span>.<span class="tok-fn">join</span>([<span class="tok-str">"rosso"</span>, <span class="tok-str">"verde"</span>, <span class="tok-str">"blu"</span>]))
+<span class="tok-fn">print</span>(<span class="tok-str">""</span>.<span class="tok-fn">join</span>([<span class="tok-str">"a"</span>, <span class="tok-str">"b"</span>, <span class="tok-str">"c"</span>]))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>['2026', '10', '26']
+['a', 'b', '', 'c']
+rosso, verde, blu
+abc</code></pre></div>
+<h3>8.1 Leggere più numeri su una riga</h3>
+<p>Il caso d'uso più frequente: l'utente scrive "7 3 9 4" e vogliamo i numeri. Attenzione: <code>split</code> restituisce <strong>stringhe</strong>, che vanno convertite una a una con <code>int()</code> (o <code>float()</code>), altrimenti si ottiene un errore. Ecco i tre passaggi:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>riga = <span class="tok-str">"7 3 9 4"</span>
+pezzi = riga.<span class="tok-fn">split</span>()
+<span class="tok-fn">print</span>(pezzi)
+numeri = []
+<span class="tok-key">for</span> pezzo <span class="tok-key">in</span> pezzi:
+    numeri.<span class="tok-fn">append</span>(<span class="tok-fn">int</span>(pezzo))
+<span class="tok-fn">print</span>(numeri)
+<span class="tok-fn">print</span>(<span class="tok-fn">sum</span>(numeri))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>['7', '3', '9', '4']
+[7, 3, 9, 4]
+23</code></pre></div>
+<p>Dimenticare la conversione è un errore tipico: <code>sum(["1", "2"])</code> dà <code>TypeError: unsupported operand type(s) for +: 'int' and 'str'</code>, perché <code>sum</code> parte da 0 e prova a sommare un numero a una stringa.</p>
+<h2>9. Ordinare: sorted e sort</h2>
+<p>L'ordinamento si può fare in <strong>due modi</strong> e la differenza è la stessa vista nella sezione 5: uno <strong>restituisce una lista nuova</strong>, l'altro <strong>modifica la lista</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>sorted(l)</th><th>l.sort()</th></tr></thead>
+<tbody>
+<tr><td>Tipo</td><td>funzione</td><td>metodo</td></tr>
+<tr><td>Cosa fa</td><td>crea una <strong>nuova</strong> lista ordinata</td><td>ordina la lista <strong>stessa</strong></td></tr>
+<tr><td>La lista originale</td><td>resta com'è</td><td>cambia</td></tr>
+<tr><td>Che cosa restituisce</td><td>la nuova lista</td><td><code>None</code></td></tr>
+<tr><td>Si usa quando</td><td>serve anche l'ordine originale, o si ordina senza modificare</td><td>non serve più l'ordine di partenza</td></tr>
+</tbody>
+</table>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">7</span>, <span class="tok-num">5</span>, <span class="tok-num">9</span>, <span class="tok-num">6</span>]
+<span class="tok-fn">print</span>(<span class="tok-fn">sorted</span>(voti))
+<span class="tok-fn">print</span>(voti)
+voti.<span class="tok-fn">sort</span>()
+<span class="tok-fn">print</span>(voti)
+<span class="tok-fn">print</span>(<span class="tok-fn">sorted</span>(voti, reverse=<span class="tok-key">True</span>))</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[5, 6, 7, 9]
+[7, 5, 9, 6]
+[5, 6, 7, 9]
+[9, 7, 6, 5]</code></pre></div>
+<p>Nell'output: la prima riga è <code>sorted(voti)</code> (lista nuova ordinata); la seconda riga mostra che <code>voti</code> <strong>è rimasta com'era</strong>; la terza riga è dopo <code>voti.sort()</code>, che ha cambiato la lista; la quarta è l'ordine decrescente, ottenuto con <code>reverse=True</code>. Un errore tipico è scrivere <code>ordinati = voti.sort()</code>: <code>ordinati</code> diventa <code>None</code>.</p>
+<h2>10. Liste di liste (matrici)</h2>
+<p>Gli elementi di una lista possono essere <strong>a loro volta liste</strong>. Se ogni lista interna ha la stessa lunghezza si ottiene una <strong>tabella</strong> con righe e colonne, cioè una <strong>matrice</strong>. Pensa al registro di classe: ogni riga è uno studente e ogni colonna è un compito.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: il condominio</b>Un palazzo ha tanti <strong>piani</strong>, e su ogni piano tanti <strong>appartamenti</strong>. Per indicare un appartamento servono <strong>due numeri</strong>: il piano e il numero sulla porta. Una lista di liste funziona così: <code>griglia[1][2]</code> vuol dire "vai alla riga 1, poi prendi l'elemento in posizione 2". Il <strong>primo indice sceglie la riga</strong> (il piano), il <strong>secondo la colonna</strong> (la porta).</p>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>griglia = [[<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>],
+           [<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>]]
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(griglia))
+<span class="tok-fn">print</span>(<span class="tok-fn">len</span>(griglia[<span class="tok-num">0</span>]))
+<span class="tok-fn">print</span>(griglia[<span class="tok-num">0</span>])
+<span class="tok-fn">print</span>(griglia[<span class="tok-num">1</span>][<span class="tok-num">0</span>])
+griglia[<span class="tok-num">0</span>][<span class="tok-num">2</span>] = <span class="tok-num">30</span>
+<span class="tok-fn">print</span>(griglia)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>2
+3
+[1, 2, 3]
+4
+[[1, 2, 30], [4, 5, 6]]</code></pre></div>
+<p>Nell'output: <code>len(griglia)</code> è 2 perché ci sono <strong>2 righe</strong> (le liste interne); <code>len(griglia[0])</code> è 3 perché la riga 0 ha <strong>3 colonne</strong>; <code>griglia[0]</code> è l'intera prima riga; <code>griglia[1][0]</code> è il primo elemento della seconda riga; infine <code>griglia[0][2] = 30</code> modifica un elemento singolo.</p>
+<h3>10.1 Percorrere una matrice</h3>
+<p>Servono <strong>due cicli annidati</strong> (lezione 3): il ciclo esterno prende una riga per volta, quello interno percorre i valori di quella riga. Un solo ciclo basta per stampare <strong>una riga alla volta</strong>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>griglia = [[<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>],
+           [<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>]]
+<span class="tok-fn">print</span>(griglia[<span class="tok-num">1</span>][<span class="tok-num">2</span>])
+<span class="tok-key">for</span> riga <span class="tok-key">in</span> griglia:
+    <span class="tok-fn">print</span>(riga)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>6
+[1, 2, 3]
+[4, 5, 6]</code></pre></div>
+<p>Per toccare <strong>ogni singolo valore</strong> (qui per sommarli tutti) serve anche il ciclo interno; senza di esso <code>riga</code> sarebbe una lista e la somma darebbe errore.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>griglia = [[<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>],
+           [<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>]]
+totale = <span class="tok-num">0</span>
+<span class="tok-key">for</span> riga <span class="tok-key">in</span> griglia:
+    <span class="tok-key">for</span> valore <span class="tok-key">in</span> riga:
+        totale += valore
+<span class="tok-fn">print</span>(totale)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>21</code></pre></div>
+<h3>10.2 Costruire una matrice</h3>
+<p>Per creare una matrice vuota di <code>righe × colonne</code> elementi si crea una lista <strong>nuova</strong> per ogni riga, <strong>dentro</strong> il ciclo esterno, e la si aggiunge alla matrice:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>righe = <span class="tok-num">2</span>
+colonne = <span class="tok-num">3</span>
+matrice = []
+<span class="tok-key">for</span> r <span class="tok-key">in</span> <span class="tok-fn">range</span>(righe):
+    riga = []
+    <span class="tok-key">for</span> c <span class="tok-key">in</span> <span class="tok-fn">range</span>(colonne):
+        riga.<span class="tok-fn">append</span>(<span class="tok-num">0</span>)
+    matrice.<span class="tok-fn">append</span>(riga)
+matrice[<span class="tok-num">0</span>][<span class="tok-num">1</span>] = <span class="tok-num">5</span>
+<span class="tok-fn">print</span>(matrice)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[[0, 5, 0], [0, 0, 0]]</code></pre></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>C / Java</th><th>Python</th></tr></thead>
+<tbody>
+<tr><td>Accesso</td><td><code>m[r][c]</code></td><td><code>m[r][c]</code> (uguale)</td></tr>
+<tr><td>Dichiarazione</td><td><code>int m[2][3];</code> (dimensioni fisse)</td><td>lista di liste, create con i cicli</td></tr>
+<tr><td>Righe di lunghezza diversa</td><td>solo con array di array / puntatori</td><td>sì, ogni riga è una lista a sé</td></tr>
+</tbody>
+</table>
+</div>
+<h2>11. Attenzione: assegnare non vuol dire copiare</h2>
+<p>Questa è la parte più insidiosa delle liste. Nella lezione 1 abbiamo detto che le variabili sono <strong>etichette</strong> attaccate ai valori. Per i numeri e le stringhe non ci accorgiamo della differenza, perché non si possono modificare. Con le liste, che si possono modificare, la differenza si vede.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: il documento condiviso</b>Se condividi un documento online con un amico, <strong>non</strong> ne fai una fotocopia: voi due avete due link allo <strong>stesso</strong> file. Se lui cambia una riga, la vedi cambiata anche tu. In Python <code>b = a</code> funziona così: <strong>non</strong> crea una nuova lista, ma attacca <strong>una seconda etichetta alla stessa lista</strong>.</p>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+b = a
+b.<span class="tok-fn">append</span>(<span class="tok-num">4</span>)
+<span class="tok-fn">print</span>(a)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 2, 3, 4]</code></pre></div>
+<p>Abbiamo modificato la lista tramite <code>b</code>, ma <code>a</code> è cambiata: sono <strong>due nomi dello stesso oggetto</strong>. Si può verificare con l'operatore <code>is</code> ("è lo stesso oggetto?"), da non confondere con <code>==</code> ("hanno lo stesso contenuto?"):</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+b = a
+<span class="tok-fn">print</span>(a <span class="tok-key">is</span> b)
+c = a.<span class="tok-fn">copy</span>()
+<span class="tok-fn">print</span>(a <span class="tok-key">is</span> c)
+<span class="tok-fn">print</span>(a == c)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>True
+False
+True</code></pre></div>
+<p>Se invece vogliamo una <strong>fotocopia</strong> indipendente, usiamo <code>.copy()</code> (oppure la fetta <code>a[:]</code>). Da quel momento le due liste sono separate:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+c = a.<span class="tok-fn">copy</span>()
+c.<span class="tok-fn">append</span>(<span class="tok-num">5</span>)
+<span class="tok-fn">print</span>(a)
+<span class="tok-fn">print</span>(c)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[1, 2, 3]
+[1, 2, 3, 5]</code></pre></div>
+<p>Perché con i numeri e le stringhe non succede? Perché non si possono modificare: se scrivi <code>altro = "Luca"</code> non cambi la stringa, <strong>sposti l'etichetta</strong> su un nuovo valore, e l'altra etichetta resta dov'era:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>nome = <span class="tok-str">"Anna"</span>
+altro = nome
+altro = <span class="tok-str">"Luca"</span>
+<span class="tok-fn">print</span>(nome)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Anna</code></pre></div>
+<p>In C/Java succede qualcosa di simile con puntatori e riferimenti agli array: <code>b = a</code> copia il riferimento, non il contenuto.</p>
+<div class="demo" id="alDemo">
+<div class="demo-head">Due etichette o due liste?</div>
+<div class="demo-stage">
+<div class="al-stage" id="alStage"></div>
+<div class="al-cols">
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code id="alCode"></code></pre></div>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code id="alOut"></code></pre></div>
+</div>
+</div>
+<div class="demo-controls">
+<button class="btn btn-ghost btn-sm" id="alAssign" type="button">b = a</button>
+<button class="btn btn-ghost btn-sm" id="alCopy" type="button">b = a.copy()</button>
+<button class="btn btn-ghost btn-sm" id="alAppend" type="button">b.append(4)</button>
+<span class="spacer"></span>
+<button class="btn btn-ghost btn-sm" id="alReset" type="button">↺ Azzera</button>
+</div>
+</div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<p><b>Con le liste di liste</b>Creare una matrice con <code>[[0] * 3] * 2</code> è un errore classico: la lista interna viene <strong>ripetuta come riferimento</strong>, quindi le due righe sono la <strong>stessa</strong> lista. Modifichiamo un elemento della prima riga e cambia anche la seconda:</p>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>sbagliata = [[<span class="tok-num">0</span>] * <span class="tok-num">3</span>] * <span class="tok-num">2</span>
+sbagliata[<span class="tok-num">0</span>][<span class="tok-num">1</span>] = <span class="tok-num">5</span>
+<span class="tok-fn">print</span>(sbagliata)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>[[0, 5, 0], [0, 5, 0]]</code></pre></div>
+<p>Per questo nella sezione 10.2 la lista <code>riga = []</code> viene creata <strong>dentro</strong> il ciclo esterno: ad ogni giro si ottiene una lista nuova.</p>
+<h2>12. Errori frequenti</h2>
+<p>Questi errori capitano a tutti. Il messaggio di Python dice di che errore si tratta e in quale riga: <strong>leggilo con attenzione</strong> prima di cambiare il codice.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Errore</th><th>Messaggio</th></tr></thead>
+<tbody>
+<tr><td>Indice fuori dalla lista</td><td><code>IndexError: list index out of range</code></td></tr>
+<tr><td>Rimuovere un valore assente</td><td><code>ValueError: list.remove(x): x not in list</code></td></tr>
+<tr><td>Massimo di una lista vuota</td><td><code>ValueError: max() iterable argument is empty</code></td></tr>
+<tr><td>Sommare stringhe (dopo split senza int)</td><td><code>TypeError: unsupported operand type(s) for +: 'int' and 'str'</code></td></tr>
+<tr><td>Cambiare una lettera di una stringa</td><td><code>TypeError: 'str' object does not support item assignment</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Gli errori più subdoli sono quelli che <strong>non danno nessun messaggio</strong> ma producono un risultato sbagliato:</p>
+<ul>
+<li><strong><code>lista = lista.append(x)</code></strong> e <strong><code>l2 = l.sort()</code></strong>: la variabile diventa <code>None</code>. Si chiamano i metodi senza assegnare il risultato.</li>
+<li><strong><code>b = a</code></strong> credendo di copiare: le modifiche si vedono in entrambe. Serve <code>a.copy()</code>.</li>
+<li><strong>Indice uguale a <code>len(lista)</code></strong>: l'ultimo indice valido è <code>len(lista) - 1</code> (<code>IndexError</code>).</li>
+<li><strong>Modificare una lista mentre la si scorre con <code>for</code></strong> (aggiungere o togliere elementi): porta a risultati inattesi; meglio costruire una lista nuova.</li>
+<li><strong>Assegnare alla variabile del ciclo</strong> (<code>for v in voti: v = v + 1</code>) pensando di modificare la lista: serve l'indice.</li>
+<li><strong>Creare la lista vuota dentro il ciclo</strong> invece che prima: viene azzerata ad ogni giro.</li>
+</ul>
+<h2>13. Riepilogo</h2>
+<ul>
+<li>Una <strong>lista</strong> contiene più valori, anche di tipi diversi: <code>[1, "a", 2.5]</code>. Gli indici partono da 0, <code>[-1]</code> è l'ultimo, le fette <code>[inizio:fine]</code> escludono la fine.</li>
+<li>Le liste sono <strong>mutabili</strong>: <code>l[i] = x</code>, <code>append</code>, <code>insert</code>, <code>extend</code>, <code>remove</code>, <code>pop</code>, <code>del</code>, <code>sort</code>, <code>reverse</code>. Le stringhe no.</li>
+<li>Per leggere: <code>len</code>, <code>sum</code>, <code>min</code>, <code>max</code>, <code>sorted</code>, <code>count</code>, <code>index</code>, <code>in</code>.</li>
+<li>I metodi che modificano <strong>non restituiscono nulla</strong> (<code>None</code>): non vanno assegnati.</li>
+<li>Si scorrono con <code>for x in l</code> (serve il valore), <code>range(len(l))</code> o <code>enumerate</code> (serve la posizione).</li>
+<li>Schemi: accumulatore, costruzione con <code>append</code>, filtro, massimo/minimo, conteggio, ricerca.</li>
+<li><code>split</code> e <code>join</code> passano da stringhe a liste e viceversa; dopo <code>split</code> ricordati di convertire con <code>int</code>/<code>float</code>.</li>
+<li>Una matrice è una lista di liste: <code>m[riga][colonna]</code>, con due cicli annidati e una lista nuova per ogni riga.</li>
+<li><code>b = a</code> <strong>non</strong> copia: due nomi per la stessa lista; serve <code>a.copy()</code>.</li>
+</ul>
+
+<nav class="doc-nav" aria-label="Navigazione tra le dispense">
+<a href="python-esercizi-3.html">
+<span class="dir">Indietro</span>
+<span class="ttl">Esercitazione: scheda di esercizi 3</span>
+</a>
+<a class="next" href="python-esercizi-4.html">
+<span class="dir">Avanti</span>
+<span class="ttl">Esercitazione: scheda di esercizi 4 →</span>
+</a>
+</nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+<script>
+/* Indici e fette sulla lista l = [10, 20, 30, 40, 50] */
+(function () {
+  var cells = document.getElementById('slCells');
+  if (!cells) return;
+  var expr = document.getElementById('slExpr');
+  var res = document.getElementById('slRes');
+  var L = [10, 20, 30, 40, 50], n = L.length;
+
+  var el = L.map(function (v, k) {
+    var c = document.createElement('div');
+    c.className = 'sl-cell';
+    c.innerHTML = '<span class="i">' + k + '</span><span class="v">' + v + '<span class="ord"></span></span><span class="i neg">' + (k - n) + '</span>';
+    cells.appendChild(c);
+    return c;
+  });
+
+  function mostra(idx) {
+    el.forEach(function (c) { c.classList.remove('on'); });
+    idx.forEach(function (k, ord) {
+      el[k].classList.add('on');
+      el[k].querySelector('.ord').textContent = ord + 1;
+    });
+  }
+
+  function err(t) { mostra([]); res.innerHTML = '<span class="err">' + t + '</span>'; }
+
+  function update() {
+    var s = expr.value.replace(/\s+/g, '');
+    var m = /^l\[(-?\d*)(?::(-?\d*)(?::(-?\d*))?)?\]$/.exec(s);
+    if (!m) { err('scrivi un\'espressione come l[2] oppure l[1:4] o l[::2]'); return; }
+    var fetta = s.indexOf(':') !== -1;
+    if (!fetta) {
+      if (m[1] === '') { err('SyntaxError: invalid syntax'); return; }
+      var k = parseInt(m[1], 10);
+      if (k >= n || k < -n) { err('IndexError: list index out of range'); return; }
+      var pos = k < 0 ? k + n : k;
+      mostra([pos]);
+      res.innerHTML = expr.value.trim() + ' → <b>' + L[pos] + '</b>';
+      return;
+    }
+    var step = m[3] ? parseInt(m[3], 10) : 1;
+    if (step === 0) { err('ValueError: slice step cannot be zero'); return; }
+    var start, stop;
+    // stesse regole di Python per i limiti di una fetta
+    function norm(x, dflt, lo, hi) {
+      if (x === '' || x === undefined) return dflt;
+      x = parseInt(x, 10);
+      if (x < 0) x += n;
+      if (x < lo) x = lo;
+      if (x > hi) x = hi;
+      return x;
+    }
+    if (step > 0) { start = norm(m[1], 0, 0, n); stop = norm(m[2], n, 0, n); }
+    else { start = norm(m[1], n - 1, -1, n - 1); stop = norm(m[2], -1, -1, n - 1); }
+    var idx = [];
+    for (var i = start; step > 0 ? i < stop : i > stop; i += step) idx.push(i);
+    mostra(idx);
+    res.innerHTML = expr.value.trim() + ' → <b>[' + idx.map(function (i) { return L[i]; }).join(', ') + ']</b>';
+  }
+
+  expr.addEventListener('input', update);
+  document.querySelectorAll('#slPresets .btn').forEach(function (b) {
+    b.addEventListener('click', function () { expr.value = b.textContent; update(); });
+  });
+  update();
+})();
+
+/* b = a oppure b = a.copy(): etichette e oggetti */
+(function () {
+  var stage = document.getElementById('alStage');
+  if (!stage) return;
+  var code = document.getElementById('alCode');
+  var out = document.getElementById('alOut');
+  var bAssign = document.getElementById('alAssign');
+  var bCopy = document.getElementById('alCopy');
+  var bAppend = document.getElementById('alAppend');
+  var bReset = document.getElementById('alReset');
+
+  var oggetti, righe, nuovo;
+
+  var COL = {
+    'a = [1, 2, 3]': 'a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]',
+    'b = a': 'b = a',
+    'b = a.copy()': 'b = a.<span class="tok-fn">copy</span>()',
+    'b.append(4)': 'b.<span class="tok-fn">append</span>(<span class="tok-num">4</span>)'
+  };
+
+  function chi(nome) {
+    for (var i = 0; i < oggetti.length; i++) if (oggetti[i].nomi.indexOf(nome) !== -1) return oggetti[i];
+    return null;
+  }
+
+  function fmt(o) { return '[' + o.v.join(', ') + ']'; }
+
+  function disegna() {
+    stage.innerHTML = '';
+    oggetti.forEach(function (o) {
+      var d = document.createElement('div');
+      d.className = 'al-obj';
+      d.innerHTML = '<div class="al-tags">' + o.nomi.map(function (x) { return '<span class="al-tag ' + x + '">' + x + '</span>'; }).join('') + '</div>' +
+        '<div class="al-list">' + o.v.map(function (x, k) {
+          return '<span' + (o === nuovo && k === o.v.length - 1 ? ' class="is-new"' : '') + '>' + x + '</span>';
+        }).join('') + '</div>';
+      stage.appendChild(d);
+    });
+    var a = chi('a'), b = chi('b');
+    var pr = function (x) { return '<span class="tok-fn">print</span>(' + x + ')'; };
+    var linee = righe.map(function (r) { return COL[r]; }).concat(pr('a'));
+    var t = fmt(a);
+    if (b) {
+      linee.push(pr('b'), pr('a <span class="tok-key">is</span> b'));
+      t += '\n' + fmt(b) + '\n' + (a === b ? 'True' : 'False');
+    }
+    code.innerHTML = linee.join('\n');
+    out.textContent = t;
+    var haB = !!b;
+    bAssign.disabled = haB; bCopy.disabled = haB; bAppend.disabled = !haB;
+  }
+
+  function azzera() {
+    oggetti = [{ v: [1, 2, 3], nomi: ['a'] }];
+    righe = ['a = [1, 2, 3]'];
+    nuovo = null;
+    disegna();
+  }
+
+  bAssign.addEventListener('click', function () {
+    oggetti[0].nomi.push('b'); righe.push('b = a'); nuovo = null; disegna();
+  });
+  bCopy.addEventListener('click', function () {
+    oggetti.push({ v: oggetti[0].v.slice(), nomi: ['b'] }); righe.push('b = a.copy()'); nuovo = null; disegna();
+  });
+  bAppend.addEventListener('click', function () {
+    var b = chi('b');
+    b.v.push(4); righe.push('b.append(4)'); nuovo = b; disegna();
+    bAppend.disabled = true;
+  });
+  bReset.addEventListener('click', azzera);
+  azzera();
+})();
+</script>
+</body>
+</html>

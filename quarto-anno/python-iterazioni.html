@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le iterazioni · TPSsssIT</title>
+<meta name="description" content="Dispensa 3 di Python: il ciclo while, il ciclo for e la funzione range, gli schemi ricorrenti, break e continue, while True, i cicli annidati e gli errori più comuni.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- titoletti prima dei blocchi (Sintassi, Output, Esempio di esecuzione) --- */
+  .prose .run-title { margin-bottom:0; font-size:.82rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .prose .run-title + .code-block { margin-top:.45rem; }
+  .callout .cbody .run-title + .code-block { margin-top:.45rem; }
+
+  /* --- campi e risultati dei playground --- */
+  .pg-row { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem .8rem; font-family:var(--font-mono); }
+  .pg-row label { font-size:.85rem; color:var(--muted); }
+  .pg-row input {
+    width:4.4rem; text-align:center;
+    font-family:var(--font-mono); font-size:1rem; padding:.3rem .45rem; border-radius:var(--r-sm);
+    border:1px solid var(--border); background:var(--bg); color:var(--text);
+  }
+  .pg-row input:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }
+  .pg-res { margin:1rem 0 0; text-align:center; font-family:var(--font-mono); font-size:1rem; color:var(--text-soft); min-height:1.6em; }
+  .pg-res b { color:var(--gold); }
+  .pg-res .err { color:var(--accent); }
+  .pg-presets { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .pg-presets .btn { font-family:var(--font-mono); }
+  @keyframes pgIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+
+  /* --- range: i valori generati --- */
+  .rg-vals { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; margin-top:1.1rem; min-height:2.7rem; }
+  .rg-chip {
+    min-width:2.6rem; padding:.5rem .55rem; border-radius:8px; text-align:center;
+    background:var(--gold); color:var(--gold-ink); font-family:var(--font-mono); font-weight:700;
+    animation:pgIn .3s var(--ease) both;
+  }
+  .rg-none { align-self:center; font-family:var(--font-mono); color:var(--muted); }
+
+  /* --- break e continue: un giro alla volta --- */
+  .bc-cells { display:flex; flex-wrap:wrap; justify-content:center; gap:.45rem; }
+  .bc-cell { display:grid; justify-items:center; gap:.3rem; min-width:3.1rem; }
+  .bc-val {
+    width:2.8rem; height:2.8rem; display:grid; place-items:center; border-radius:8px;
+    border:1.5px solid var(--border); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text);
+    transition:all .25s var(--ease);
+  }
+  .bc-tag { font-size:.68rem; font-weight:700; color:var(--muted); min-height:1em; font-family:var(--font-mono); }
+  .bc-cell.is-cur .bc-val { border-color:var(--gold); box-shadow:0 0 0 4px var(--glow-gold); }
+  .bc-cell.is-print .bc-val { background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
+  .bc-cell.is-skip .bc-val { border-style:dashed; border-color:var(--accent); color:var(--accent); background:none; }
+  .bc-cell.is-skip .bc-tag, .bc-cell.is-stop .bc-tag { color:var(--accent); }
+  .bc-cell.is-stop .bc-val { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .bc-cell.is-never { opacity:.35; }
+  .bc-note { margin:1rem 0 0; text-align:center; font-size:.92rem; color:var(--text-soft); min-height:1.5em; }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Le iterazioni</li>
+    </ul>
+    <h1>Le iterazioni</h1>
+    <p class="lead">Dispensa 3 · I cicli while e for, range, break e continue</p>
+    <div class="stats-row">
+<span class="stat-pill">Dispensa <b>3</b></span>
+<span class="stat-pill">Lettura <b>25</b></span>
+<span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa dispensa</p>
+    </nav>
+
+    <article class="prose">
+
+<h2>1. Dalla scelta alla ripetizione</h2>
+<p>Con le istruzioni condizionali un programma può <strong>scegliere</strong> cosa fare. Spesso però serve anche <strong>ripetere</strong> un blocco di istruzioni: stampare una tabellina, sommare cento numeri, richiedere un dato finché non è valido. Scrivere la stessa istruzione cento volte sarebbe impensabile: per questo esistono le <strong>iterazioni</strong> (o <strong>cicli</strong>), che ripetono un blocco di istruzioni finché serve.</p>
+<p>Python ha due tipi di ciclo:</p>
+<ul>
+<li><strong><code>while</code></strong>: ripete <strong>finché una condizione resta vera</strong>. Si usa quando non si sa in anticipo quante volte servirà (per esempio, finché l'utente non scrive la risposta giusta).</li>
+<li><strong><code>for</code></strong>: ripete <strong>per ogni elemento di una sequenza</strong>, ad esempio per ogni numero di un intervallo o per ogni lettera di una stringa. Si usa quando si sa già quante volte ripetere.</li>
+</ul>
+<h2>2. Il ciclo while</h2>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: la salsa sul fuoco</b>Un cuoco prepara una salsa e segue questa regola: <strong>"finché la salsa non si è addensata, continua a mescolare"</strong>. Prima di ogni giro di cucchiaio controlla la salsa: se è ancora liquida mescola ancora, se è già densa smette. Se la salsa è densa fin dall'inizio, non mescola nemmeno una volta. Il ciclo <code>while</code> funziona così: <strong>controlla la condizione prima di ogni giro</strong>.</p>
+</div>
+<p class="run-title">Sintassi</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">while</span> condizione:
+    istruzioni da ripetere</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>contatore = <span class="tok-num">1</span>
+<span class="tok-key">while</span> contatore &lt;= <span class="tok-num">5</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Giro numero"</span>, contatore)
+    contatore += <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Fine"</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Giro numero 1
+Giro numero 2
+Giro numero 3
+Giro numero 4
+Giro numero 5
+Fine</code></pre></div>
+<ul>
+<li>Come per <code>if</code>, dopo la condizione ci sono i <strong>due punti</strong> e il blocco da ripetere è <strong>indentato</strong> (4 spazi).</li>
+<li>La condizione si controlla <strong>all'inizio di ogni giro</strong>. Se è falsa fin dal primo controllo, il blocco non viene eseguito nemmeno una volta.</li>
+<li>Dentro il blocco deve cambiare qualcosa (qui <code>contatore += 1</code>) che, prima o poi, renda <strong>falsa</strong> la condizione.</li>
+</ul>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">♾️</span>
+<div class="cbody">
+<b>Il ciclo infinito</b>
+<p>Se la condizione non diventa mai falsa, il ciclo non finisce più e il programma si blocca. È l'errore più tipico del <code>while</code>:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>contatore = <span class="tok-num">1</span>
+<span class="tok-key">while</span> contatore &lt;= <span class="tok-num">5</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Giro numero"</span>, contatore)
+    <span class="tok-com"># manca contatore += 1: la condizione resta sempre vera!</span></code></pre></div>
+<p>Per fermare un programma bloccato usa il pulsante <strong>Stop</strong> dell'editor oppure <strong>Ctrl+C</strong> nel terminale.</p>
+</div>
+</div>
+<h3>Ripetere finché l'utente non dice basta</h3>
+<p>Un valore speciale che segnala la fine dell'inserimento si chiama <strong>sentinella</strong>. Qui è lo 0: serve a terminare e non fa parte dei dati. Si legge il primo valore <strong>prima</strong> del ciclo e poi si rilegge <strong>alla fine</strong> di ogni giro.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>somma = <span class="tok-num">0</span>
+n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero (0 per finire): "</span>))
+<span class="tok-key">while</span> n != <span class="tok-num">0</span>:
+    somma += n
+    n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero (0 per finire): "</span>))
+<span class="tok-fn">print</span>(<span class="tok-str">"Somma:"</span>, somma)</code></pre></div>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero (0 per finire): <span class="in">3</span>
+Numero (0 per finire): <span class="in">5</span>
+Numero (0 per finire): <span class="in">4</span>
+Numero (0 per finire): <span class="in">0</span>
+Somma: 12</code></pre></div>
+<h3>Controllare l'input</h3>
+<p>Con <code>while</code> si può <strong>ripetere una domanda</strong> finché la risposta non è valida. La condizione descrive il caso in cui la risposta <strong>non</strong> va bene.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>password = <span class="tok-fn">input</span>(<span class="tok-str">"Password: "</span>)
+<span class="tok-key">while</span> password != <span class="tok-str">"python"</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Password errata"</span>)
+    password = <span class="tok-fn">input</span>(<span class="tok-str">"Password: "</span>)
+<span class="tok-fn">print</span>(<span class="tok-str">"Accesso consentito"</span>)</code></pre></div>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Password: <span class="in">ciao</span>
+Password errata
+Password: <span class="in">java</span>
+Password errata
+Password: <span class="in">python</span>
+Accesso consentito</code></pre></div>
+<h3>Cercare un valore</h3>
+<p>Quando non si sa quanti giri serviranno, il <code>while</code> è la scelta naturale. Qui si cerca il primo multiplo di 7 maggiore di 50:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>n = <span class="tok-num">51</span>
+<span class="tok-key">while</span> n % <span class="tok-num">7</span> != <span class="tok-num">0</span>:
+    n += <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Primo multiplo di 7 dopo 50:"</span>, n)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Primo multiplo di 7 dopo 50: 56</code></pre></div>
+<div class="callout info">
+<span class="ico" aria-hidden="true">🔁</span>
+<p><b>Il do-while non esiste in Python</b>In C e Java esiste il ciclo <code>do { ... } while (condizione);</code> che esegue il blocco <strong>almeno una volta</strong> prima di controllare. In Python non c'è: si ottiene lo stesso effetto con <code>while True:</code> e <code>break</code> (vedi la sezione 5).</p>
+</div>
+<h2>3. Il ciclo for e la funzione range</h2>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: salire una scala</b>Se sai già che una scala ha 5 gradini, non ti chiedi "ho finito?" a ogni passo: <strong>li percorri uno per uno, dal primo all'ultimo</strong>. Il <code>for</code> fa lo stesso: prende <strong>uno alla volta</strong> gli elementi di una sequenza e per ognuno esegue il blocco. <code>range</code> costruisce la sequenza di numeri da percorrere.</p>
+</div>
+<p class="run-title">Sintassi</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> variabile <span class="tok-key">in</span> sequenza:
+    istruzioni da ripetere</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">5</span>):
+    <span class="tok-fn">print</span>(i, end=<span class="tok-str">" "</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>0 1 2 3 4</code></pre></div>
+<p>La funzione <strong><code>range</code></strong> genera una sequenza di numeri interi. Ha tre forme:</p>
+<ul>
+<li><code>range(fine)</code>: da 0 fino a <strong>fine - 1</strong>.</li>
+<li><code>range(inizio, fine)</code>: da <code>inizio</code> fino a <strong>fine - 1</strong>.</li>
+<li><code>range(inizio, fine, passo)</code>: da <code>inizio</code>, aumentando di <code>passo</code> finché si resta <strong>prima</strong> di <code>fine</code>. Con un passo <strong>negativo</strong> si conta all'indietro.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Istruzione</th><th>Valori assunti da i</th><th>Quanti giri</th></tr></thead>
+<tbody>
+<tr><td><code>range(5)</code></td><td><code>0 1 2 3 4</code></td><td>5</td></tr>
+<tr><td><code>range(2, 7)</code></td><td><code>2 3 4 5 6</code></td><td>5</td></tr>
+<tr><td><code>range(0, 10, 3)</code></td><td><code>0 3 6 9</code></td><td>4</td></tr>
+<tr><td><code>range(10, 0, -2)</code></td><td><code>10 8 6 4 2</code></td><td>5</td></tr>
+<tr><td><code>range(5, 5)</code></td><td><code>(nessun valore)</code></td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="demo" id="rgDemo">
+<div class="demo-head">Prova tu: quali valori genera range?</div>
+<div class="demo-stage">
+<div class="code-block" style="margin-top:0"><div class="code-head"><span class="lang">Python</span></div><pre><code id="rgCode"></code></pre></div>
+<div class="rg-vals" id="rgVals"></div>
+<p class="pg-res" id="rgInfo" aria-live="polite"></p>
+<div class="pg-row" style="justify-content:center;margin-top:1rem">
+<label for="rgA">inizio</label><input type="number" id="rgA" value="0" min="-20" max="20">
+<label for="rgB">fine</label><input type="number" id="rgB" value="5" min="-20" max="20">
+<label for="rgC">passo</label><input type="number" id="rgC" value="1" min="-10" max="10">
+</div>
+</div>
+<div class="demo-controls">
+<span class="pg-presets" id="rgPresets">
+<button class="btn btn-ghost btn-sm" type="button" data-r="0,5,1">range(5)</button>
+<button class="btn btn-ghost btn-sm" type="button" data-r="2,7,1">range(2, 7)</button>
+<button class="btn btn-ghost btn-sm" type="button" data-r="0,10,3">range(0, 10, 3)</button>
+<button class="btn btn-ghost btn-sm" type="button" data-r="10,0,-2">range(10, 0, -2)</button>
+<button class="btn btn-ghost btn-sm" type="button" data-r="5,5,1">range(5, 5)</button>
+</span>
+</div>
+</div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<p><b>L'estremo finale è escluso</b><code>range(1, 5)</code> arriva a <strong>4</strong>, non a 5. Per contare <strong>da 1 a N inclusi</strong> si scrive <code>range(1, N + 1)</code>. È la fonte di errori "di uno" più frequente: ricordalo ogni volta che scrivi un <code>range</code>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>C / Java</th><th>Python</th></tr></thead>
+<tbody>
+<tr><td>Contare da 0 a 4</td><td><code>for (int i = 0; i &lt; 5; i++)</code></td><td><code>for i in range(5):</code></td></tr>
+<tr><td>Contare da 1 a N</td><td><code>for (int i = 1; i &lt;= n; i++)</code></td><td><code>for i in range(1, n + 1):</code></td></tr>
+<tr><td>Ciclo con condizione</td><td><code>while (cond) { ... }</code></td><td><code>while cond:</code></td></tr>
+<tr><td>Ciclo eseguito almeno una volta</td><td><code>do { ... } while (cond);</code></td><td><code>while True:</code> + <code>break</code></td></tr>
+<tr><td>Incremento</td><td><code>i++</code></td><td><code>i += 1</code></td></tr>
+<tr><td>Uscire dal ciclo</td><td><code>break</code></td><td><code>break</code></td></tr>
+<tr><td>Passare al giro successivo</td><td><code>continue</code></td><td><code>continue</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3>Il for scorre anche le stringhe</h3>
+<p>Una stringa è una sequenza di caratteri, quindi il <code>for</code> può percorrerla <strong>una lettera alla volta</strong>, senza indici:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>parola = <span class="tok-str">"ciao"</span>
+<span class="tok-key">for</span> lettera <span class="tok-key">in</span> parola:
+    <span class="tok-fn">print</span>(lettera.<span class="tok-fn">upper</span>(), end=<span class="tok-str">"-"</span>)
+<span class="tok-fn">print</span>()</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>C-I-A-O-</code></pre></div>
+<p>Combinato con <code>if</code> e con l'operatore <code>in</code> permette di <strong>contare</strong> le lettere con una certa proprietà:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>frase = <span class="tok-str">"informatica"</span>
+vocali = <span class="tok-num">0</span>
+<span class="tok-key">for</span> lettera <span class="tok-key">in</span> frase:
+    <span class="tok-key">if</span> lettera <span class="tok-key">in</span> <span class="tok-str">"aeiou"</span>:
+        vocali += <span class="tok-num">1</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Vocali:"</span>, vocali)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>Vocali: 5</code></pre></div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<div class="cbody">
+<b>Per chi viene da C: la variabile del for non si controlla</b>
+<p>In Python il <code>for</code> prende i valori <strong>dalla sequenza</strong>, non da un contatore che si aggiorna: cambiare <code>i</code> dentro il ciclo <strong>non</strong> influisce sul giro successivo.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">3</span>):
+    i += <span class="tok-num">10</span>
+    <span class="tok-fn">print</span>(i)</code></pre></div>
+<p class="run-title">Output (il ciclo gira comunque 3 volte)</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>10
+11
+12</code></pre></div>
+</div>
+</div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<div class="cbody">
+<b>La variabile del ciclo esiste anche dopo</b>
+<p>A differenza del C, la variabile del ciclo <strong>esiste ancora dopo il ciclo</strong> e conserva l'ultimo valore assunto:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">3</span>):
+    <span class="tok-key">pass</span>
+<span class="tok-fn">print</span>(i)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>2</code></pre></div>
+</div>
+</div>
+<h2>4. Schemi ricorrenti</h2>
+<p>La maggior parte dei programmi con i cicli riusa pochi schemi. Riconoscerli ti farà risparmiare molto tempo.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">📌</span>
+<p><b>Due analogie per ricordarli</b>Il <strong>contatore</strong> è come il <strong>tornello</strong> di un museo: a ogni persona che passa, il numero sale di 1. L'<strong>accumulatore</strong> è come un <strong>salvadanaio</strong>: a ogni giro ci metti dentro qualcosa e, alla fine, guardi quanto contiene. Entrambi si <strong>azzerano una volta sola, prima di iniziare</strong>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Schema</th><th>A che cosa serve</th><th>Come si scrive</th></tr></thead>
+<tbody>
+<tr><td><strong>Contatore</strong></td><td>Contare quante volte accade qualcosa</td><td><code>conta = 0</code> prima del ciclo; <code>conta += 1</code> nel ciclo</td></tr>
+<tr><td><strong>Accumulatore</strong></td><td>Sommare (o moltiplicare) valori</td><td><code>somma = 0</code> prima del ciclo; <code>somma += valore</code> nel ciclo</td></tr>
+<tr><td><strong>Massimo / minimo</strong></td><td>Trovare il valore più grande o più piccolo</td><td>Si parte dal <strong>primo valore letto</strong>, non da 0; poi <code>if n &gt; maggiore: maggiore = n</code></td></tr>
+<tr><td><strong>Sentinella</strong></td><td>Terminare un inserimento di lunghezza ignota</td><td>Valore speciale che ferma il <code>while</code></td></tr>
+<tr><td><strong>Validazione</strong></td><td>Pretendere un dato corretto</td><td><code>while</code> che ripete la domanda finché non è valido</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ecco l'accumulatore in azione. Ad ogni giro stampiamo i valori per <strong>seguire come cambiano</strong> le variabili (una "traccia" del programma):</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>totale = <span class="tok-num">0</span>
+<span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">5</span>):
+    totale += i
+    <span class="tok-fn">print</span>(<span class="tok-str">"i ="</span>, i, <span class="tok-str">" totale ="</span>, totale)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>i = 1  totale = 1
+i = 2  totale = 3
+i = 3  totale = 6
+i = 4  totale = 10</code></pre></div>
+<div class="callout warn">
+<span class="ico" aria-hidden="true">⚠️</span>
+<p><b>Partire da 0 non va sempre bene</b>Per cercare il <strong>massimo</strong> non si inizializza la variabile a 0: se tutti i numeri sono negativi, il risultato sarebbe sbagliato (0 non fa parte dei dati). Si parte dal primo valore letto.</p>
+</div>
+<h2>5. break e continue</h2>
+<ul>
+<li><strong><code>break</code></strong> <strong>interrompe subito il ciclo</strong> e prosegue con l'istruzione che lo segue.</li>
+<li><strong><code>continue</code></strong> <strong>salta il resto del giro</strong> corrente e passa al giro successivo (ricontrollando la condizione, nel <code>while</code>).</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">11</span>):
+    <span class="tok-key">if</span> i == <span class="tok-num">4</span>:
+        <span class="tok-key">continue</span>
+    <span class="tok-key">if</span> i == <span class="tok-num">8</span>:
+        <span class="tok-key">break</span>
+    <span class="tok-fn">print</span>(i, end=<span class="tok-str">" "</span>)</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>1 2 3 5 6 7</code></pre></div>
+<p>Il giro con <code>i == 4</code> viene saltato; con <code>i == 8</code> il ciclo termina e il 9 e il 10 non vengono mai raggiunti.</p>
+<div class="demo" id="bcDemo">
+<div class="demo-head">break e continue, un giro alla volta</div>
+<div class="demo-stage">
+<div class="bc-cells" id="bcCells"></div>
+<p class="bc-note" id="bcNote" aria-live="polite"></p>
+<div class="code-block run" style="max-width:420px;margin:1rem auto 0"><div class="code-head"><span class="lang">python</span></div><pre><code id="bcOut"></code></pre></div>
+</div>
+<div class="demo-controls">
+<button class="btn btn-ghost btn-sm" id="bcPlay" type="button">▶ Avvia</button>
+<button class="btn btn-ghost btn-sm" id="bcStep" type="button">⏭ Giro successivo</button>
+<button class="btn btn-ghost btn-sm" id="bcReset" type="button">↺ Azzera</button>
+<span class="spacer"></span>
+<span class="demo-note" id="bcI">pronto</span>
+</div>
+</div>
+<h3>while True con break</h3>
+<p>Questo schema serve quando <strong>devi fare qualcosa prima di poter decidere se continuare</strong>. Esempio: per sapere se un numero va bene devi prima <strong>leggerlo</strong>. Con un <code>while</code> normale sei costretto a scrivere la lettura <strong>due volte</strong>, una prima del ciclo e una alla fine di ogni giro:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero positivo: "</span>))
+<span class="tok-key">while</span> n &lt;= <span class="tok-num">0</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Non è positivo, riprova"</span>)
+    n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero positivo: "</span>))
+<span class="tok-fn">print</span>(<span class="tok-str">"Hai scelto"</span>, n)</code></pre></div>
+<p>La riga con <code>input</code> compare due volte: basta dimenticarne una o modificarne una sola per introdurre un errore. Con <code>while True</code> la lettura si scrive <strong>una volta sola</strong> e si decide di uscire <strong>dall'interno</strong> del ciclo, quando il dato è già in mano.</p>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<p><b>Un'analogia: la giostra con il pulsante di stop</b><code>while True</code> significa <strong>"gira sempre"</strong>: è una giostra che, da sola, non si fermerebbe mai. Il <code>break</code> è il <strong>pulsante di stop</strong> che il controllore preme <strong>da dentro</strong>, nel momento in cui vede che è giusto fermarsi (di solito dentro un <code>if</code>). Una giostra senza pulsante gira all'infinito: un <code>while True</code> senza <code>break</code> è un ciclo infinito.</p>
+</div>
+<p>Ecco lo stesso programma con ogni riga numerata e commentata. Segui i numeri:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">while</span> <span class="tok-key">True</span>:                              <span class="tok-com"># 1. sempre vera: il ciclo parte</span>
+    n = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero positivo: "</span>))  <span class="tok-com"># 2. leggo il numero</span>
+    <span class="tok-key">if</span> n &gt; <span class="tok-num">0</span>:                            <span class="tok-com"># 3. va bene?</span>
+        <span class="tok-key">break</span>                            <span class="tok-com"># 4. sì: esco dal ciclo</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">"Non è positivo, riprova"</span>)     <span class="tok-com"># 5. no: avviso e si torna in cima</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Hai scelto"</span>, n)                   <span class="tok-com"># 6. qui si arriva dopo il break</span></code></pre></div>
+<p>Che cosa succede se l'utente scrive <strong>-4</strong>, poi <strong>0</strong>, poi <strong>6</strong>:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Giro</th><th>Numero letto</th><th>n &gt; 0 ?</th><th>Che cosa succede</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>-4</code></td><td>No</td><td>Il <code>break</code> <strong>non</strong> viene eseguito: si stampa "Non è positivo, riprova" (riga 5) e si <strong>torna in cima</strong> al ciclo</td></tr>
+<tr><td>2</td><td><code>0</code></td><td>No</td><td>Come nel giro 1</td></tr>
+<tr><td>3</td><td><code>6</code></td><td>Sì</td><td><strong><code>break</code></strong>: si <strong>esce subito</strong> dal ciclo. La riga 5 non viene eseguita e si prosegue con la riga 6: "Hai scelto 6"</td></tr>
+</tbody>
+</table>
+</div>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero positivo: <span class="in">-4</span>
+Non è positivo, riprova
+Numero positivo: <span class="in">0</span>
+Non è positivo, riprova
+Numero positivo: <span class="in">6</span>
+Hai scelto 6</code></pre></div>
+<div class="callout info">
+<span class="ico" aria-hidden="true">📌</span>
+<div class="cbody">
+<b>Da ricordare</b>
+<p><strong>1.</strong> <code>while True:</code> ha una condizione <strong>sempre vera</strong>: il ciclo, da solo, non finisce mai.</p>
+<p><strong>2.</strong> L'uscita è il <code>break</code>, di solito dentro un <code>if</code>. Quando viene eseguito, Python <strong>salta subito alla prima riga dopo il ciclo</strong>: le righe che restavano nel giro vengono ignorate. Per questo non serve un <code>else</code> (la riga 5 viene raggiunta soltanto se il <code>break</code> non è scattato).</p>
+<p><strong>3.</strong> Controlla sempre che il <code>break</code> sia <strong>raggiungibile</strong>: se la condizione dell'<code>if</code> non diventa mai vera, il ciclo è infinito.</p>
+</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>while con condizione</th><th>while True + break</th></tr></thead>
+<tbody>
+<tr><td>Dove si decide di fermarsi</td><td>In cima al ciclo, nella condizione</td><td>Dentro il ciclo, con <code>if</code> + <code>break</code></td></tr>
+<tr><td>Istruzioni da ripetere</td><td>La lettura va scritta due volte</td><td>La lettura è scritta una volta sola</td></tr>
+<tr><td>Quando conviene</td><td>La condizione è semplice e si conosce già all'inizio</td><td>Il dato serve <strong>prima</strong> di poter decidere (es. input da controllare)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Le due versioni sono <strong>equivalenti</strong>: scegli quella che rende il programma più leggibile.</p>
+<h2>6. Cicli annidati</h2>
+<p>Un ciclo può contenere un altro ciclo. Per <strong>ogni giro del ciclo esterno</strong> il ciclo interno viene eseguito <strong>per intero</strong>. Il numero totale di giri è il prodotto dei due: qui 3 righe × 4 colonne = 12 stampe.</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> riga <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">4</span>):
+    <span class="tok-key">for</span> colonna <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">5</span>):
+        <span class="tok-fn">print</span>(riga * colonna, end=<span class="tok-str">" "</span>)
+    <span class="tok-fn">print</span>()</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>1 2 3 4
+2 4 6 8
+3 6 9 12</code></pre></div>
+<p>Il <code>print()</code> vuoto, nel ciclo esterno, serve ad <strong>andare a capo</strong> alla fine di ogni riga. Con questo schema si disegnano figure con i caratteri:</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code><span class="tok-key">for</span> riga <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">3</span>):
+    <span class="tok-key">for</span> colonna <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">5</span>):
+        <span class="tok-fn">print</span>(<span class="tok-str">"*"</span>, end=<span class="tok-str">""</span>)
+    <span class="tok-fn">print</span>()</code></pre></div>
+<p class="run-title">Output</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span></div><pre><code>*****
+*****
+*****</code></pre></div>
+<p>Se la lunghezza della riga dipende dal valore del ciclo esterno (come nel triangolo di asterischi), il ciclo interno usa quel valore nel suo <code>range</code>.</p>
+<h2>7. while o for?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situazione</th><th>Ciclo consigliato</th></tr></thead>
+<tbody>
+<tr><td>So già quante volte ripetere (tabellina, N numeri)</td><td><code>for</code> con <code>range</code></td></tr>
+<tr><td>Devo scorrere una stringa lettera per lettera</td><td><code>for</code></td></tr>
+<tr><td>Ripeto finché l'utente non scrive un valore particolare</td><td><code>while</code></td></tr>
+<tr><td>Ripeto finché un dato non è valido</td><td><code>while</code></td></tr>
+<tr><td>Cerco qualcosa e non so dopo quanti tentativi lo trovo</td><td><code>while</code> (oppure <code>for</code> con <code>break</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ogni <code>for</code> può essere riscritto con un <code>while</code> (con un contatore da inizializzare e aggiornare), ma non il contrario: il <code>for</code> è più sicuro perché <strong>non può dimenticare l'aggiornamento</strong>.</p>
+<h2>8. Gli errori più comuni</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Errore</th><th>Che cosa succede</th><th>Come si evita</th></tr></thead>
+<tbody>
+<tr><td>Ciclo infinito</td><td>Il programma non termina</td><td>Dentro il <code>while</code> deve cambiare qualcosa che renda falsa la condizione</td></tr>
+<tr><td>"Uno di meno"</td><td><code>range(1, 10)</code> si ferma a 9</td><td>L'estremo finale è escluso: <code>range(1, 11)</code></td></tr>
+<tr><td>Accumulatore azzerato nel ciclo</td><td>Il risultato è solo l'ultimo valore</td><td>Inizializza <strong>prima</strong> del ciclo</td></tr>
+<tr><td>Contare all'indietro con <code>range(5, 0)</code></td><td>Il ciclo non gira mai</td><td>Passo negativo: <code>range(5, 0, -1)</code></td></tr>
+<tr><td>Due punti dimenticati</td><td><code>SyntaxError</code></td><td><code>for ...:</code> e <code>while ...:</code> terminano con <code>:</code></td></tr>
+<tr><td>Rientro sbagliato</td><td>Un'istruzione è dentro (o fuori) dal ciclo per errore</td><td>Controlla l'indentazione: dentro il ciclo = rientrata</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout ok">
+<span class="ico" aria-hidden="true">🧪</span>
+<p><b>Come si collauda un ciclo</b>Prova sempre tre casi: <strong>zero giri</strong> (il ciclo non parte), <strong>un solo giro</strong> e <strong>molti giri</strong>. Se il programma gestisce bene tutti e tre, quasi sicuramente funziona.</p>
+</div>
+<h2>9. Riepilogo</h2>
+<ul>
+<li><strong><code>while condizione:</code></strong> ripete finché la condizione è vera e la controlla <strong>prima</strong> di ogni giro; il blocco deve far cambiare la condizione, altrimenti il ciclo è infinito.</li>
+<li><strong><code>for variabile in sequenza:</code></strong> ripete per ogni elemento; <strong><code>range(inizio, fine, passo)</code></strong> genera numeri con l'estremo finale <strong>escluso</strong>.</li>
+<li>Schemi ricorrenti: <strong>contatore</strong>, <strong>accumulatore</strong> (si azzerano <strong>prima</strong> del ciclo), <strong>massimo</strong>, <strong>sentinella</strong>, <strong>validazione</strong>.</li>
+<li><strong><code>break</code></strong> esce dal ciclo; <strong><code>continue</code></strong> salta al giro successivo; <strong><code>while True</code></strong> + <code>break</code> sostituisce il <code>do-while</code>.</li>
+<li>Nei <strong>cicli annidati</strong> il ciclo interno viene eseguito per intero a ogni giro del ciclo esterno.</li>
+<li>Collauda sempre con zero giri, un giro e molti giri.</li>
+</ul>
+
+<nav class="doc-nav" aria-label="Navigazione tra le dispense">
+<a href="python-esercizi-2.html">
+<span class="dir">Indietro</span>
+<span class="ttl">Esercitazione: scheda di esercizi 2</span>
+</a>
+<a class="next" href="python-esercizi-3.html">
+<span class="dir">Avanti</span>
+<span class="ttl">Esercitazione: scheda di esercizi 3 →</span>
+</a>
+</nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+<script>
+/* range: i valori generati, con gli stessi esempi della tabella */
+(function () {
+  var A = document.getElementById('rgA'), B = document.getElementById('rgB'), C = document.getElementById('rgC');
+  if (!A) return;
+  var code = document.getElementById('rgCode');
+  var vals = document.getElementById('rgVals');
+  var info = document.getElementById('rgInfo');
+  var MAX = 40;
+
+  function num(x) { return '<span class="tok-num">' + x + '</span>'; }
+
+  function update() {
+    var a = parseInt(A.value, 10), b = parseInt(B.value, 10), c = parseInt(C.value, 10);
+    if (isNaN(a)) a = 0;
+    if (isNaN(b)) b = 0;
+    if (isNaN(c)) c = 1;
+    var args = (c === 1 && a === 0) ? num(b) : (c === 1 ? num(a) + ', ' + num(b) : num(a) + ', ' + num(b) + ', ' + num(c));
+    code.innerHTML = '<span class="tok-key">for</span> i <span class="tok-key">in</span> <span class="tok-fn">range</span>(' + args + '):\n' +
+      '    <span class="tok-fn">print</span>(i, end=<span class="tok-str">" "</span>)';
+    vals.innerHTML = '';
+    if (c === 0) {
+      info.innerHTML = '<span class="err">ValueError: range() arg 3 must not be zero</span>';
+      return;
+    }
+    var out = [];
+    for (var i = a; c > 0 ? i < b : i > b; i += c) {
+      out.push(i);
+      if (out.length > MAX) break;
+    }
+    if (!out.length) {
+      vals.innerHTML = '<span class="rg-none">(nessun valore)</span>';
+      info.innerHTML = '<b>0</b> giri: il ciclo non parte';
+      return;
+    }
+    out.slice(0, MAX).forEach(function (v, k) {
+      var s = document.createElement('span');
+      s.className = 'rg-chip';
+      s.style.animationDelay = (k * 0.03) + 's';
+      s.textContent = v;
+      vals.appendChild(s);
+    });
+    info.innerHTML = out.length > MAX
+      ? 'più di <b>' + MAX + '</b> giri (qui ne mostriamo ' + MAX + ')'
+      : '<b>' + out.length + '</b> ' + (out.length === 1 ? 'giro' : 'giri') + ' · il valore finale ' + b + ' è escluso';
+  }
+
+  [A, B, C].forEach(function (el) { el.addEventListener('input', update); });
+  document.querySelectorAll('#rgPresets [data-r]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var r = btn.getAttribute('data-r').split(',');
+      A.value = r[0]; B.value = r[1]; C.value = r[2];
+      update();
+    });
+  });
+  update();
+})();
+
+/* break e continue: lo stesso programma della dispensa, un giro alla volta */
+(function () {
+  var cells = document.getElementById('bcCells');
+  if (!cells) return;
+  var note = document.getElementById('bcNote');
+  var out = document.getElementById('bcOut');
+  var play = document.getElementById('bcPlay');
+  var step = document.getElementById('bcStep');
+  var reset = document.getElementById('bcReset');
+  var lab = document.getElementById('bcI');
+  var riduci = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var el = [];
+  for (var i = 1; i <= 10; i++) {
+    var c = document.createElement('div');
+    c.className = 'bc-cell';
+    c.innerHTML = '<span class="bc-val">' + i + '</span><span class="bc-tag"></span>';
+    cells.appendChild(c);
+    el.push(c);
+  }
+
+  var giro = 0, finito = false, stampati = [], timer = null;
+
+  function tag(k, t) { el[k].querySelector('.bc-tag').textContent = t; }
+
+  function avanti() {
+    if (finito) return;
+    el.forEach(function (c) { c.classList.remove('is-cur'); });
+    giro++;
+    var k = giro - 1;
+    el[k].classList.add('is-cur');
+    lab.textContent = 'i = ' + giro;
+    if (giro === 4) {
+      el[k].classList.add('is-skip'); tag(k, 'continue');
+      note.textContent = 'i == 4: continue salta il print e si passa al giro successivo.';
+    } else if (giro === 8) {
+      el[k].classList.add('is-stop'); tag(k, 'break');
+      for (var j = k + 1; j < 10; j++) { el[j].classList.add('is-never'); tag(j, 'mai'); }
+      note.textContent = 'i == 8: break interrompe il ciclo. Il 9 e il 10 non vengono mai raggiunti.';
+      finito = true;
+    } else {
+      el[k].classList.add('is-print'); tag(k, 'print');
+      stampati.push(giro);
+      note.textContent = 'i = ' + giro + ': nessun if è vero, quindi si stampa ' + giro + '.';
+    }
+    out.textContent = stampati.join(' ');
+    if (finito) ferma();
+  }
+
+  function ferma() {
+    if (timer) clearInterval(timer);
+    timer = null;
+    play.textContent = finito ? '▶ Riavvia' : '▶ Avvia';
+    step.disabled = finito;
+  }
+
+  function azzera() {
+    ferma();
+    giro = 0; finito = false; stampati = [];
+    el.forEach(function (c, k) { c.className = 'bc-cell'; tag(k, ''); });
+    out.textContent = '';
+    note.textContent = 'Premi «Giro successivo» per eseguire il ciclo un giro alla volta.';
+    lab.textContent = 'pronto';
+    play.textContent = '▶ Avvia';
+    step.disabled = false;
+  }
+
+  play.addEventListener('click', function () {
+    if (timer) { ferma(); return; }
+    if (finito) azzera();
+    if (riduci) { while (!finito) avanti(); return; }
+    play.textContent = '⏸ Pausa';
+    avanti();
+    timer = setInterval(avanti, 900);
+  });
+  step.addEventListener('click', function () { if (timer) ferma(); avanti(); });
+  reset.addEventListener('click', azzera);
+  azzera();
+})();
+</script>
+</body>
+</html>

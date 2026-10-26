@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scheda di esercizi 4 · TPSsssIT</title>
+<meta name="description" content="Esercitazione di Python: 10 esercizi sulle liste, con indici e fette, metodi, split, liste di liste e ricerca degli errori.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- livello di difficoltà accanto al titolo dell'esercizio --- */
+  .ex-lvl { font-size:.85rem; font-weight:400; letter-spacing:.12em; color:var(--gold); }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Scheda di esercizi 4</li>
+    </ul>
+    <h1>Scheda di esercizi 4</h1>
+    <p class="lead">Python · Le liste</p>
+    <div class="stats-row">
+<span class="stat-pill">Esercitazione della dispensa <b>4</b></span>
+<span class="stat-pill">Esercizi <b>10</b></span>
+<span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa scheda</p>
+    </nav>
+
+    <article class="prose">
+
+<div class="sheet-head">
+<span>Nome e cognome</span><span>Classe</span><span>Data</span>
+</div>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<div class="cbody">
+<b>Prima di iniziare</b>
+<p>Salva ogni programma in un file (<code>es04.py</code>, <code>es05.py</code> ...) e provalo anche con <strong>valori diversi da quelli dell'esempio</strong>. Negli esempi di esecuzione il testo che segue i due punti è quello scritto dall'utente.</p>
+<p>Difficoltà: ★☆☆ base · ★★☆ intermedio · ★★★ sfida.  <strong>Percorso minimo: esercizi 1-4 e 8.</strong></p>
+</div>
+</div>
+<h2>Parte A · Prevedi l'output</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 1</span><span class="ex-sep"> · </span>Che cosa stampa?</h3>
+<p>Senza eseguire il codice, scrivi cosa stampa ciascun frammento. Poi verifica con Python.</p>
+<div class="table-wrap">
+<table class="predict">
+<thead><tr><th></th><th>Codice</th><th>Output previsto</th></tr></thead>
+<tbody>
+<tr><td>a</td><td><pre>voti = [6, 8, 7, 9]
+print(voti[0], voti[-1], len(voti))</pre></td><td></td></tr>
+<tr><td>b</td><td><pre>l = [10, 20, 30, 40, 50]
+print(l[1:4])
+print(l[:2])
+print(l[::2])</pre></td><td></td></tr>
+<tr><td>c</td><td><pre>l = [3, 1, 2]
+l.append(5)
+l.insert(0, 9)
+print(l)</pre></td><td></td></tr>
+<tr><td>d</td><td><pre>l = [1, 2, 3, 4]
+l[1] = 20
+l.remove(3)
+print(l)</pre></td><td></td></tr>
+<tr><td>e</td><td><pre>a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)</pre></td><td></td></tr>
+<tr><td>f</td><td><pre>a = [1, 2, 3]
+b = a.copy()
+b.append(4)
+print(a, b)</pre></td><td></td></tr>
+<tr><td>g</td><td><pre>parole = "la vita è bella".split()
+print(len(parole), parole[2])</pre></td><td></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<h2>Parte B · Programmi</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 2</span><span class="ex-sep"> · </span>Lista dei voti <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p>Leggi <strong>5 voti</strong> (anche con decimali) con un ciclo e salvali in una lista. Poi stampa la lista, la <strong>media</strong> con due decimali, il voto <strong>massimo</strong> e il voto <strong>minimo</strong> (puoi usare <code>sum</code>, <code>len</code>, <code>max</code> e <code>min</code>).</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Voto 1: <span class="in">6</span>
+Voto 2: <span class="in">7.5</span>
+Voto 3: <span class="in">8</span>
+Voto 4: <span class="in">5</span>
+Voto 5: <span class="in">9</span>
+Voti: [6.0, 7.5, 8.0, 5.0, 9.0]
+Media: 7.10
+Massimo: 9.0
+Minimo: 5.0</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 3</span><span class="ex-sep"> · </span>Lista della spesa <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Leggi i prodotti da acquistare, uno per riga, finché l'utente non scrive <strong>fine</strong>. Poi stampa l'elenco numerato (<code>1. pane</code>, <code>2. latte</code> ...) e il numero di prodotti. Se la lista è vuota stampa <strong>Lista vuota</strong>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Prodotto (fine per terminare): <span class="in">pane</span>
+Prodotto (fine per terminare): <span class="in">latte</span>
+Prodotto (fine per terminare): <span class="in">uova</span>
+Prodotto (fine per terminare): <span class="in">fine</span>
+Lista della spesa:
+1. pane
+2. latte
+3. uova
+Prodotti: 3</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 4</span><span class="ex-sep"> · </span>Solo i numeri pari <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Chiedi <strong>quanti numeri</strong> vuoi inserire, poi leggili e salvali in una lista. Costruisci una <strong>seconda lista</strong> con i soli numeri pari e stampa entrambe le liste e quanti sono i pari.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Quanti numeri? <span class="in">5</span>
+Numero 1: <span class="in">4</span>
+Numero 2: <span class="in">7</span>
+Numero 3: <span class="in">10</span>
+Numero 4: <span class="in">3</span>
+Numero 5: <span class="in">8</span>
+Numeri: [4, 7, 10, 3, 8]
+Pari: [4, 10, 8]
+Quanti pari: 3</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 5</span><span class="ex-sep"> · </span>Analisi di una frase <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Leggi una frase. Stampa quante <strong>parole</strong> contiene, la <strong>parola più lunga</strong> (la prima, se ce ne sono più di una) e la frase con le parole in <strong>ordine inverso</strong>. Suggerimento: <code>split()</code>, <code>len</code> e <code>" ".join(...)</code>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Frase: <span class="in">il gatto dorme sul divano</span>
+Parole: 5
+Parola più lunga: divano
+Al contrario: divano sul dorme gatto il</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 6</span><span class="ex-sep"> · </span>Numeri senza ripetizioni <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Leggi numeri interi finché l'utente non scrive <strong>0</strong>. Salvali in una lista. Poi stampa la lista di tutti i numeri inseriti e una seconda lista con gli stessi numeri <strong>senza ripetizioni</strong>, nell'ordine in cui sono comparsi per la prima volta. Suggerimento: l'operatore <code>in</code> funziona anche con le liste.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero (0 per terminare): <span class="in">3</span>
+Numero (0 per terminare): <span class="in">5</span>
+Numero (0 per terminare): <span class="in">3</span>
+Numero (0 per terminare): <span class="in">8</span>
+Numero (0 per terminare): <span class="in">5</span>
+Numero (0 per terminare): <span class="in">3</span>
+Numero (0 per terminare): <span class="in">0</span>
+Inseriti: [3, 5, 3, 8, 5, 3]
+Senza duplicati: [3, 5, 8]</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 7</span><span class="ex-sep"> · </span>Rotazione a destra <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Leggi <strong>5 numeri</strong> in una lista. Stampa la lista, poi spostane l'<strong>ultimo elemento in prima posizione</strong> (gli altri scorrono di un posto verso destra) e stampa di nuovo la lista. Usa i metodi <code>pop</code> e <code>insert</code>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero 1: <span class="in">1</span>
+Numero 2: <span class="in">2</span>
+Numero 3: <span class="in">3</span>
+Numero 4: <span class="in">4</span>
+Numero 5: <span class="in">5</span>
+Prima: [1, 2, 3, 4, 5]
+Dopo: [5, 1, 2, 3, 4]</code></pre></div>
+</section>
+<h2>Parte C · Trova l'errore</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 8</span><span class="ex-sep"> · </span>Correggi i programmi <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Esegui ciascun programma. Scrivi <strong>(1)</strong> che cosa succede (messaggio di errore <strong>oppure</strong> risultato sbagliato) e <strong>(2)</strong> la correzione. Attenzione: tre programmi non danno nessun errore, ma stampano un risultato sbagliato.</p>
+<p class="prog-label">Programma a</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>colori = [<span class="tok-str">"rosso"</span>, <span class="tok-str">"verde"</span>, <span class="tok-str">"blu"</span>]
+<span class="tok-fn">print</span>(colori[<span class="tok-num">3</span>])</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma b (vuole [3, 1, 2, 5])</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>numeri = [<span class="tok-num">3</span>, <span class="tok-num">1</span>, <span class="tok-num">2</span>]
+numeri = numeri.<span class="tok-fn">append</span>(<span class="tok-num">5</span>)
+<span class="tok-fn">print</span>(numeri)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma c (a non doveva cambiare)</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+b = a
+b[<span class="tok-num">0</span>] = <span class="tok-num">99</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"a ="</span>, a)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma d (vuole la lista ordinata)</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>voti = [<span class="tok-num">7</span>, <span class="tok-num">5</span>, <span class="tok-num">9</span>]
+ordinati = voti.<span class="tok-fn">sort</span>()
+<span class="tok-fn">print</span>(ordinati)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma e</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>spesa = [<span class="tok-str">"pane"</span>, <span class="tok-str">"latte"</span>]
+spesa.<span class="tok-fn">remove</span>(<span class="tok-str">"uova"</span>)
+<span class="tok-fn">print</span>(spesa)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+</section>
+<h2>Parte D · Sfide</h2>
+<section class="ex is-sfida">
+<h3><span class="ex-n">Esercizio 9</span><span class="ex-sep"> · </span>Tabella delle moltiplicazioni <span class="ex-lvl" title="Difficoltà: sfida">★★★</span></h3>
+<p>Leggi un numero intero <code>N</code>. Costruisci una <strong>lista di liste</strong> (matrice) <code>N × N</code> in cui l'elemento nella riga <code>r</code> e colonna <code>c</code> vale <code>r * c</code> (con <code>r</code> e <code>c</code> che partono da 1). Stampa la matrice <strong>una riga per riga</strong> e poi la <strong>somma degli elementi della diagonale</strong> (quelli con riga uguale a colonna).</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Dimensione: <span class="in">3</span>
+[1, 2, 3]
+[2, 4, 6]
+[3, 6, 9]
+Somma della diagonale: 14</code></pre></div>
+</section>
+<section class="ex is-sfida">
+<h3><span class="ex-n">Esercizio 10</span><span class="ex-sep"> · </span>Il crivello di Eratostene <span class="ex-lvl" title="Difficoltà: sfida">★★★</span></h3>
+<p>Leggi un numero intero <code>N</code> maggiore o uguale a 2 e stampa la <strong>lista dei numeri primi</strong> da 2 a <code>N</code> con questo metodo: crea una lista di <code>N + 1</code> valori <code>True</code> (uno per ogni numero da 0 a <code>N</code>) e segna <code>False</code> la posizione 0 e la posizione 1. Poi, per ogni numero <code>i</code> ancora segnato <code>True</code>, segna <code>False</code> tutti i suoi multipli <code>i * i</code>, <code>i * i + i</code>, ... fino a <code>N</code>. Alla fine i numeri ancora <code>True</code> sono i primi.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Fino a (almeno 2): <span class="in">30</span>
+Primi: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]</code></pre></div>
+</section>
+
+<nav class="doc-nav" aria-label="Navigazione tra le dispense">
+<a href="python-liste.html">
+<span class="dir">Indietro</span>
+<span class="ttl">Dispensa: Le liste</span>
+</a>
+<a class="next" href="index.html">
+<span class="dir">Avanti</span>
+<span class="ttl">Tutti gli argomenti del quarto anno →</span>
+</a>
+</nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+</body>
+</html>
