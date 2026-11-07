@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esercitazione PHP lato server · TPSsssIT</title>
+<meta name="description" content="Scheda di esercizi su PHP lato server, divisa per parti: HTTP, sintassi, controlli e array, funzioni e include, form, sessioni, database con PDO, login e sicurezza, progetti finali e domande di verifica.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="../quarto-anno/index.html">Quarto anno</a></li>
+      <li><a href="index.html" class="is-active">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quinto anno</a></li>
+      <li aria-current="page">Esercitazione: PHP lato server</li>
+    </ul>
+    <h1>Esercitazione: PHP lato server</h1>
+    <p class="lead">
+      Una parte di esercizi per ogni capitolo della dispensa, dal primo script alla pagina di login.
+      Si parte da esercizi brevi sul linguaggio e si arriva, passo dopo passo, a estendere il
+      progetto «Gestione studenti» e a progettare un'applicazione completa in gruppo.
+    </p>
+    <div class="stats-row">
+      <span class="stat-pill">Esercitazione <b>1.1</b></span>
+      <span class="stat-pill">Esercizi <b>30</b></span>
+      <span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della scheda">
+      <p class="toc-title">In questa scheda</p>
+    </nav>
+
+    <article class="prose">
+
+      <div class="sheet-head">
+        <span>Nome e cognome</span><span>Classe</span><span>Data</span>
+      </div>
+
+      <div class="callout info">
+        <span class="ico" aria-hidden="true">💡</span>
+        <p><b>Come lavorare</b>Crea in <code>htdocs</code> una cartella <code>esercizi-php</code> e salva ogni esercizio in un file a parte (<code>es01.php</code>, <code>es02.php</code>…). Apri sempre le pagine da <code>http://localhost/esercizi-php/...</code>. Negli esempi di risultato, ciò che scrive l'utente (nell'URL o nei campi di un form) è <span style="color:var(--gold);font-weight:700">evidenziato</span>. Le parti G e H usano il database <code>scuola</code> e il progetto «Gestione studenti» della <a href="php-lato-server.html">dispensa</a>.</p>
+      </div>
+
+      <!-- ================================================================== -->
+      <h2>Parte A · Client, server e HTTP</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 1</span><span class="ex-sep"> · </span>Spia le richieste HTTP</h3>
+        <p>Apri il sito della scuola, premi F12, scegli la scheda <em>Rete / Network</em> e ricarica la pagina. Scegli tre richieste diverse (la pagina, un foglio di stile, un'immagine) e completa la tabella.</p>
+        <div class="table-wrap">
+          <table class="predict">
+            <thead><tr><th></th><th>Risorsa richiesta</th><th>Metodo · codice di stato · Content-Type</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><pre> </pre></td><td></td></tr>
+              <tr><td>2</td><td><pre> </pre></td><td></td></tr>
+              <tr><td>3</td><td><pre> </pre></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Poi scrivi nell'indirizzo una pagina che non esiste (per esempio <code>/pagina-inventata</code>): quale codice di stato ricevi?</p>
+        <div class="blank-row"><div class="blank">Codice ricevuto e significato</div></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 2</span><span class="ex-sep"> · </span>Statico o dinamico?</h3>
+        <p>Per ciascuna pagina indica se secondo te è statica o dinamica e <strong>da che cosa dipende</strong> il suo contenuto (chi la chiede, i dati inviati, un database, l'ora…).</p>
+        <div class="table-wrap">
+          <table class="predict">
+            <thead><tr><th></th><th>Pagina</th><th>Statica / dinamica · perché</th></tr></thead>
+            <tbody>
+              <tr><td>a</td><td><pre>Il regolamento d'istituto in HTML</pre></td><td></td></tr>
+              <tr><td>b</td><td><pre>I tuoi voti sul registro elettronico</pre></td><td></td></tr>
+              <tr><td>c</td><td><pre>I risultati di una ricerca su un e-commerce</pre></td><td></td></tr>
+              <tr><td>d</td><td><pre>La pagina «Chi siamo» di un'azienda</pre></td><td></td></tr>
+              <tr><td>e</td><td><pre>Le previsioni del tempo della tua città</pre></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 3</span><span class="ex-sep"> · </span>Un saluto che dipende dall'ora</h3>
+        <p>Scrivi <code>saluto.php</code>: la pagina mostra la data di oggi e un saluto diverso in base all'ora del server (<em>Buongiorno</em> prima delle 13, <em>Buon pomeriggio</em> fino alle 18, <em>Buonasera</em> dopo). Ricorda di impostare il fuso orario. Poi apri «Visualizza sorgente» e controlla che del PHP non ci sia traccia.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · saluto.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>http://localhost/esercizi-php/<span class="in">saluto.php</span>
+
+Buon pomeriggio!
+Oggi è il 07/11/2026 e sono le 15:42.</code></pre></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte B · Le basi del linguaggio</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 4</span><span class="ex-sep"> · </span>Prevedi l'output</h3>
+        <p>Senza eseguire il codice, scrivi che cosa stampa ciascun frammento (per <code>var_dump</code> indica anche il tipo). Poi verifica sul server.</p>
+        <div class="table-wrap">
+          <table class="predict">
+            <thead><tr><th></th><th>Codice</th><th>Output previsto</th></tr></thead>
+            <tbody>
+              <tr><td>a</td><td><pre>$nome = "Sara";
+echo 'Ciao $nome', " e ciao $nome";</pre></td><td></td></tr>
+              <tr><td>b</td><td><pre>$a = 17; $b = 5;
+echo $a / $b, " ", intdiv($a, $b), " ", $a % $b;</pre></td><td></td></tr>
+              <tr><td>c</td><td><pre>var_dump("10" == 10);
+var_dump("10" === 10);</pre></td><td></td></tr>
+              <tr><td>d</td><td><pre>echo "3" + "4", " ", "3" . "4";</pre></td><td></td></tr>
+              <tr><td>e</td><td><pre>echo strlen("città"), " ", mb_strlen("città");</pre></td><td></td></tr>
+              <tr><td>f</td><td><pre>$x = null;
+echo $x ?? "vuoto", " ", (7 &gt;= 6) ? "sì" : "no";</pre></td><td></td></tr>
+              <tr><td>g</td><td><pre>echo 3 &lt;=&gt; 7, " ", 7 &lt;=&gt; 7, " ", 2 ** 10;</pre></td><td></td></tr>
+              <tr><td>h</td><td><pre>echo substr("Informatica", 2, 4), " ", strpos("Informatica", "a");</pre></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 5</span><span class="ex-sep"> · </span>La scheda personale</h3>
+        <p>In <code>scheda.php</code> salva in variabili nome, cognome, anno di nascita e una media (con decimali). Usa una <strong>costante</strong> per l'anno scolastico. Stampa una piccola scheda HTML con l'età calcolata dall'anno corrente (<code>date('Y')</code>) e la media nel formato italiano con <code>number_format</code>. Usa almeno una volta l'interpolazione e almeno una volta la concatenazione.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · scheda.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Anna Rossi — a.s. 2026/2027
+Età: 18 anni
+Media: 7,85</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 6</span><span class="ex-sep"> · </span>Analisi di un testo dall'URL</h3>
+        <p>Scrivi <code>testo.php</code> che legge <code>?t=</code> dalla query string (se manca, usa un testo di default con <code>??</code>) e mostra: il testo ripulito con <code>trim</code>, quanti caratteri contiene (attenzione agli accenti!), il testo in maiuscolo, se contiene la parola <em>php</em> e il testo con ogni spazio sostituito da un trattino. Stampa il testo sempre passandolo da <code>htmlspecialchars</code>.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · testo.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>http://localhost/esercizi-php/testo.php?t=<span class="in">Imparo php in città</span>
+
+Testo: Imparo php in città
+Caratteri: 19
+Maiuscolo: IMPARO PHP IN CITTÀ
+Contiene "php": sì
+Con i trattini: Imparo-php-in-città</code></pre></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte C · Strutture di controllo e array</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 7</span><span class="ex-sep"> · </span>Tabellina</h3>
+        <p>Scrivi <code>tabellina.php</code> che riceve un numero <code>n</code> nell'URL (<code>?n=7</code>) e mostra la tabellina di <code>n</code> in una tabella HTML. Se <code>n</code> manca o non è un intero tra 1 e 20, mostra un messaggio d'errore (suggerimento: <code>filter_var</code> con <code>min_range</code> e <code>max_range</code>).</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · tabellina.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>http://localhost/esercizi-php/tabellina.php?n=<span class="in">7</span>
+
+Tabellina del 7
+7 x 1 = 7
+7 x 2 = 14
+…
+7 x 10 = 70
+<span class="gap"></span>http://localhost/esercizi-php/tabellina.php?n=<span class="in">abc</span>
+
+Errore: n deve essere un intero tra 1 e 20.</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 8</span><span class="ex-sep"> · </span>Pari e dispari</h3>
+        <p>Genera 20 numeri casuali tra 1 e 100 con <code>random_int</code> e mostrali in due elenchi separati, pari e dispari. Indica poi il massimo, il minimo e la media (con due decimali). Ricaricando la pagina i numeri cambiano.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · pari-dispari.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Pari (9): 12, 88, 40, 6, 74, 22, 58, 100, 36
+Dispari (11): 7, 93, 51, 19, 65, 3, 77, 29, 41, 85, 11
+Massimo: 100 · Minimo: 3 · Media: 44,85</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 9</span><span class="ex-sep"> · </span>Calendario del mese</h3>
+        <p>Mostra una tabella con i giorni del mese corrente (<code>date('t')</code> restituisce quanti giorni ha il mese), sette per riga, evidenziando la data di oggi con un colore o il grassetto.</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 10</span><span class="ex-sep"> · </span>Pagella</h3>
+        <p>Partendo da un array associativo <code>materia =&gt; voto</code>, stampa una tabella con il giudizio di ciascun voto (calcolato con <code>match</code>), la media generale e il numero di insufficienze. Usa la sintassi alternativa (<code>foreach … : … endforeach;</code>) per il ciclo dentro l'HTML.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · pagella.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Materia       Voto   Giudizio
+Informatica   9      ottimo
+Sistemi       7      buono
+TPSIT         6      sufficiente
+Matematica    5      insufficiente
+
+Media: 6,75 · Insufficienze: 1</code></pre></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte D · Funzioni e riuso del codice</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 11</span><span class="ex-sep"> · </span>Una libreria di funzioni</h3>
+        <p>Crea <code>libreria.php</code> con queste funzioni, tutte con i tipi dei parametri e del valore restituito:</p>
+        <ul>
+          <li><code>e(?string $t): string</code> — l'escape dell'output visto nella dispensa;</li>
+          <li><code>media(array $voti): float</code> — restituisce 0 se l'array è vuoto;</li>
+          <li><code>giudizio(float $m): string</code> — con <code>match (true)</code>;</li>
+          <li><code>euro(float $x): string</code> — formatta un importo come <code>€ 1.234,50</code>.</li>
+        </ul>
+        <p>In un secondo file <code>prova-libreria.php</code> includila con <code>require_once</code> e prova ogni funzione almeno due volte, stampando i risultati.</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 12</span><span class="ex-sep"> · </span>Mini-sito con template</h3>
+        <p>Crea un mini-sito di tre pagine (Home, Chi siamo, Contatti) con <code>header.php</code> e <code>footer.php</code> comuni. Ogni pagina imposta il proprio <code>$titolo</code>. Il link della pagina corrente nel menu deve essere evidenziato (suggerimento: <code>basename($_SERVER['PHP_SELF'])</code>).</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 13</span><span class="ex-sep"> · </span>Trova l'errore</h3>
+        <p>Ciascun programma contiene un errore. Per ognuno scrivi <strong>(1)</strong> che cosa succede quando lo esegui e <strong>(2)</strong> la versione corretta.</p>
+
+        <p class="prog-label">Programma a</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$iva = <span class="tok-num">0.22</span>;
+<span class="tok-key">function</span> <span class="tok-fn">prezzoFinale</span>(<span class="tok-key">float</span> $prezzo): <span class="tok-key">float</span>
+{
+    <span class="tok-key">return</span> $prezzo * (<span class="tok-num">1</span> + $iva);
+}
+<span class="tok-key">echo</span> <span class="tok-fn">prezzoFinale</span>(<span class="tok-num">100</span>);</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma b</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$voto = <span class="tok-num">4</span>;
+<span class="tok-key">if</span> ($voto = <span class="tok-num">10</span>) {
+    <span class="tok-key">echo</span> <span class="tok-str">"Lode!"</span>;
+}</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma c</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$nome = <span class="tok-str">"Luca"</span>;
+<span class="tok-key">echo</span> <span class="tok-str">"Ciao "</span> + $nome + <span class="tok-str">"!"</span>;</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma d</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$giorno = <span class="tok-str">"lun"</span>;
+<span class="tok-key">switch</span> ($giorno) {
+    <span class="tok-key">case</span> <span class="tok-str">"lun"</span>:
+        <span class="tok-key">echo</span> <span class="tok-str">"Si ricomincia"</span>;
+    <span class="tok-key">case</span> <span class="tok-str">"sab"</span>:
+        <span class="tok-key">echo</span> <span class="tok-str">"Fine settimana"</span>;
+        <span class="tok-key">break</span>;
+}</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte E · Form e dati inviati dall'utente</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 14</span><span class="ex-sep"> · </span>Calcolatrice</h3>
+        <p>Un form con due numeri e un menu a tendina con l'operazione (+ − × ÷). Il risultato compare nella stessa pagina, i campi restano compilati (<em>sticky form</em>) e la divisione per zero viene gestita con un messaggio d'errore.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · calcolatrice.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Primo numero:   <span class="in">12</span>
+Operazione:     <span class="in">÷</span>
+Secondo numero: <span class="in">5</span>
+[ Calcola ]
+
+12 ÷ 5 = 2,4
+<span class="gap"></span>Primo numero:   <span class="in">12</span>
+Operazione:     <span class="in">÷</span>
+Secondo numero: <span class="in">0</span>
+[ Calcola ]
+
+Errore: non si può dividere per zero.</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 15</span><span class="ex-sep"> · </span>Convertitore</h3>
+        <p>Scrivi un convertitore di valuta (o di temperatura, a scelta) con validazione lato server: il valore deve essere numerico, l'unità di partenza deve essere una di quelle ammesse (controllala con <code>array_key_exists</code>). Gli errori compaiono accanto ai campi, come nel modulo di iscrizione della dispensa. Usa <code>novalidate</code> per verificare che i controlli del server funzionino davvero.</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 16</span><span class="ex-sep"> · </span>Elenco e pagina di dettaglio</h3>
+        <p>In <code>libri.php</code> definisci un array di almeno cinque libri (chiave = id, valore = titolo, autore, anno) e mostrane l'elenco come link a <code>libro.php?id=…</code>. La pagina di dettaglio valida l'id con <code>FILTER_VALIDATE_INT</code> e, se il libro non esiste, risponde con il codice <code>404</code>. Verifica il codice di stato con gli strumenti per sviluppatori.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · libro.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>http://localhost/esercizi-php/libro.php?id=<span class="in">2</span>
+
+Il nome della rosa
+Umberto Eco, 1980
+<span class="gap"></span>http://localhost/esercizi-php/libro.php?id=<span class="in">99</span>
+
+404 — Libro non trovato</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 17</span><span class="ex-sep"> · </span>Trova l'errore</h3>
+        <p>Anche qui ogni programma ha un problema (a volte non è un errore che PHP segnala, ma un comportamento sbagliato o pericoloso). Scrivi che cosa succede e come si corregge.</p>
+
+        <p class="prog-label">Programma a</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP · grazie.php</span></div><pre><code><span class="tok-key">&lt;!DOCTYPE</span> html&gt;
+<span class="tok-key">&lt;?php</span>
+<span class="tok-key">if</span> ($_SERVER[<span class="tok-str">'REQUEST_METHOD'</span>] === <span class="tok-str">'POST'</span>) {
+    <span class="tok-fn">header</span>(<span class="tok-str">'Location: fine.php'</span>);
+    <span class="tok-key">exit</span>;
+}</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma b</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+<span class="tok-key">if</span> (!<span class="tok-key">isset</span>($_SESSION[<span class="tok-str">'utente_id'</span>])) {
+    <span class="tok-fn">header</span>(<span class="tok-str">'Location: login.php'</span>);
+}
+<span class="tok-key">echo</span> <span class="tok-str">"Dati riservati: ..."</span>;</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma c</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$commento = $_POST[<span class="tok-str">'commento'</span>] ?? <span class="tok-str">''</span>;
+<span class="tok-key">echo</span> <span class="tok-str">"&lt;p&gt;Hai scritto: $commento&lt;/p&gt;"</span>;</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma d</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP · form.html + ricevi.php</span></div><pre><code><span class="tok-key">&lt;form</span> action=<span class="tok-str">"ricevi.php"</span> method=<span class="tok-str">"post"</span>&gt;
+    <span class="tok-key">&lt;input</span> type=<span class="tok-str">"text"</span> id=<span class="tok-str">"citta"</span>&gt;
+    <span class="tok-key">&lt;button</span>&gt;Invia<span class="tok-key">&lt;/button</span>&gt;
+<span class="tok-key">&lt;/form</span>&gt;
+
+<span class="tok-key">&lt;?php</span>
+<span class="tok-key">echo</span> <span class="tok-str">"Abiti a "</span> . <span class="tok-fn">htmlspecialchars</span>($_POST[<span class="tok-str">'citta'</span>]);</code></pre></div>
+        <div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte F · Cookie e sessioni</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 18</span><span class="ex-sep"> · </span>Indovina il numero</h3>
+        <p>Il server sceglie un numero da 1 a 100 e lo salva in sessione. L'utente prova a indovinarlo; la pagina risponde «troppo alto» o «troppo basso» e conta i tentativi. Un pulsante fa ricominciare con un nuovo numero. Usa il pattern Post/Redirect/Get e i messaggi in sessione.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · indovina.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Il tuo numero: <span class="in">50</span>   [ Prova ]
+Troppo alto! (tentativo 1)
+<span class="gap"></span>Il tuo numero: <span class="in">25</span>   [ Prova ]
+Troppo basso! (tentativo 2)
+<span class="gap"></span>Il tuo numero: <span class="in">37</span>   [ Prova ]
+Hai indovinato in 3 tentativi!   [ Ricomincia ]</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 19</span><span class="ex-sep"> · </span>Quiz a pagine</h3>
+        <p>Cinque domande a risposta multipla, mostrate <strong>una per pagina</strong>. Le risposte vengono salvate in sessione e alla fine si mostra il punteggio, con l'elenco delle risposte sbagliate. Le domande stanno in un array di array associativi (testo, opzioni, indice della risposta giusta).</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 20</span><span class="ex-sep"> · </span>Preferenze in un cookie</h3>
+        <p>Un form permette di scegliere tema chiaro/scuro e dimensione del carattere; la scelta viene salvata in un cookie valido 30 giorni e applicata a tutte le pagine del sito dell'esercizio 12. Controlla che il valore letto dal cookie sia tra quelli ammessi: ricorda che l'utente può modificarlo.</p>
+        <div class="blank-row"><div class="blank">Perché qui va bene un cookie e per il carrello no?</div></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte G · Database con PDO</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 21</span><span class="ex-sep"> · </span>Studenti di una classe</h3>
+        <p>Usando <code>db.php</code>, scrivi <code>classe.php</code>: legge <code>?classe=</code> dall'URL, cerca gli studenti di quella classe con un <strong>prepared statement</strong> e li mostra in una tabella ordinata per cognome, con in cima il loro numero (puoi usare <code>count</code> sul risultato o una seconda query con <code>fetchColumn</code>).</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · classe.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>http://localhost/esercizi-php/classe.php?classe=<span class="in">5A</span>
+
+Classe 5A — 3 studenti
+Bianchi  Luca
+Romano   Sofia
+Rossi    Anna</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 22</span><span class="ex-sep"> · </span>Dettaglio studente</h3>
+        <p>Nel progetto «Gestione studenti», rendi cliccabile il cognome: porta a <code>studente.php?id=…</code>, che mostra i dati dello studente e l'elenco dei suoi voti, con la media per materia (<code>GROUP BY materia</code>). Se l'id non esiste, rispondi con <code>404</code>.</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 23</span><span class="ex-sep"> · </span>Inserimento voti</h3>
+        <p>Aggiungi un form per inserire un voto: lo studente si sceglie da un menu a tendina <strong>popolato dal database</strong>, poi materia, voto e data. Valida tutto sul server (lo studente deve esistere, il voto deve stare tra 1 e 10, la data deve essere valida) e, dopo l'inserimento, reindirizza con un messaggio flash.</p>
+      </section>
+
+      <section class="ex is-sfida">
+        <h3><span class="ex-n">Esercizio 24</span><span class="ex-sep"> · </span>Paginazione</h3>
+        <p>Mostra gli studenti 10 alla volta, con i link «precedente» e «successiva» (nascondili quando non servono). Suggerimento: <code>LIMIT :quanti OFFSET :salta</code>, con <code>$stmt-&gt;bindValue(':quanti', $n, PDO::PARAM_INT)</code>. Inserisci prima una ventina di studenti di prova.</p>
+      </section>
+
+      <section class="ex is-sfida">
+        <h3><span class="ex-n">Esercizio 25</span><span class="ex-sep"> · </span>Filtri combinati</h3>
+        <p>Aggiungi all'elenco un menu per filtrare per classe e una casella «solo con media insufficiente», <strong>combinabili</strong> con la ricerca per testo. Costruisci la clausola <code>WHERE</code> un pezzo alla volta, aggiungendo condizione e valore a due array solo se il filtro è attivo.</p>
+      </section>
+
+      <section class="ex is-sfida">
+        <h3><span class="ex-n">Esercizio 26</span><span class="ex-sep"> · </span>Esportazione CSV</h3>
+        <p>Un link «Scarica CSV» che produce il file dell'elenco studenti (suggerimento: <code>header('Content-Type: text/csv')</code>, <code>header('Content-Disposition: attachment; filename="studenti.csv"')</code> e <code>fputcsv</code> su <code>php://output</code>). Aprilo con un foglio di calcolo e controlla le lettere accentate.</p>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 27</span><span class="ex-sep"> · </span>Trova l'errore (database)</h3>
+        <p>Per ogni frammento scrivi il problema (errore segnalato da PDO, risultato sbagliato o falla di sicurezza) e la correzione.</p>
+
+        <p class="prog-label">Programma a</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$id = $_GET[<span class="tok-str">'id'</span>];
+$stmt = $pdo-&gt;<span class="tok-fn">query</span>(<span class="tok-str">"SELECT * FROM studenti WHERE id = $id"</span>);
+$studente = $stmt-&gt;<span class="tok-fn">fetch</span>();</code></pre></div>
+        <div class="blank-row"><div class="blank">Problema</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma b</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$stmt = $pdo-&gt;<span class="tok-fn">prepare</span>(<span class="tok-str">'UPDATE studenti SET classe = :classe WHERE id = :id'</span>);
+$stmt-&gt;<span class="tok-fn">execute</span>([<span class="tok-str">'classe'</span> =&gt; <span class="tok-str">'5B'</span>]);</code></pre></div>
+        <div class="blank-row"><div class="blank">Problema</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma c</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span> <span class="tok-key">foreach</span> ($studenti <span class="tok-key">as</span> $s): <span class="tok-key">?&gt;</span>
+    <span class="tok-key">&lt;a</span> href="elimina.php?id=<span class="tok-key">&lt;?=</span> $s[<span class="tok-str">'id'</span>] <span class="tok-key">?&gt;</span>"&gt;Elimina <span class="tok-key">&lt;?=</span> <span class="tok-fn">e</span>($s[<span class="tok-str">'cognome'</span>]) <span class="tok-key">?&gt;</span><span class="tok-key">&lt;/a</span>&gt;
+<span class="tok-key">&lt;?php</span> <span class="tok-key">endforeach</span>; <span class="tok-key">?&gt;</span></code></pre></div>
+        <div class="blank-row"><div class="blank">Problema</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma d</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$stmt = $pdo-&gt;<span class="tok-fn">prepare</span>(<span class="tok-str">'UPDATE voti SET voto = :voto'</span>);
+$stmt-&gt;<span class="tok-fn">execute</span>([<span class="tok-str">'voto'</span> =&gt; <span class="tok-num">8</span>]);
+<span class="tok-key">echo</span> <span class="tok-str">"Voto corretto!"</span>;</code></pre></div>
+        <div class="blank-row"><div class="blank">Problema</div><div class="blank">Correzione</div></div>
+
+        <p class="prog-label">Programma e</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP</span></div><pre><code><span class="tok-key">&lt;?php</span>
+$colonna = $_GET[<span class="tok-str">'ordina'</span>] ?? <span class="tok-str">'cognome'</span>;
+$stmt = $pdo-&gt;<span class="tok-fn">prepare</span>(<span class="tok-str">'SELECT * FROM studenti ORDER BY :col'</span>);
+$stmt-&gt;<span class="tok-fn">execute</span>([<span class="tok-str">'col'</span> =&gt; $colonna]);</code></pre></div>
+        <div class="blank-row"><div class="blank">Problema</div><div class="blank">Correzione</div></div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte H · Login e sicurezza</h2>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 28</span><span class="ex-sep"> · </span>Cambio password</h3>
+        <p>Aggiungi all'area riservata la pagina <code>cambia-password.php</code>, accessibile solo dopo il login. Il form chiede password attuale, nuova password e conferma. Lo script verifica la password attuale con <code>password_verify</code>, controlla che la nuova abbia almeno 8 caratteri e coincida con la conferma, poi salva il <strong>nuovo hash</strong> con un <code>UPDATE</code> preparato.</p>
+        <p class="run-title">Esempio di risultato</p>
+<div class="code-block run"><div class="code-head"><span class="lang">browser · cambia-password.php</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Password attuale: <span class="in">••••••••</span>
+Nuova password:   <span class="in">••••••••••</span>
+Conferma:         <span class="in">••••••••••</span>
+[ Salva ]
+
+Password aggiornata.</code></pre></div>
+      </section>
+
+      <section class="ex">
+        <h3><span class="ex-n">Esercizio 29</span><span class="ex-sep"> · </span>Token anti-CSRF nel progetto</h3>
+        <p>Proteggi tutti i form in POST del progetto «Gestione studenti» (inserimento, modifica, eliminazione) con il token anti-CSRF della dispensa. Metti generazione e verifica in <code>funzioni.php</code> (una funzione <code>verificaCsrf()</code>) e il campo nascosto in <code>_form.php</code> e nel pulsante Elimina. Prova poi a inviare un form dopo aver cancellato il campo con gli strumenti per sviluppatori: che cosa succede?</p>
+      </section>
+
+      <section class="ex is-sfida">
+        <h3><span class="ex-n">Esercizio 30</span><span class="ex-sep"> · </span>Revisione di sicurezza</h3>
+        <p>Questo login «funziona», ma contiene almeno <strong>cinque</strong> problemi di sicurezza visti nella dispensa. Trovali tutti, spiega per ognuno il rischio e riscrivi la pagina in modo corretto.</p>
+<div class="code-block"><div class="code-head"><span class="lang">PHP · login-insicuro.php</span></div><pre><code><span class="tok-key">&lt;?php</span>
+<span class="tok-fn">session_start</span>();
+$pdo = <span class="tok-key">new</span> <span class="tok-fn">PDO</span>(<span class="tok-str">'mysql:host=localhost;dbname=scuola'</span>, <span class="tok-str">'root'</span>, <span class="tok-str">''</span>);
+
+$u = $_POST[<span class="tok-str">'username'</span>];
+$p = <span class="tok-fn">md5</span>($_POST[<span class="tok-str">'password'</span>]);
+
+$sql = <span class="tok-str">"SELECT * FROM utenti WHERE username = '$u' AND password_hash = '$p'"</span>;
+$utente = $pdo-&gt;<span class="tok-fn">query</span>($sql)-&gt;<span class="tok-fn">fetch</span>();
+
+<span class="tok-key">if</span> (!$utente) {
+    <span class="tok-key">echo</span> <span class="tok-str">"L'utente $u non esiste oppure la password è sbagliata"</span>;
+} <span class="tok-key">else</span> {
+    $_SESSION[<span class="tok-str">'utente_id'</span>] = $utente[<span class="tok-str">'id'</span>];
+    <span class="tok-fn">setcookie</span>(<span class="tok-str">'ruolo'</span>, $utente[<span class="tok-str">'ruolo'</span>]);
+    <span class="tok-fn">header</span>(<span class="tok-str">'Location: area-riservata.php'</span>);
+}</code></pre></div>
+        <div class="blank-row">
+          <div class="blank">Problema 1</div><div class="blank">Problema 2</div><div class="blank">Problema 3</div>
+          <div class="blank">Problema 4</div><div class="blank">Problema 5</div>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <h2>Parte I · Progetti finali (lavoro di gruppo)</h2>
+      <p>Ogni progetto deve avere:</p>
+      <ul>
+        <li>almeno <strong>due tabelle collegate</strong>;</li>
+        <li><strong>CRUD completo</strong> su almeno una tabella;</li>
+        <li><strong>login</strong> con password salvate con <code>password_hash</code> e almeno <strong>due ruoli</strong>;</li>
+        <li><strong>prepared statement</strong> ovunque ed <strong>escape</strong> di tutto l'output;</li>
+        <li>la lista di controllo sulla sicurezza della dispensa verificata punto per punto.</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Progetto</th><th>Contenuto minimo</th></tr></thead>
+          <tbody>
+            <tr><td><b>Biblioteca scolastica</b></td><td>Libri, utenti, prestiti; un libro in prestito non è prenotabile; elenco dei prestiti scaduti</td></tr>
+            <tr><td><b>Prenotazione laboratori</b></td><td>Laboratori, docenti, prenotazioni per giorno e ora, controllo delle sovrapposizioni</td></tr>
+            <tr><td><b>Blog di classe</b></td><td>Articoli, autori, commenti con moderazione da parte del docente</td></tr>
+            <tr><td><b>Magazzino</b></td><td>Prodotti, categorie, movimenti di carico e scarico, avviso sotto la scorta minima</td></tr>
+            <tr><td><b>Bacheca annunci</b></td><td>Annunci con categoria e scadenza, ricerca, solo l'autore può modificare i propri annunci</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="blank-row">
+        <div class="blank">Progetto scelto e componenti del gruppo</div>
+        <div class="blank">Tabelle previste e loro relazioni</div>
+      </div>
+
+      <!-- ================================================================== -->
+      <h2>Parte L · Domande di verifica</h2>
+      <p>Rispondi per iscritto, in poche righe, con un esempio quando serve.</p>
+      <ol>
+        <li>Spiega la differenza tra codice eseguito lato client e lato server, con un esempio di qualcosa che può fare solo uno dei due.</li>
+        <li>Descrivi passo per passo che cosa succede da quando l'utente scrive l'indirizzo di una pagina <code>.php</code> a quando la vede nel browser.</li>
+        <li>Perché nel sorgente della pagina ricevuta dal browser non compare il codice PHP?</li>
+        <li>Quando conviene usare il metodo GET e quando POST? Fai un esempio per ciascuno.</li>
+        <li>Che differenza c'è tra <code>==</code> e <code>===</code> in PHP? Qual è il risultato di <code>"10" == 10</code> e di <code>"10" === 10</code>?</li>
+        <li>Perché HTTP è detto <em>stateless</em>? Come fanno i siti a ricordarsi che un utente ha fatto il login?</li>
+        <li>Confronta cookie e sessioni: dove sono memorizzati i dati e perché le sessioni sono più adatte per il login?</li>
+        <li>Che cos'è la SQL injection? Mostra una query vulnerabile e spiega come la si corregge.</li>
+        <li>Che cos'è un attacco XSS e quale funzione PHP lo previene?</li>
+        <li>Perché le password non vanno salvate in chiaro? Quali funzioni PHP si usano per gestirle?</li>
+        <li>Che cos'è il pattern Post/Redirect/Get e quale problema risolve?</li>
+        <li>Che cosa significano le lettere dell'acronimo CRUD e a quali istruzioni SQL corrispondono?</li>
+      </ol>
+
+      <div class="callout ok">
+        <span class="ico" aria-hidden="true">🧭</span>
+        <p><b>Consiglio</b>Quando una pagina non fa quello che ti aspetti, non tirare a indovinare: stampa con <code>var_dump($_POST)</code> o <code>var_dump($_SESSION)</code> che cosa arriva davvero, e per le query prova la stessa istruzione in phpMyAdmin. La tabella «Errori comuni e debug» della dispensa copre quasi tutti i messaggi che incontrerai.</p>
+      </div>
+
+      <nav class="doc-nav" aria-label="Navigazione tra le dispense">
+        <a href="php-lato-server.html">
+          <span class="dir">Indietro</span>
+          <span class="ttl">Dispensa 1: PHP e la programmazione lato server</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Avanti</span>
+          <span class="ttl">Tutti gli argomenti del quinto anno →</span>
+        </a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+</body>
+</html>

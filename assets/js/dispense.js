@@ -83,7 +83,12 @@ window.DISPENSE = {
       { num: '2', t: 'Applicazioni web, modello client-server e applicazioni di rete', f: 'applicazioni-di-rete.html' }
     ],
     laboratorio: [
-      { num: '0', t: 'Ripasso HTML', f: 'ripasso-html.html' }
+      { num: '0', t: 'Ripasso HTML', f: 'ripasso-html.html' },
+      { num: '1', t: 'PHP e la programmazione lato server', f: 'php-lato-server.html',
+        esercitazioni: [
+          { t: 'Esercizi su PHP lato server', f: 'php-esercizi.html' }
+        ]
+      }
     ]
   }
 
