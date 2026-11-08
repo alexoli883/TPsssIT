@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esercizi di ripasso 1-3 · TPSsssIT</title>
+<meta name="description" content="Esercitazione di Python verso la verifica: 16 esercizi di ripasso su variabili e input, condizioni e iterazioni, con prevedi l'output, programmi, ricerca degli errori e sfide.">
+<meta name="theme-color" content="#08172A">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="../assets/js/theme.js"></script>
+<style>
+  /* --- livello di difficoltà accanto al titolo dell'esercizio --- */
+  .ex-lvl { font-size:.85rem; font-weight:400; letter-spacing:.12em; color:var(--gold); }
+  /* --- lezione di riferimento sotto il titolo dell'esercizio --- */
+  .ex-ref { margin-top:-.4rem; font-size:.9rem; font-style:italic; color:var(--muted); }
+</style>
+</head>
+<body class="page">
+
+<div class="read-progress"></div>
+<a class="skip-link" href="#main">Vai al contenuto</a>
+<div class="bg-aura" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path class="py-body" d="M20 8.2C13 8.2 8.5 10 8.5 13.5S13 17.5 16 17.5 23.5 18.6 23.5 22 19 26.8 12 26.8 5.5 25.5 5.5 25.5"/><ellipse class="py-head" cx="21.5" cy="8" rx="4.2" ry="3.3"/><circle class="py-eye" cx="22.6" cy="6.9" r="1"/><path class="py-tongue" d="M25.6 8.4h2.6l1.4-1.3M28.2 8.4l1.4 1.3"/></svg></span>
+      <span class="brand-text"><b>TPS<span class="hiss" aria-hidden="true"><i>s</i><i>s</i><i>s</i></span>IT</b></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../terzo-anno/index.html">Terzo anno</a></li>
+      <li><a href="index.html" class="is-active">Quarto anno</a></li>
+      <li><a href="../quinto-anno/index.html">Quinto anno</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="theme-toggle" type="button" aria-label="Passa al tema chiaro" aria-pressed="false">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="nav-burger" type="button" aria-label="Apri il menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="page-hero" style="padding-bottom:0">
+    <ul class="breadcrumb">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Quarto anno</a></li>
+      <li aria-current="page">Esercizi di ripasso 1-3</li>
+    </ul>
+    <h1>Esercizi di ripasso 1-3</h1>
+    <p class="lead">Python · Verso la verifica: variabili e input, condizioni, iterazioni</p>
+    <div class="stats-row">
+<span class="stat-pill">Esercitazione della dispensa <b>3</b></span>
+<span class="stat-pill">Esercizi <b>16</b></span>
+<span class="stat-pill">Tipo <b>Laboratorio</b></span>
+    </div>
+  </section>
+
+  <div class="doc-layout">
+
+    <nav class="toc" id="toc" aria-label="Indice della dispensa">
+      <p class="toc-title">In questa scheda</p>
+    </nav>
+
+    <article class="prose">
+
+<div class="sheet-head">
+<span>Nome e cognome</span><span>Classe</span><span>Data</span>
+</div>
+<div class="callout info">
+<span class="ico" aria-hidden="true">💡</span>
+<div class="cbody">
+<b>Prima di iniziare</b>
+<p>Salva ogni programma in un file con un nome chiaro (<code>r01.py</code>, <code>r02.py</code> ...) e provalo con <strong>valori diversi da quelli dell'esempio</strong>, compresi i <strong>casi limite</strong> (zero, valori ai confini degli intervalli, un solo elemento). Negli esempi di esecuzione il testo dopo i due punti è quello scritto dall'utente.</p>
+<p>Livello: ★☆☆ base · ★★☆ intermedio · ★★★ sfida. <strong>Percorso minimo (circa 2 ore): esercizi 1-10 e 13.</strong> Gli altri sono per chi finisce prima; chi non termina in classe completa a casa.</p>
+</div>
+</div>
+<p>Per ogni esercizio è indicata la lezione di riferimento: se sei in difficoltà, rileggi quella parte della dispensa.</p>
+<div class="callout ok">
+<span class="ico" aria-hidden="true">🧭</span>
+<div class="cbody">
+<b>Promemoria dalle prime tre dispense</b>
+<p><strong>Numeri e stringhe</strong>: <code>/</code> dà sempre un <code>float</code>, <code>//</code> divisione intera, <code>%</code> resto, <code>**</code> potenza. <code>input()</code> <strong>restituisce sempre una stringa</strong>: converti con <code>int()</code> o <code>float()</code>. F-string: <code>f"{x:.2f}"</code> per due decimali.</p>
+<p><strong>Condizioni</strong>: <code>if / elif / else</code>; <code>and</code>, <code>or</code>, <code>not</code>; si esegue <strong>solo il primo ramo vero</strong> di una catena. <code>==</code> confronta, <code>=</code> assegna.</p>
+<p><strong>Iterazioni</strong>: <code>while</code> quando non sai quante volte; <code>for</code> con <code>range(inizio, fine, passo)</code> (fine <strong>escluso</strong>). Contatore, accumulatore, sentinella; <code>break</code> e <code>continue</code>.</p>
+<p><strong>Metodo di lavoro</strong>: leggi bene il testo, scegli un caso di prova e calcola <strong>a mano</strong> il risultato atteso, scrivi il programma, confronta.</p>
+</div>
+</div>
+<h2>Parte A · Prevedi l'output</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 1</span><span class="ex-sep"> · </span>Che cosa stampa? <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p>Senza eseguire il codice, scrivi cosa stampa ciascun frammento; poi verifica con Python e correggi dove ti sei sbagliato. Per i cicli aiutati con una tabella di traccia.</p>
+<div class="table-wrap">
+<table class="predict">
+<thead><tr><th></th><th>Codice</th><th>Output previsto</th></tr></thead>
+<tbody>
+<tr><td>a</td><td><pre>print(7 / 2, 7 // 2, 7 % 2, 2 ** 3)</pre></td><td></td></tr>
+<tr><td>b</td><td><pre>nome = "Anna"
+print(nome * 2 + "!", len(nome), nome[-1])</pre></td><td></td></tr>
+<tr><td>c</td><td><pre>x = "5"
+y = 3
+print(x * y)
+print(int(x) * y)</pre></td><td></td></tr>
+<tr><td>d</td><td><pre>print(0.1 + 0.2 == 0.3)
+print(3 &gt; 2 and not 1 &gt; 2)
+print("a" &lt; "b" or 5 == 6)</pre></td><td></td></tr>
+<tr><td>e</td><td><pre>x = 15
+if x % 3 == 0 and x % 5 == 0:
+    print("A")
+elif x % 3 == 0:
+    print("B")
+else:
+    print("C")
+print("D")</pre></td><td></td></tr>
+<tr><td>f</td><td><pre>for i in range(2, 10, 3):
+    print(i)</pre></td><td></td></tr>
+<tr><td>g</td><td><pre>i = 1
+while i &lt; 20:
+    i *= 2
+print(i)</pre></td><td></td></tr>
+<tr><td>h</td><td><pre>for i in range(2):
+    for j in range(3):
+        print(i, j)</pre></td><td></td></tr>
+<tr><td>i</td><td><pre>totale = 0
+for n in range(1, 6):
+    if n % 2 == 0:
+        continue
+    totale += n
+print(totale)</pre></td><td></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<h2>Parte B · Programmi</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 2</span><span class="ex-sep"> · </span>Da secondi a ore, minuti e secondi <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p class="ex-ref">(lezione 1)</p>
+<p>Leggi un numero <strong>intero di secondi</strong> e stampa quante <strong>ore, minuti e secondi</strong> sono (per esempio 3725 secondi = 1 ore, 2 minuti, 5 secondi). Usa <code>//</code> e <code>%</code>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Secondi: <span class="in">3725</span>
+1 ore, 2 minuti, 5 secondi</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 3</span><span class="ex-sep"> · </span>Prezzo scontato <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p class="ex-ref">(lezioni 1-2)</p>
+<p>Leggi il <strong>prezzo</strong> di un prodotto (con decimali) e la <strong>percentuale di sconto</strong> (intero). Se lo sconto non è compreso tra 0 e 100 stampa <strong>Sconto non valido</strong>; altrimenti stampa l'importo risparmiato e il prezzo finale, entrambi con <strong>2 decimali</strong>.</p>
+<p class="run-title">Esempi di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Prezzo: <span class="in">80</span>
+Sconto %: <span class="in">15</span>
+Risparmio: 12.00
+Prezzo finale: 68.00
+<span class="gap"></span>Prezzo: <span class="in">80</span>
+Sconto %: <span class="in">120</span>
+Sconto non valido</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 4</span><span class="ex-sep"> · </span>Pari o dispari, positivo o negativo <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p class="ex-ref">(lezione 2)</p>
+<p>Leggi un numero intero e stampa se è <strong>pari</strong> o <strong>dispari</strong> e se è <strong>positivo</strong>, <strong>negativo</strong> o <strong>zero</strong>, nel formato dell'esempio.</p>
+<p class="run-title">Esempi di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero: <span class="in">7</span>
+7 è dispari e positivo
+<span class="gap"></span>Numero: <span class="in">-4</span>
+-4 è pari e negativo</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 5</span><span class="ex-sep"> · </span>Che triangolo è? <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezione 2)</p>
+<p>Leggi le <strong>lunghezze di tre lati</strong>. Se non formano un triangolo (ogni lato deve essere <strong>minore della somma degli altri due</strong>) stampa <strong>Non è un triangolo</strong>. Altrimenti stampa se è <strong>equilatero</strong>, <strong>isoscele</strong> o <strong>scaleno</strong>.</p>
+<p class="run-title">Esempi di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Lato a: <span class="in">3</span>
+Lato b: <span class="in">3</span>
+Lato c: <span class="in">3</span>
+Equilatero
+<span class="gap"></span>Lato a: <span class="in">3</span>
+Lato b: <span class="in">4</span>
+Lato c: <span class="in">5</span>
+Scaleno
+<span class="gap"></span>Lato a: <span class="in">1</span>
+Lato b: <span class="in">2</span>
+Lato c: <span class="in">5</span>
+Non è un triangolo</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 6</span><span class="ex-sep"> · </span>Tabellina <span class="ex-lvl" title="Difficoltà: base">★☆☆</span></h3>
+<p class="ex-ref">(lezione 3)</p>
+<p>Leggi un numero intero e stampa la sua <strong>tabellina</strong> da 1 a 10, nel formato dell'esempio.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Tabellina del: <span class="in">7</span>
+7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+7 x 10 = 70</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 7</span><span class="ex-sep"> · </span>FizzBuzz <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezioni 2-3)</p>
+<p>Leggi un numero <code>N</code> e stampa i numeri da 1 a <code>N</code>, uno per riga, ma: se il numero è <strong>multiplo di 3</strong> stampa <strong>Fizz</strong>; se è <strong>multiplo di 5</strong> stampa <strong>Buzz</strong>; se è multiplo di <strong>entrambi</strong> stampa <strong>FizzBuzz</strong>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Fino a: <span class="in">15</span>
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 8</span><span class="ex-sep"> · </span>Somma e media con sentinella <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezione 3)</p>
+<p>Leggi numeri (anche decimali) finché l'utente non scrive <strong>0</strong>. Alla fine stampa <strong>quanti</strong> numeri sono stati inseriti (lo 0 non conta), la loro <strong>somma</strong> e la <strong>media</strong> con 2 decimali. Se non è stato inserito nessun numero stampa <strong>Nessun numero inserito</strong>.</p>
+<p class="run-title">Esempi di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero (0 per finire): <span class="in">4</span>
+Numero (0 per finire): <span class="in">7.5</span>
+Numero (0 per finire): <span class="in">2</span>
+Numero (0 per finire): <span class="in">0</span>
+Quanti: 3
+Somma: 13.5
+Media: 4.50
+<span class="gap"></span>Numero (0 per finire): <span class="in">0</span>
+Nessun numero inserito</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 9</span><span class="ex-sep"> · </span>Età valida <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezioni 2-3)</p>
+<p>Chiedi l'<strong>età</strong> finché l'utente non inserisce un valore <strong>intero compreso tra 0 e 120</strong>; ad ogni tentativo errato stampa <strong>Età non valida</strong>. Poi, in base all'età valida, stampa <strong>minorenne</strong> (meno di 18), <strong>adulto</strong> (da 18 a 64) oppure <strong>senior</strong> (65 o più).</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Età: <span class="in">150</span>
+Età non valida
+Età: <span class="in">-3</span>
+Età non valida
+Età: <span class="in">40</span>
+adulto</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 10</span><span class="ex-sep"> · </span>Triangolo di numeri <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezione 3)</p>
+<p>Leggi un numero <code>N</code> e stampa un triangolo di <code>N</code> righe: la riga <code>i</code> contiene i numeri da 1 a <code>i</code> separati da spazio. Usa <strong>due cicli annidati</strong>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Righe: <span class="in">4</span>
+1
+1 2
+1 2 3
+1 2 3 4</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 11</span><span class="ex-sep"> · </span>Somma delle cifre <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezioni 1-3)</p>
+<p>Leggi un numero intero <strong>positivo</strong> e stampa la <strong>somma delle sue cifre</strong> (per esempio 4712 → 4+7+1+2 = 14). Suggerimento: <code>% 10</code> dà l'ultima cifra, <code>// 10</code> la elimina; usa un <code>while</code>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero: <span class="in">4712</span>
+Somma delle cifre: 14</code></pre></div>
+</section>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 12</span><span class="ex-sep"> · </span>Anni bisestili in un intervallo <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p class="ex-ref">(lezioni 2-3)</p>
+<p>Leggi due anni, <strong>inizio</strong> e <strong>fine</strong>, e stampa tutti gli <strong>anni bisestili</strong> compresi tra i due (estremi inclusi), uno per riga, poi quanti sono. Un anno è bisestile se è divisibile per 4 ma non per 100, <strong>oppure</strong> se è divisibile per 400.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Anno iniziale: <span class="in">1896</span>
+Anno finale: <span class="in">1912</span>
+1896
+1904
+1908
+1912
+Bisestili: 4</code></pre></div>
+</section>
+<h2>Parte C · Trova l'errore</h2>
+<section class="ex">
+<h3><span class="ex-n">Esercizio 13</span><span class="ex-sep"> · </span>Correggi i programmi <span class="ex-lvl" title="Difficoltà: intermedio">★★☆</span></h3>
+<p>Digita ciascun programma ed eseguilo (con i valori indicati). Scrivi <strong>(1)</strong> che cosa succede (messaggio di errore <strong>oppure</strong> risultato sbagliato <strong>oppure</strong> il programma non finisce) e <strong>(2)</strong> la correzione. Attenzione: tre programmi non danno nessun messaggio ma sono sbagliati, e uno non termina mai (<strong>Ctrl+C</strong> per fermarlo).</p>
+<p class="prog-label">Programma a (vuole 17) · valori da digitare: 16</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-fn">input</span>(<span class="tok-str">"Età: "</span>)
+<span class="tok-fn">print</span>(<span class="tok-str">"Tra un anno avrai"</span>, eta + <span class="tok-num">1</span>)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma b · valori da digitare: 5</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>x = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Numero: "</span>))
+<span class="tok-key">if</span> x = <span class="tok-num">5</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Cinque"</span>)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma c (la media di 6 e 8 è 7) · valori da digitare: 6, 8</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>a = <span class="tok-fn">float</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Primo voto: "</span>))
+b = <span class="tok-fn">float</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Secondo voto: "</span>))
+media = a + b / <span class="tok-num">2</span>
+<span class="tok-fn">print</span>(<span class="tok-str">"Media:"</span>, media)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma d (10 anni NON è adulto) · valori da digitare: 10</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>eta = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Età: "</span>))
+<span class="tok-key">if</span> eta &gt;= <span class="tok-num">18</span> <span class="tok-key">or</span> eta &lt; <span class="tok-num">65</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Adulto lavoratore"</span>)
+<span class="tok-key">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Non rientra"</span>)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma e (la somma da 1 a 10 è 55)</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>totale = <span class="tok-num">0</span>
+<span class="tok-key">for</span> n <span class="tok-key">in</span> <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">10</span>):
+    totale += n
+<span class="tok-fn">print</span>(<span class="tok-str">"Somma da 1 a 10:"</span>, totale)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+<p class="prog-label">Programma f (vuole stampare 1, 2, 3, 4, 5)</p>
+<div class="code-block"><div class="code-head"><span class="lang">Python</span></div><pre><code>i = <span class="tok-num">1</span>
+<span class="tok-key">while</span> i &lt;= <span class="tok-num">5</span>:
+    <span class="tok-fn">print</span>(i)</code></pre></div>
+<div class="blank-row"><div class="blank">Che cosa succede</div><div class="blank">Correzione</div></div>
+</section>
+<h2>Parte D · Sfide</h2>
+<section class="ex is-sfida">
+<h3><span class="ex-n">Esercizio 14</span><span class="ex-sep"> · </span>Indovina il numero (5 tentativi) <span class="ex-lvl" title="Difficoltà: sfida">★★★</span></h3>
+<p class="ex-ref">(lezioni 2-3)</p>
+<p>Il numero segreto è <strong>42</strong> (scritto nel programma). L'utente ha <strong>al massimo 5 tentativi</strong>: ad ogni tentativo stampa <strong>Troppo basso</strong> o <strong>Troppo alto</strong>. Se indovina, stampa <strong>Indovinato in N tentativi</strong> e si ferma; se finisce i tentativi stampa <strong>Hai perso, il numero era 42</strong>.</p>
+<p class="run-title">Esempi di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Tentativo 1: <span class="in">50</span>
+Troppo alto
+Tentativo 2: <span class="in">30</span>
+Troppo basso
+Tentativo 3: <span class="in">42</span>
+Indovinato in 3 tentativi
+<span class="gap"></span>Tentativo 1: <span class="in">1</span>
+Troppo basso
+Tentativo 2: <span class="in">2</span>
+Troppo basso
+Tentativo 3: <span class="in">3</span>
+Troppo basso
+Tentativo 4: <span class="in">4</span>
+Troppo basso
+Tentativo 5: <span class="in">5</span>
+Troppo basso
+Hai perso, il numero era 42</code></pre></div>
+</section>
+<section class="ex is-sfida">
+<h3><span class="ex-n">Esercizio 15</span><span class="ex-sep"> · </span>Sequenza di Collatz <span class="ex-lvl" title="Difficoltà: sfida">★★★</span></h3>
+<p class="ex-ref">(lezioni 2-3)</p>
+<p>Leggi un intero positivo <code>N</code>. Ripeti finché <code>N</code> non diventa 1: se <code>N</code> è <strong>pari</strong> dividilo per 2, se è <strong>dispari</strong> moltiplicalo per 3 e aggiungi 1. Stampa ogni valore (compreso quello iniziale e l'1 finale) e alla fine il <strong>numero di passaggi</strong>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Numero: <span class="in">6</span>
+6
+3
+10
+5
+16
+8
+4
+2
+1
+Passaggi: 8</code></pre></div>
+</section>
+<section class="ex is-sfida">
+<h3><span class="ex-n">Esercizio 16</span><span class="ex-sep"> · </span>Numeri perfetti <span class="ex-lvl" title="Difficoltà: sfida">★★★</span></h3>
+<p class="ex-ref">(lezione 3)</p>
+<p>Un numero è <strong>perfetto</strong> se è uguale alla <strong>somma dei suoi divisori</strong> escluso se stesso (il 6 è perfetto: 1 + 2 + 3 = 6). Leggi <code>N</code> e stampa tutti i numeri perfetti da 2 a <code>N</code>. Usa <strong>due cicli annidati</strong>.</p>
+<p class="run-title">Esempio di esecuzione</p>
+<div class="code-block run"><div class="code-head"><span class="lang">python</span><span class="run-legend"><span class="in">evidenziato</span> = scritto dall'utente</span></div><pre><code>Fino a: <span class="in">30</span>
+6 è perfetto
+28 è perfetto</code></pre></div>
+</section>
+
+<nav class="doc-nav" aria-label="Navigazione tra le dispense">
+<a href="python-esercizi-3.html">
+<span class="dir">Indietro</span>
+<span class="ttl">Esercitazione: scheda di esercizi 3</span>
+</a>
+<a class="next" href="python-liste.html">
+<span class="dir">Avanti</span>
+<span class="ttl">Dispensa: Le liste →</span>
+</a>
+</nav>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-bottom" style="margin-top:0;border-top:0">
+    <span>Prof. Alessandro Olivieri · ITT U. Midossi</span>
+    <span><a href="../index.html">Torna alla home</a></span>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Torna in cima">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../assets/js/app.js"></script>
+
+</body>
+</html>
