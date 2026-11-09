@@ -65,7 +65,8 @@ window.DISPENSE = {
       },
       { num: '3', t: 'Le iterazioni', f: 'python-iterazioni.html',
         esercitazioni: [
-          { t: 'Scheda di esercizi 3', f: 'python-esercizi-3.html' }
+          { t: 'Scheda di esercizi 3', f: 'python-esercizi-3.html' },
+          { t: 'Esercizi di ripasso 1-3: verso la verifica', f: 'python-ripasso-1-3.html' }
         ]
       },
       { num: '4', t: 'Le liste', f: 'python-liste.html',
